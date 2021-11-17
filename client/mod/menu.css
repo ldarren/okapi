@@ -1,0 +1,21 @@
+menu.toolbar {
+	list-style-type: none;
+}
+menu.toolbar li{
+	margin-left: var(--xxs)
+}
+menu.toolbar button{
+	background: var(--color-bg-2);
+	color: var(--color-fg-1);
+	padding: var(--xxs);
+	font-size: 1.4em;
+	border: none;
+}
+menu.toolbar button:hover{
+	color: var(--color-bg-2);
+	background: var(--color-fg-1);
+}
+menu.toolbar button:active{
+	color: var(--color-bg-1);
+	background: var(--color-fg-2);
+}

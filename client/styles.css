@@ -1,0 +1,46 @@
+:root{
+	--color-bg-1:#2D2424;
+	--color-bg-2:#5C3D2E;
+	--color-fg-1:#E0C097;
+	--color-fg-2:#B85C38;
+	--xxl:256px;
+	--xl:128px;
+	--l:64px;
+	--m:32px;
+	--s:16px;
+	--xs:8px;
+	--xxs:4px;
+}
+html{
+	font-size:62.5%;
+    font-family:"HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",Helvetica,Arial,"Lucida Grande","Lucida Sans Unicode",Tahoma,sans-serif;
+	color:var(--color-fg-1);
+}
+html,body{
+	height:100%;
+}
+*{
+	box-sizing: border-box;
+	padding:0;
+	margin:0;
+}
+.hidden{ display:none !important; }
+.truncate{ text-overflow: ellipsis; }
+.overflow-auto{ overflow-y: auto; overflow-x: auto; }
+.bg-1{ background:var(--color-bg-1); }
+.bg-2{ background:var(--color-bg-2); }
+.fg-1{ color:var(--color-fg-1); }
+.fg-2{ color:var(--color-fg-2); }
+.flex-col{ display:flex; flex-direction:column; }
+.flex-row{ display:flex; flex-direction:row; }
+.size-fix-xxl{ flex: 0 0 var(--xxl); }
+.size-fix-xl{ flex: 0 0 var(--xl); }
+.size-fix-l{ flex: 0 0 var(--l); }
+.size-fix-m{ flex: 0 0 var(--m); }
+.size-fix-s{ flex: 0 0 var(--s); }
+.size-fix-xs{ flex: 0 0 var(--xs); }
+.size-fix-xxs{ flex: 0 0 var(--xxs); }
+.size-auto{ flex: 1 1 auto; }
+.align-center{ align-self: center; }
+.p-s{ padding: var(--s); }
+.p-xs{ padding: var(--xs); }

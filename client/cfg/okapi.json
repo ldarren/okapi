@@ -1,0 +1,25 @@
+[
+	["p/View", "view", [
+		["options", "map", {"el": "body"}],
+		["p/View", "view", [
+			["options", "map", {"el": "section"}],
+			["p/View", "view", [
+				["options", "map", {"el": "nav"}],
+				["menu", "view", [
+					["options", "map", {"tag":"menu", "class": "toolbar flex-row p-xxs" }],
+					["tpl", "file", "menu.asp" ],
+					["css", "file", "menu.css" ],
+					["list", "list", [
+						{"id":"add", "name":"+"},
+						{"id":"del", "name":"-"}
+					]]
+				]],
+				["tree", "view", [
+					["options", "map", {"tag":"ul", "class":"tree"}],
+					["tpl", "file", "tree.asp" ],
+					["css", "file", "tree.css" ]
+				]]
+			]]
+		]]
+	]]
+]
