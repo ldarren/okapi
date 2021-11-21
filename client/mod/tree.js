@@ -1,10 +1,10 @@
 return {
 	deps:{
-		tpl:'file',
-		data:'map'
+		node:'view',
+		tree: 'Sapling',
 	},
-	create(deps,params){
-		this.el.innerHTML=deps.tpl(deps.data)
+	create(deps, params){
+		
 	},
 	events:{
 		'click .tree_label':function(e, target){

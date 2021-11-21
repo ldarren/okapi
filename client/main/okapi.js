@@ -15,6 +15,7 @@ pico.run({
 	},
 	paths:{
 		'~': './mod/',
+		ext: './ext/',
 		root: './',
 		main: './main/',
 		cfg: './cfg/',

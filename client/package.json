@@ -1,6 +1,6 @@
 {
   "name": "okapi-fe",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "api collaboration toolset",
   "main": "index.js",
   "scripts": {
@@ -16,8 +16,8 @@
   "license": "MIT",
   "dependencies": {
     "lean-wrap": "^0.3.5",
-    "pico-client": "^0.7.5",
+    "pico-client": "^0.7.6",
     "pico-common": "^0.14.21",
-    "pojs": "^0.7.2"
+    "pojs": "^0.8.0"
   }
 }

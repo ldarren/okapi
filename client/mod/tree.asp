@@ -1,9 +1,9 @@
 <li>
-<input type="checkbox" checked="checked" id="c1" />
+<input type="checkbox" checked id="c1" />
 <label class="tree_label" for="c1">Level 0</label>
 <ul>
   <li>
-	<input type="checkbox" checked="checked" id="c2" />
+	<input type="checkbox" checked id="c2" />
 	<label for="c2" class="tree_label">Level 1</label>
 	<ul>
 	  <li><span class="tree_label">Level 2</span></li>
@@ -35,7 +35,7 @@
 	<input type="checkbox" id="c6" />
 	<label for="c6" class="tree_label">Level 1</label>
 	<ul>
-	  <li><span class="tree_label">Level 2</span></li>
+	  <li><span class="tree_label tree_custom">Level 2</span></li>
 	</ul>
   </li>
   <li>

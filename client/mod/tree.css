@@ -76,7 +76,7 @@ label.tree_label:before {
   left: -.5em;
   display: block;
   width: 0;
-  border-left: 1px solid #777;
+  border-left: 1px solid var(--color-fg-1);
   content: "";
   }
 
@@ -87,8 +87,8 @@ label.tree_label:before {
   display: block;
   height: 0.5em;
   width: 1em;
-  border-bottom: 1px solid #777;
-  border-left: 1px solid #777;
+  border-bottom: 1px solid var(--color-fg-1);
+  border-left: 1px solid var(--color-fg-1);
   border-radius: 0 0 0 .3em;
   content: '';
   }
@@ -97,8 +97,8 @@ label.tree_label:after { border-bottom: 0; }
 
 :checked ~ label.tree_label:after {
   border-radius: 0 .3em 0 0;
-  border-top: 1px solid #777;
-  border-right: 1px solid #777;
+  border-top: 1px solid var(--color-fg-1);
+  border-right: 1px solid var(--color-fg-1);
   border-bottom: 0;
   border-left: 0;
   bottom: 0;
