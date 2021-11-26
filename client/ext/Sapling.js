@@ -19,9 +19,9 @@ function get(ctx){
 }
 
 function set(ctx){
-	if (!ctx.name || !ctx.tree) return
+	if (!ctx.name || !ctx.root) return
 	const key = getKey(ctx.name)
-	storage.setItem(key, JSON.stringify(ctx.tree.join()))
+	storage.setItem(key, JSON.stringify(ctx.root.join()))
 }
 
 function Sapling(seed, name, opt){
@@ -32,7 +32,7 @@ function Sapling(seed, name, opt){
 	this.init.apply(this, Array.prototype.slice.call(arguments, 3))
 
 	const cache = get(this)
-	this.tree = new SNode(this, cache || seed)
+	this.root = new SNode(this, cache || seed)
 	set(this)
 }
 
@@ -41,14 +41,14 @@ Sapling.prototype={
 	init(spec){},
 	fini(){},
 
-	insert(path, node, index, tree = this.tree){
+	insert(path, node, index, tree = this.root){
 		const host = tree.find(path)
 		if (!host) return 0
 		host.insert(index, node)
 		set(this)
 		return 1
 	},
-	remove(path, index, tree = this.tree){
+	remove(path, index, tree = this.root){
 		let node
 		if (null == index){
 			node = tree.find(path)
@@ -62,12 +62,12 @@ Sapling.prototype={
 		set(this)
 		return node
 	},
-	move(from, to, index, tree = this.tree){
+	move(from, to, index, tree = this.root){
 		const node = this.remove(from, null, tree)
 		this.insert(to, node, index, tree)
 		set(this)
 	},
-	update(path, data, tree = this.tree){
+	update(path, data, tree = this.root){
 		const node = tree.find(path)
 		if (!node) return
 		node.update(data)

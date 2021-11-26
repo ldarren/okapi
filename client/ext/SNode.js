@@ -42,3 +42,5 @@ SNode.prototype = {
 		Object.assign(this.data, data)
 	},
 }
+
+return SNode

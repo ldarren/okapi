@@ -1,10 +1,11 @@
 return {
 	deps:{
+		tree:'Sapling',
 		node:'view',
-		tree: 'Sapling',
 	},
 	create(deps, params){
-		
+		// get [node, view] from parent
+		this.spawn(deps.node, null, [['snode','SNode',deps.tree.root]])
 	},
 	events:{
 		'click .tree_label':function(e, target){

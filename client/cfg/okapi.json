@@ -1,11 +1,11 @@
 [
 	["Sapling", "type", "ext/Sapling", [
-		"data", 1, "options"
+		"data", 1
 	]],
 	["p/View", "view", [
 		["options", "map", {"el": "body"}],
 		["tree", "Sapling", [
-			["data","list",[
+			["data","list",["root", {},[
 				["blu", {}, [
 					["api1", {}],
 					["api2", {}],
@@ -22,7 +22,7 @@
 						["api8", {}]
 					]]
 				]]
-			]]
+			]]]
 		]],
 		["p/View", "view", [
 			["options", "map", {"el": "section"}],
@@ -41,18 +41,12 @@
 				]],
 				["tree", "view", [
 					["options", "map", {"tag":"ul", "class":"tree"}],
-					["tpl", "file", "tree.asp"],
 					["css", "file", "tree.css"],
 					["tree", "ref", "tree"],
 					["node", "view", [
 						["options", "map", {"tag":"li"}],
-						["tpl", "file", "node.asp"],
-						["tree", "ref", "tree"]
-					]],
-					["leaf", "view", [
-						["options", "map", {"tag":"li"}],
-						["tpl", "file", "leaf.asp"],
-						["tree", "ref", "tree"]
+						["tplNode", "file", "node.asp"],
+						["tplLeaf", "file", "leaf.asp"]
 					]]
 				]]
 			]]
