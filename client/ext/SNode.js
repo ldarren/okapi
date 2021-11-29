@@ -31,15 +31,19 @@ SNode.prototype = {
 	},
 	insert(index, tree){
 		if (!this.child) return
-		if (null == index) this.child.push(new SNode(this, tree))
-		else this.child.splice(index, 0, new SNode(this, tree))
+		const snode = new SNode(this, tree)
+		if (null == index) this.child.push(snode)
+		else this.child.splice(index, 0, snode)
+		this.callback.trigger('add', snode)
 	},
 	remove(){
 		const index = this.host.findIndex(this.id)
 		this.host.child.splice(index, 1)
+		this.callback.trigger('del')
 	},
 	update(data){
 		Object.assign(this.data, data)
+		this.callback.trigger('update')
 	},
 }
 

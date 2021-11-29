@@ -5,21 +5,21 @@
 	["p/View", "view", [
 		["options", "map", {"el": "body"}],
 		["tree", "Sapling", [
-			["data","list",["root", {},[
-				["blu", {}, [
-					["api1", {}],
-					["api2", {}],
-					["3rd", {}, [
-						["api3", {}],
-						["api4", {}]
+			["data","list",["root", {"name":"root"},[
+				["blu", {"name":"blu"}, [
+					["api1", {"name":"api1"}],
+					["api2", {"name":"api2"}],
+					["3rd", {"name":"3rd","checked":1}, [
+						["api3", {"name":"api3"}],
+						["api4", {"name":"api4"}]
 					]]
 				]],
-				["Circles.Life", {}, [
-					["api5", {}],
-					["api6", {"type":"highlight"}],
-					["3rd", {}, [
-						["api7", {}],
-						["api8", {}]
+				["Circles.Life", {"name":"Circles.Life", "checked":1}, [
+					["api5", {"name":"api5"}],
+					["api6", {"name":"api6"}],
+					["4th", {"name":"4th"}, [
+						["api7", {"name":"api7"}],
+						["api8", {"name":"api8"}]
 					]]
 				]]
 			]]]

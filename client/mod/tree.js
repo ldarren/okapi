@@ -1,4 +1,13 @@
+function getNodeId(ele){
+	const id = ele.id
+	if (id) return id
+	const sib = ele.previousElementSibling
+	if (!sib) return
+	return sib.id
+}
+
 return {
+	signals: ['tree_sel'],
 	deps:{
 		tree:'Sapling',
 		node:'view',
@@ -9,9 +18,11 @@ return {
 	},
 	events:{
 		'click .tree_label':function(e, target){
-			this.el.querySelectorAll('.sel').forEach(ele => ele.classList.remove('sel'))
-			target.classList.add('sel')
-			console.log('click', target.textContent)
+			const id = getNodeId(target)
+			if (!id) return
+			this.signal.tree_sel(id).send([this.host])
 		}
-	}
+	},
+	slots: {
+	},
 }

@@ -1,4 +1,5 @@
 return {
+	signals: ['menu_add', 'menu_del'],
 	deps:{
 		tpl:'file',
 		data:'map',
@@ -9,7 +10,14 @@ return {
 	},
 	events:{
 		'click button':function(e, target){
-			console.log('click', target.textContent)
+			switch(target.id){
+			case 'add':
+				this.signal.menu_add().send(this.host)
+				break
+			case 'del':
+				this.signal.menu_del().send(this.host)
+				break
+			}
 		}
 	}
 }

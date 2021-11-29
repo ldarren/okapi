@@ -1,6 +1,6 @@
 {
   "name": "okapi-fe",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "api collaboration toolset",
   "main": "index.js",
   "scripts": {
