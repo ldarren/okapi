@@ -1,4 +1,12 @@
-var Callback=require('po/Callback')
+const Callback=require('po/Callback')
+
+function onChange(type, ...args){
+	switch(type){
+	case SNode.CHANGE:
+		this.host.callback.trigger(type, ...args)
+		break
+	}
+}
 
 function SNode(host, tree){
 	this.callback = new Callback
@@ -8,7 +16,13 @@ function SNode(host, tree){
 	if (tree[2]){
 		this.child = tree[2].map(node => new SNode(this, node) )
 	}
+	this.callback.on(SNode.CHANGE, onChange, this)
 }
+
+SNode.ADD = 'add'
+SNode.UPDATE = 'upd'
+SNode.DELETE = 'del'
+SNode.CHANGE = 'cha'
 
 SNode.prototype = {
 	join(){
@@ -34,16 +48,20 @@ SNode.prototype = {
 		const snode = new SNode(this, tree)
 		if (null == index) this.child.push(snode)
 		else this.child.splice(index, 0, snode)
-		this.callback.trigger('add', snode)
+		this.callback.trigger(SNode.ADD, snode)
+		this.host.callback.trigger(SNode.CHANGE, SNode.ADD, this)
 	},
 	remove(){
-		const index = this.host.findIndex(this.id)
-		this.host.child.splice(index, 1)
-		this.callback.trigger('del')
+		const host = this.host
+		const index = host.findIndex(this.id)
+		host.child.splice(index, 1)
+		this.callback.trigger(SNode.DELETE)
+		host.callback.trigger(SNode.CHANGE, SNode.DELETE, this)
 	},
 	update(data){
 		Object.assign(this.data, data)
-		this.callback.trigger('update')
+		this.callback.trigger(SNode.UPDATE)
+		this.host.callback.trigger(SNode.CHANGE, SNode.UPDATE, this)
 	},
 }
 

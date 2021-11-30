@@ -1,3 +1,6 @@
+const pStr = require('pico/str')
+const pObj = require('pico/obj')
+
 function populate(self, node, child){
 	if (!child) return
 	for(let i=0,c; (c=child[i]); i++){
@@ -9,7 +12,7 @@ function render(ctx, snode, node, tplNode, tplLeaf){
 	const child = snode.child
 	if (child){
 		ctx.el.innerHTML=tplNode(snode)
-		populate(ctx, node, child)	
+		populate(ctx, node, child)
 		ctx.setElement(ctx.el.getElementsByTagName('ul')[0])
 	}else{
 		ctx.el.innerHTML=tplLeaf(snode)
@@ -21,9 +24,19 @@ function sel(ctx, snode){
 	let cl
 	if (Array.isArray(child)) cl = ctx._el.getElementsByTagName('label')[0].classList
 	else cl = ctx._el.getElementsByTagName('span')[0].classList
-	
+
 	if (sel) cl.add('sel')
 	else cl.remove('sel')
+}
+function onAdd(type, snode) {
+	const deps = this.deps
+	const node = deps.node
+
+	switch(type){
+	case 'add':
+		this.spawn(node, null, [['snode', 'SNode', snode]])
+		break
+	}
 }
 
 return {
@@ -35,9 +48,7 @@ return {
 	},
 	create(deps, params){
 		render(this, deps.snode, deps.node, deps.tplNode, deps.tplLeaf)
-		deps.snode.callback.on('add', (type, snode) => {
-			this.spawn(deps.node, null, [['snode', 'SNode', snode]])
-		})
+		deps.snode.callback.on('add', onAdd, this)
 	},
 	remove(){
 		this.deps.snode.callback.off()
@@ -61,20 +72,21 @@ return {
 		},
 		menu_add(from, sender, type){
 			const snode = this.deps.snode
-			const data = snode.data
-			if (!data.sel) return true
-			console.log('^^^^^^add', type)
+			if (!pObj.dot(snode, ['data', 'sel'])) return true
+
+			const uuid = Date.now().toString(36) + ':' + pStr.rand()
+			const name = prompt('Name', '/users')
+			const tree = [uuid, {name}]
+
 			if (snode.child){
-				snode.insert(null, ['untitled', {name: 'new'}])
+				snode.insert(null, tree)
 			}
 			const host = snode.host
-			host.insert(null, ['untitled', {name: 'new'}])
+			host.insert(null, tree)
 		},
 		menu_del(from, sender, force){
 			const snode = this.deps.snode
-			const data = snode.data
-			if (!data.sel) return true
-			console.log('^^^^^^del', this.el.id, force)
+			if (!pObj.dot(snode, ['data', 'sel'])) return true
 			snode.remove()
 			this.remove()
 		}

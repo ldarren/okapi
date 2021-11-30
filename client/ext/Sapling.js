@@ -24,10 +24,19 @@ function set(ctx){
 	storage.setItem(key, JSON.stringify(ctx.root.join()))
 }
 
+function onChange(type, ...args){
+	switch(type){
+	case SNode.CHANGE:
+		set(this)
+		break
+	}
+}
+
 function Sapling(seed, name, opt){
 	opt = opt || {}
 	this.name = name
 	this.callback = new Callback
+	this.callback.on(SNode.CHANGE, onChange, this)
 
 	this.init.apply(this, Array.prototype.slice.call(arguments, 3))
 
@@ -45,7 +54,6 @@ Sapling.prototype={
 		const host = tree.find(path)
 		if (!host) return 0
 		host.insert(index, node)
-		set(this)
 		return 1
 	},
 	remove(path, index, tree = this.root){
@@ -53,25 +61,21 @@ Sapling.prototype={
 		if (null == index){
 			node = tree.find(path)
 		}else{
-			id = path[path.lenth - 1]
 			const host = tree.find(path)
 			node = host.getChild(index)
 		}
 		if (!node) return
 		node.remove()
-		set(this)
 		return node
 	},
 	move(from, to, index, tree = this.root){
 		const node = this.remove(from, null, tree)
 		this.insert(to, node, index, tree)
-		set(this)
 	},
 	update(path, data, tree = this.root){
 		const node = tree.find(path)
 		if (!node) return
 		node.update(data)
-		set(this)
 	},
 }
 

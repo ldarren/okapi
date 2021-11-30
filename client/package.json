@@ -1,10 +1,12 @@
 {
   "name": "okapi-fe",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "api collaboration toolset",
   "main": "index.js",
   "scripts": {
-    "test": "node test.js"
+    "test": "node test.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [
     "api",
