@@ -5,7 +5,10 @@ function populate(self, node, child){
 	if (!child) return
 	for(let i=0,c; (c=child[i]); i++){
 		// get [node, view] from parent
-		self.spawn(node, null, [['snode', 'SNode',c]])
+		self.spawn(node, null, [
+		["options", "map", {"tag":"li", "draggable":true}],
+		['snode', 'SNode',c]
+		])
 	}
 }
 function render(ctx, snode, node, tplNode, tplLeaf){
@@ -56,15 +59,12 @@ return {
 	},
 	slots: {
 		tree_sel(from, sender, id){
-			const deps = this.deps
-			const snode = deps.snode
+			const snode = pObj.dot(this, ['deps', 'snode'])
 			const data = snode.data
 			if (id === snode.id) {
 				data.sel = 1
 				sel(this, snode)
-				return 1
-			}
-			if (data.sel) {
+			} else if (data.sel) {
 				data.sel = 0
 				sel(this, snode)
 			}
@@ -89,6 +89,33 @@ return {
 			if (!pObj.dot(snode, ['data', 'sel'])) return true
 			snode.remove()
 			this.remove()
+		},
+		dragstart(from, sender, id){
+			// remove branch line
+		},
+		dragend(from, sender, id){
+			// restore branch line
+		},
+		dragenter(from, sender, id){
+			const snode = pObj.dot(this, ['deps', 'snode'])
+			if (id !== snode.id) return 1
+		
+			if (snode.child){
+				this._el.querySelector('input').checked = 1
+			}
+			this.el.classList.add('hover')
+		},
+		dragleave(from, sender, id){
+			const snode = pObj.dot(this, ['deps', 'snode'])
+			if (id !== snode.id) return 1
+			this.el.classList.remove('hover')
+		},
+		drop(from, sender,fromId, toId){
+			const snode = pObj.dot(this, ['deps', 'snode'])
+			if (fromId === snode.id) {
+				
+			}
+			return 1
 		}
 	}
 }

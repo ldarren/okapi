@@ -5,7 +5,7 @@
 	["p/View", "view", [
 		["options", "map", {"el": "body"}],
 		["tree", "Sapling", [
-			["data","list",["root", {"name":"root"},[
+			["data","list",["root", {"name":"root", "checked":1},[
 				["blu", {"name":"blu"}, [
 					["api1", {"name":"api1"}],
 					["api2", {"name":"api2"}],
@@ -42,9 +42,9 @@
 				["tree", "view", [
 					["options", "map", {"tag":"ul", "class":"tree"}],
 					["css", "file", "tree.css"],
+					["css", "file", "dnd.css"],
 					["tree", "ref", "tree"],
 					["node", "view", [
-						["options", "map", {"tag":"li"}],
 						["tplNode", "file", "node.asp"],
 						["tplLeaf", "file", "leaf.asp"]
 					]]
