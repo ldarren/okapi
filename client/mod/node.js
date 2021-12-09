@@ -95,6 +95,7 @@ return {
 		},
 		dragend(from, sender, id){
 			// restore branch line
+			this.el.classList.remove('hover')
 		},
 		dragenter(from, sender, id){
 			const snode = pObj.dot(this, ['deps', 'snode'])
@@ -110,12 +111,36 @@ return {
 			if (id !== snode.id) return 1
 			this.el.classList.remove('hover')
 		},
-		drop(from, sender,fromId, toId){
+		dropdest(from, sender, id, cb){
 			const snode = pObj.dot(this, ['deps', 'snode'])
-			if (fromId === snode.id) {
-				
+			if (!snode.child) return
+			if (id === snode.id) {
+				cb(this, snode.child.length)	
+			}else{
+				const index = snode.child.findIndex(c => id === c.id)
+				if (null == index) return 1
+				cb(this, index)	
 			}
-			return 1
-		}
+		},
+		drop(from, sender, id, host, index){
+			const snode = pObj.dot(this, ['deps', 'snode'])
+			if (id !== snode.id) return 1
+
+			// view rewire
+			let i = this.host.modules.findIndex(m => m === this)
+			this.host.modules.splice(i, 1)
+			this.host = host
+			host.modules.splice(index, 0, this)
+
+			// snode rewire
+			i = snode.host.child.findIndex(c => c.id === id)
+			snode.host.child.splice(i, 1)
+			snode.host = host.deps.snode
+			host.deps.snode.child.splice(index, 0, snode)
+
+			// element rewire
+			const child = host.el.children[index]
+			host.el.insertBefore(this.el, child)
+		},
 	}
 }

@@ -13,7 +13,7 @@ function getChildId(ele){
 }
 
 return {
-	signals: ['tree_sel', 'dragenter', 'dragleave'],
+	signals: ['tree_sel', 'dragstart', 'dragend', 'dragenter', 'dragleave', 'dropdest', 'drop'],
 	deps:{
 		tree:'Sapling',
 		node:'view',
@@ -34,29 +34,30 @@ return {
 		'dragstart li':function(e, target){
 			const id = getChildId(target)
 			e.dataTransfer.setData('text/plain', id)
-			console.log('dragstart', id)
+			this.signal.dragstart(id).send([this.host])
 		},
 		'dragend li':function(e, target){
 			const id = getChildId(target)
-			console.log('dragend', id)
+			this.signal.dragend(id).send([this.host])
 		},
 		'dragenter li':function(e, target){
 			const id = getChildId(target)
-			console.log('dragenter', id)
 			this.signal.dragenter(id).send([this.host])
 		},
 		'dragleave li':function(e, target){
 			const id = getChildId(target)
-			console.log('dragleave', id)
 			this.signal.dragleave(id).send([this.host])
 		},
 		'dragover li':function(e, target){
 			e.preventDefault() // for drop to work
 		},
 		'drop li':function(e, target){
-			const to = getChildId(target)
-			const from = e.dataTransfer.getData('text')
-			console.log('drop', from, to)
+			const toId = getChildId(target)
+			const fromId = e.dataTransfer.getData('text')
+			this.signal.dropdest(toId, (toView, index) => {
+				if (!toView) return console.error(toId, 'not found')
+				this.signal.drop(fromId, toView).send([this.host])
+			}).send([this.host])
 		}
 	},
 }
