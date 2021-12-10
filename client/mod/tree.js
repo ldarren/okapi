@@ -56,7 +56,7 @@ return {
 			const fromId = e.dataTransfer.getData('text')
 			this.signal.dropdest(toId, (toView, index) => {
 				if (!toView) return console.error(toId, 'not found')
-				this.signal.drop(fromId, toView).send([this.host])
+				this.signal.drop(fromId, toView, index).send([this.host])
 			}).send([this.host])
 		}
 	},

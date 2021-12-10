@@ -1,5 +1,6 @@
 const pStr = require('pico/str')
 const pObj = require('pico/obj')
+const SNode = require('ext/snode')
 
 function populate(self, node, child){
 	if (!child) return
@@ -36,7 +37,7 @@ function onAdd(type, snode) {
 	const node = deps.node
 
 	switch(type){
-	case 'add':
+	case SNode.ADD:
 		this.spawn(node, null, [['snode', 'SNode', snode]])
 		break
 	}
@@ -94,8 +95,9 @@ return {
 			// remove branch line
 		},
 		dragend(from, sender, id){
-			// restore branch line
+			// restore branch line, and to clear dnd hover
 			this.el.classList.remove('hover')
+			return 1
 		},
 		dragenter(from, sender, id){
 			const snode = pObj.dot(this, ['deps', 'snode'])
@@ -118,7 +120,9 @@ return {
 				cb(this, snode.child.length)	
 			}else{
 				const index = snode.child.findIndex(c => id === c.id)
-				if (null == index) return 1
+				if (-1 === index) return 1
+				const childSNode = snode.child[index]
+				if (childSNode.child) return 1 // skip if not a leaf
 				cb(this, index)	
 			}
 		},
@@ -133,10 +137,9 @@ return {
 			host.modules.splice(index, 0, this)
 
 			// snode rewire
-			i = snode.host.child.findIndex(c => c.id === id)
-			snode.host.child.splice(i, 1)
+			snode.host.splice(id)
 			snode.host = host.deps.snode
-			host.deps.snode.child.splice(index, 0, snode)
+			host.deps.snode.move(index, snode)
 
 			// element rewire
 			const child = host.el.children[index]
