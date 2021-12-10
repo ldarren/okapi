@@ -1,3 +1,5 @@
+const router = require('po/router')
+
 function getNodeId(ele){
 	const id = ele.id
 	if (id) return id
@@ -29,6 +31,7 @@ return {
 		'click .tree_label':function(e, target){
 			const id = getNodeId(target)
 			if (!id) return
+			router.go('/p/'+id)
 			this.signal.tree_sel(id).send([this.host])
 		},
 		'dragstart li':function(e, target){

@@ -49,6 +49,27 @@
 						["tplLeaf", "file", "leaf.asp"]
 					]]
 				]]
+			]],
+			["main", "view", [
+				["options", "map", {"el": "main"}],
+				["tree", "ref", "tree"],
+				["pages", "map", {
+					"void": ["p/View", "view", [
+						["options", "map", {"tag":"p", "content":"VOID"}]
+					]],
+					"coll": ["p/View", "view", [
+						["options", "map", {"tag":"p", "content":"COLLECTION"}]
+					]],
+					"page": ["p/View", "view", [
+						["options", "map", {"tag":"p", "content":"PAGE"}]
+					]]
+				}],
+				["routes", "map", {
+					"/": ["void"],
+					"/p/:id": ["page"],
+					"/g/:id": ["coll"],
+					"": ["void"]
+				}]
 			]]
 		]]
 	]]
