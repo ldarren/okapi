@@ -1,5 +1,3 @@
-const router = require('po/router')
-
 function getNodeId(ele){
 	const id = ele.id
 	if (id) return id
@@ -23,15 +21,14 @@ return {
 	create(deps, params){
 		// get [node, view] from parent
 		this.spawn(deps.node, null, [
-		["options", "map", {"tag":"li", "draggable":false}],
-		['snode','SNode',deps.tree.root]
+			["options", "map", {"tag":"li", "draggable":false}],
+			['snode','SNode',deps.tree.root]
 		])
 	},
 	events:{
 		'click .tree_label':function(e, target){
 			const id = getNodeId(target)
 			if (!id) return
-			router.go('/p/'+id)
 			this.signal.tree_sel(id).send([this.host])
 		},
 		'dragstart li':function(e, target){

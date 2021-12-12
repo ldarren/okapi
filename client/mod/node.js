@@ -1,3 +1,4 @@
+const router = require('po/router')
 const pStr = require('pico/str')
 const pObj = require('pico/obj')
 const SNode = require('ext/snode')
@@ -26,8 +27,13 @@ function sel(ctx, snode){
 	const child = snode.child
 	const sel = snode.data.sel
 	let cl
-	if (Array.isArray(child)) cl = ctx._el.getElementsByTagName('label')[0].classList
-	else cl = ctx._el.getElementsByTagName('span')[0].classList
+	if (Array.isArray(child)) {
+		cl = ctx._el.getElementsByTagName('label')[0].classList
+		if (sel) router.go('/g/'+snode.id)
+	} else {
+		cl = ctx._el.getElementsByTagName('span')[0].classList
+		if (sel) router.go('/p/'+snode.id)
+	}
 
 	if (sel) cl.add('sel')
 	else cl.remove('sel')

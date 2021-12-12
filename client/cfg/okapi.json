@@ -57,11 +57,15 @@
 					"void": ["p/View", "view", [
 						["options", "map", {"tag":"p", "content":"VOID"}]
 					]],
-					"coll": ["p/View", "view", [
-						["options", "map", {"tag":"p", "content":"COLLECTION"}]
+					"coll": ["Group", "view", [
+						["options", "map", {"tag":"p", "content":"COLLECTION"}],
+						["tpl", "file", "Group.asp"],
+						["css", "file", "Page.css"]
 					]],
-					"page": ["p/View", "view", [
-						["options", "map", {"tag":"p", "content":"PAGE"}]
+					"page": ["Page", "view", [
+						["options", "map", {"tag":"form", "class":"apiform"}],
+						["tpl", "file", "Page.asp"],
+						["css", "file", "Page.css"]
 					]]
 				}],
 				["routes", "map", {
