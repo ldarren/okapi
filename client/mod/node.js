@@ -3,6 +3,8 @@ const pStr = require('pico/str')
 const pObj = require('pico/obj')
 const SNode = require('ext/snode')
 
+const SELECTED = 'sel'
+
 function populate(self, node, child){
 	if (!child) return
 	for(let i=0,c; (c=child[i]); i++){
@@ -15,28 +17,30 @@ function populate(self, node, child){
 }
 function render(ctx, snode, node, tplNode, tplLeaf){
 	const child = snode.child
+	const id = snode.id
+	const sel = id === router.getParam('id')
 	if (child){
-		ctx.el.innerHTML=tplNode(snode)
+		ctx.el.innerHTML=tplNode({id, data: snode.data, sel})
 		populate(ctx, node, child)
 		ctx.setElement(ctx.el.getElementsByTagName('ul')[0])
 	}else{
-		ctx.el.innerHTML=tplLeaf(snode)
+		ctx.el.innerHTML=tplLeaf({id, data: snode.data, sel})
 	}
 }
-function sel(ctx, snode){
-	const child = snode.child
-	const sel = snode.data.sel
-	let cl
-	if (Array.isArray(child)) {
-		cl = ctx._el.getElementsByTagName('label')[0].classList
-		if (sel) router.go('/g/'+snode.id)
-	} else {
-		cl = ctx._el.getElementsByTagName('span')[0].classList
-		if (sel) router.go('/p/'+snode.id)
+function classList(ctx){
+	if (ctx.isColl) {
+		return ctx._el.getElementsByTagName('label')[0].classList
 	}
+	return ctx.el.getElementsByTagName('span')[0].classList
+}
+function sel(ctx, snode, sel){
+	const cl = ctx.classList
 
-	if (sel) cl.add('sel')
-	else cl.remove('sel')
+	if (sel) {
+		cl.add(SELECTED)
+		if (ctx.isColl) router.go('#/g/'+snode.id)
+		else router.go('#/p/'+snode.id)
+	} else if (cl.contains(SELECTED)) cl.remove(SELECTED)
 }
 function onAdd(type, snode) {
 	const deps = this.deps
@@ -58,6 +62,8 @@ return {
 	},
 	create(deps, params){
 		render(this, deps.snode, deps.node, deps.tplNode, deps.tplLeaf)
+		this.isColl = Array.isArray(deps.snode.child)
+		this.classList = classList(this)
 		deps.snode.callback.on('add', onAdd, this)
 	},
 	remove(){
@@ -69,17 +75,15 @@ return {
 			const snode = pObj.dot(this, ['deps', 'snode'])
 			const data = snode.data
 			if (id === snode.id) {
-				data.sel = 1
-				sel(this, snode)
-			} else if (data.sel) {
-				data.sel = 0
-				sel(this, snode)
+				sel(this, snode, 1)
+			} else {
+				sel(this, snode, 0)
 			}
 			return 1
 		},
 		menu_add(from, sender, type){
 			const snode = this.deps.snode
-			if (!pObj.dot(snode, ['data', 'sel'])) return true
+			if (!ctx.classList.contains(SELECTED)) return true
 
 			const uuid = Date.now().toString(36) + ':' + pStr.rand()
 			const name = prompt('Name', '/users')
@@ -93,7 +97,7 @@ return {
 		},
 		menu_del(from, sender, force){
 			const snode = this.deps.snode
-			if (!pObj.dot(snode, ['data', 'sel'])) return true
+			if (!ctx.classList.contains(SELECTED)) return true
 			snode.remove()
 			this.remove()
 		},

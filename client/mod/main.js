@@ -9,12 +9,18 @@ function pageChanged(evt, state, params){
     }
     this.spawnBySpec(spec, params)
 }
+function extract(base){
+	// todo use pathname in prod
+	// return location.pathname.substring(base.length)
+	return location.hash
+}
     
 return {
     deps: {
         pages: 'map',
         routes: 'map',
-		tree: 'Sapling'
+		tree: 'Sapling',
+		fe: "map"
     },
     create: function(deps, params){
         this.super.create.call(this, deps, params)
@@ -30,7 +36,7 @@ return {
             for (let i=0, k; (k=keys[i]); i++){
                 specMap[k]=spec.shift()
             } 
-            router.on('change',pageChanged,this).start(deps.routes, location.pathname)
+            router.on('change',pageChanged,this).start(deps.routes, deps.fe.baseurl, extract)
         })  
     }       
 }

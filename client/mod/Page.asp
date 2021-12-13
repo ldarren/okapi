@@ -11,16 +11,8 @@
 	<input type="text" name="h1" id="h1" value='{"Content-Type":"application/json"}'>
 </span>
 <span>
-	<label for="r1">Rank: </label>
-	<input type="number" name="r1" id="r1" value='0'>
-</span>
-<span>
 	<label for="h2">Header: </label>
 	<input type="text" name="h2" id="h2">
-</span>
-<span>
-	<label for="r2">Rank: </label>
-	<input type="number" name="r2" id="r2" value='0'>
 </span>
 <span>
 	<label for="req">Request: </label>
