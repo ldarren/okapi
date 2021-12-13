@@ -13,7 +13,7 @@ function getChildId(ele){
 }
 
 return {
-	signals: ['tree_sel', 'dragstart', 'dragend', 'dragenter', 'dragleave', 'dropdest', 'drop'],
+	signals: ['tree_unsel', 'tree_sel', 'dragstart', 'dragend', 'dragenter', 'dragleave', 'dropdest', 'drop'],
 	deps:{
 		tree:'Sapling',
 		node:'view',
@@ -29,6 +29,7 @@ return {
 		'click .tree_label':function(e, target){
 			const id = getNodeId(target)
 			if (!id) return
+			// TODO, split to tree_unsel and tree_sel. purpose: uncheck selected tree
 			this.signal.tree_sel(id).send([this.host])
 		},
 		'dragstart li':function(e, target){
@@ -60,4 +61,9 @@ return {
 			}).send([this.host])
 		}
 	},
+	slots:{
+		check(from, sender, trace){
+			this.signal.tree_unsel(trace).send([this.host])
+		}
+	}
 }

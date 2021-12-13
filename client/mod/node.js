@@ -26,21 +26,15 @@ function render(ctx, snode, node, tplNode, tplLeaf){
 	}else{
 		ctx.el.innerHTML=tplLeaf({id, data: snode.data, sel})
 	}
+	if (sel){
+		ctx.signal.check([id]).send(ctx.host)
+	}
 }
 function classList(ctx){
-	if (ctx.isColl) {
+	if (ctx.isInner) {
 		return ctx._el.getElementsByTagName('label')[0].classList
 	}
 	return ctx.el.getElementsByTagName('span')[0].classList
-}
-function sel(ctx, snode, sel){
-	const cl = ctx.classList
-
-	if (sel) {
-		cl.add(SELECTED)
-		if (ctx.isColl) router.go('#/g/'+snode.id)
-		else router.go('#/p/'+snode.id)
-	} else if (cl.contains(SELECTED)) cl.remove(SELECTED)
 }
 function onAdd(type, snode) {
 	const deps = this.deps
@@ -52,8 +46,12 @@ function onAdd(type, snode) {
 		break
 	}
 }
+function check(ctx, checked){
+	ctx._el.querySelector('input').checked = checked
+}
 
 return {
+	signals: ['check', 'uncheck'],
 	deps:{
 		tplNode:'file',
 		tplLeaf:'file',
@@ -61,8 +59,8 @@ return {
 		node:'view',
 	},
 	create(deps, params){
+		this.isInner = Array.isArray(deps.snode.child)
 		render(this, deps.snode, deps.node, deps.tplNode, deps.tplLeaf)
-		this.isColl = Array.isArray(deps.snode.child)
 		this.classList = classList(this)
 		deps.snode.callback.on('add', onAdd, this)
 	},
@@ -73,13 +71,36 @@ return {
 	slots: {
 		tree_sel(from, sender, id){
 			const snode = pObj.dot(this, ['deps', 'snode'])
-			const data = snode.data
 			if (id === snode.id) {
-				sel(this, snode, 1)
-			} else {
-				sel(this, snode, 0)
+				const cl = this.classList
+				cl.add(SELECTED)
+				if (this.isInner) router.go('#/g/'+snode.id)
+				else router.go('#/p/'+snode.id)
+				this.signal.check([id]).send(this.host)
+				return
 			}
 			return 1
+		},
+		tree_unsel(from, sender, trace){
+			const snode = pObj.dot(this, ['deps', 'snode'])
+			const cl = this.classList
+			if (trace[0] !== snode.id && cl.contains(SELECTED)) {
+				cl.remove(SELECTED)
+				this.signal.uncheck(trace).send(this.host)
+				return
+			}
+			return 1
+		},
+		check(from, sender, trace){
+			trace.push(pObj.dot(this, ['deps', 'snode', 'id']))
+			check(this, 1)
+			this.signal.check(trace).send(this.host)
+		},
+		uncheck(from, sender, trace){
+			const id = pObj.dot(this, ['deps', 'snode', 'id'])
+			if (trace.includes(id)) return
+			check(this, 0)
+			this.signal.uncheck(trace).send(this.host)
 		},
 		menu_add(from, sender, type){
 			const snode = this.deps.snode

@@ -8,16 +8,16 @@
 	["p/View", "view", [
 		["options", "map", {"el": "body"}],
 		["tree", "Sapling", [
-			["data","list",["root", {"name":"root", "checked":1},[
+			["data","list",["root", {"name":"root"},[
 				["blu", {"name":"blu"}, [
 					["api1", {"name":"api1"}],
 					["api2", {"name":"api2"}],
-					["3rd", {"name":"3rd","checked":1}, [
+					["3rd", {"name":"3rd"}, [
 						["api3", {"name":"api3"}],
 						["api4", {"name":"api4"}]
 					]]
 				]],
-				["Circles.Life", {"name":"Circles.Life", "checked":1}, [
+				["Circles.Life", {"name":"Circles.Life"}, [
 					["api5", {"name":"api5"}],
 					["api6", {"name":"api6"}],
 					["4th", {"name":"4th"}, [
