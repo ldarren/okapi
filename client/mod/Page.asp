@@ -1,4 +1,8 @@
 <span>
+	<label for="name">Name: </label>
+	<input type="text" name="name" id="name" value="/" required>
+</span>
+<span>
 	<label for="method">Method: </label>
 	<input type="text" name="method" id="method" value="GET" required>
 </span>
@@ -16,7 +20,8 @@
 </span>
 <span>
 	<label for="req">Request: </label>
-	<div class=editor></div>
+	<!--<div class=editor></div>-->
+	<textarea name="req" id="req" rows="5" cols="80"></textarea>
 </span>
 <span>
 	<input type="button" value="Send">

@@ -2,7 +2,7 @@
 	["Sapling", "type", "ext/Sapling", [
 		"data", 1
 	]],
-    ["models", "type", "po/Collection", [
+    ["models", "type", "ext/Collection", [
         "data", 1, "options"
     ]],
 	["p/View", "view", [
@@ -75,17 +75,16 @@
 						["options", "map", {"tag":"form", "class":"apiform"}],
 						["tpl", "file", "Group.asp"],
 						["css", "file", "Page.css"],
-						["tree", "ref", "tree"],
-						["settings", "ref", "settings"],
-						["requests", "ref", "requests"]
+						["snode", "model", "tree", "id"],
+						["setting", "model", "settings", "id"]
 					]],
 					"page": ["Page", "view", [
 						["options", "map", {"tag":"form", "class":"apiform"}],
 						["tpl", "file", "Page.asp"],
 						["css", "file", "Page.css"],
-						["tree", "ref", "tree"],
+						["snode", "model", "tree", "id"],
 						["settings", "ref", "settings"],
-						["requests", "ref", "requests"]
+						["request", "model", "requests", "id"]
 					]]
 				}],
 				["routes", "map", {

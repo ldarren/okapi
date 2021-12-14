@@ -40,6 +40,15 @@ SNode.prototype = {
 		if (!this.child) return
 		return this.child.findIndex(c => id === c.id)
 	},
+	findById(id){
+		if (id === this.id) return this
+		const cs = this.child
+		if (!cs) return
+		for (let c, i=0, r; (c=cs[i]); i++){
+			r = c.findById(id)
+			if (r) return r
+		}
+	},
 	getChild(index){
 		if (!this.child) return
 		return this.child[index]

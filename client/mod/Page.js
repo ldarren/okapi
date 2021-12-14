@@ -18,12 +18,13 @@ function form2Obj(form){
 return {
 	deps: {
 		tpl: 'file',
-		tree: 'Sapling',
+		snode: 'snode',
 		settings: 'models',
-		requests: 'models',
+		request: 'model',
 	},
 	create(deps, params){
 		this.el.innerHTML=deps.tpl()
+		debugger
 	},
 	events: {
 		'click input[type=button]': function(e, target){
@@ -34,8 +35,8 @@ return {
 				return acc
 			}, {})
 
-			const req = form.querySelector('div.editor'/* .cm-content'*/).textContent
-			__.ajax(obj.method, obj.url, req, {headers}, (err, state, xhr) => {
+			//const req = form.querySelector('div.editor .cm-content').textContent
+			__.ajax(obj.method, obj.url, obj.req, {headers}, (err, state, xhr) => {
 				if (4 > state) return
 				form[form.length - 1].value = xhr
 			})
