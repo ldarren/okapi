@@ -23,13 +23,13 @@ return {
 		request: 'model',
 	},
 	create(deps, params){
-		this.el.innerHTML=deps.tpl()
-		debugger
+		this.el.innerHTML=deps.tpl(deps.request)
 	},
 	events: {
 		'click input[type=button]': function(e, target){
 			const form = e.target.closest('form')
 			const obj = form2Obj(form)
+
 			const headers = obj.headers.reduce((acc, o) => {
 				Object.assign(acc, JSON.parse(o))
 				return acc
@@ -39,6 +39,10 @@ return {
 			__.ajax(obj.method, obj.url, obj.req, {headers}, (err, state, xhr) => {
 				if (4 > state) return
 				form[form.length - 1].value = xhr
+
+				obj.res = xhr
+				obj.headers = JSON.stringify(obj.headers)
+				Object.assign(this.deps.request, obj)
 			})
 		}
 	}
