@@ -50,11 +50,18 @@ Sapling.prototype={
 	init(spec){},
 	fini(){},
 
+	get(id){
+		return this.root.findById(id)	
+	},
 	insert(path, node, index, tree = this.root){
 		const host = tree.find(path)
 		if (!host) return 0
 		host.insert(index, node)
 		return 1
+	},
+	move(from, to, index, tree = this.root){
+		const node = this.remove(from, null, tree)
+		this.insert(to, node, index, tree)
 	},
 	remove(path, index, tree = this.root){
 		let node
@@ -67,10 +74,6 @@ Sapling.prototype={
 		if (!node) return
 		node.remove()
 		return node
-	},
-	move(from, to, index, tree = this.root){
-		const node = this.remove(from, null, tree)
-		this.insert(to, node, index, tree)
 	},
 	update(path, data, tree = this.root){
 		const node = tree.find(path)

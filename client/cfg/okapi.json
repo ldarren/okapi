@@ -2,6 +2,9 @@
 	["Sapling", "type", "ext/Sapling", [
 		"data", 1
 	]],
+    ["models", "type", "ext/Collection", [
+        "data", 1, "options"
+    ]],
 	["p/View", "view", [
 		["options", "map", {"el": "body"}],
 		["tree", "Sapling", [
@@ -9,12 +12,12 @@
 				["blu", {"name":"blu"}, [
 					["api1", {"name":"api1"}],
 					["api2", {"name":"api2"}],
-					["3rd", {"name":"3rd","checked":1}, [
+					["3rd", {"name":"3rd"}, [
 						["api3", {"name":"api3"}],
 						["api4", {"name":"api4"}]
 					]]
 				]],
-				["Circles.Life", {"name":"Circles.Life", "checked":1}, [
+				["Circles.Life", {"name":"Circles.Life"}, [
 					["api5", {"name":"api5"}],
 					["api6", {"name":"api6"}],
 					["4th", {"name":"4th"}, [
@@ -24,31 +27,73 @@
 				]]
 			]]]
 		]],
+		["settings", "models", [
+		]],
+		["requests", "models", [
+		]],
+		["fe", "ref", "fe"],
 		["p/View", "view", [
 			["options", "map", {"el": "section"}],
+			["fe", "ref", "fe"],
 			["tree", "ref", "tree"],
 			["p/View", "view", [
 				["options", "map", {"el": "nav"}],
 				["tree", "ref", "tree"],
+				["models", "refs", "models"],
 				["menu", "view", [
 					["options", "map", {"tag":"menu", "class": "toolbar flex-row p-xxs" }],
 					["tpl", "file", "menu.asp"],
 					["css", "file", "menu.css"],
 					["list", "list", [
 						{"id":"add", "name":"+"},
-						{"id":"del", "name":"-"}
+						{"id":"del", "name":"-"},
+						{"id":"dir", "name":"&#9880;"}
 					]]
 				]],
 				["tree", "view", [
 					["options", "map", {"tag":"ul", "class":"tree"}],
 					["css", "file", "tree.css"],
+					["css", "file", "dnd.css"],
 					["tree", "ref", "tree"],
+					["models", "refs", "models"],
 					["node", "view", [
-						["options", "map", {"tag":"li"}],
 						["tplNode", "file", "node.asp"],
 						["tplLeaf", "file", "leaf.asp"]
 					]]
 				]]
+			]],
+			["main", "view", [
+				["options", "map", {"el": "main"}],
+				["fe", "ref", "fe"],
+				["tree", "ref", "tree"],
+				["models", "refs", "models"],
+				["pages", "map", {
+					"void": ["p/View", "view", [
+						["options", "map", {"tag":"p", "content":"VOID"}]
+					]],
+					"coll": ["Group", "view", [
+						["options", "map", {"tag":"form", "class":"apiform"}],
+						["tpl", "file", "Group.asp"],
+						["css", "file", "Page.css"],
+						["snode", "model", "tree", "id"],
+						["setting", "model", "settings", "id"]
+					]],
+					"page": ["Page", "view", [
+						["options", "map", {"tag":"form", "class":"apiform"}],
+						["tpl", "file", "Page.asp"],
+						["css", "file", "Page.css"],
+						["snode", "model", "tree", "id"],
+						["settings", "ref", "settings"],
+						["request", "model", "requests", "id"]
+					]]
+				}],
+				["routes", "map", {
+					"#": ["void"],
+					"#/": ["void"],
+					"#/p/:id": ["page"],
+					"#/g/:id": ["coll"],
+					"": ["void"]
+				}]
 			]]
 		]]
 	]]

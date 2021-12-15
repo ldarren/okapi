@@ -1,0 +1,22 @@
+form.apiform{
+	display: table;
+	width: 100%;
+	padding:10px;
+}
+.apiform span{
+    display: table-row;
+}
+.apiform label, input, textarea {
+	display: table-cell;
+	margin-bottom: 10px;
+    font-size:12pt;
+}
+.apiform label, input{
+    height:20px;
+	width: 90%;
+}
+.apiform label {
+	padding-right: 10px;
+	width: 120px;
+	white-space: nowrap;
+}

@@ -1,6 +1,6 @@
 {
   "name": "okapi-fe",
-  "version": "0.0.5",
+  "version": "0.1.7",
   "description": "api collaboration toolset",
   "main": "index.js",
   "scripts": {
@@ -17,7 +17,7 @@
   "author": "Darren Liew",
   "license": "MIT",
   "dependencies": {
-    "lean-wrap": "^0.3.5",
+    "lean-wrap": "^0.3.6",
     "pico-client": "^0.7.6",
     "pico-common": "^0.14.21",
     "pojs": "^0.8.0"

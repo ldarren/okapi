@@ -20,6 +20,7 @@ function SNode(host, tree){
 }
 
 SNode.ADD = 'add'
+SNode.MOVE = 'mov'
 SNode.UPDATE = 'upd'
 SNode.DELETE = 'del'
 SNode.CHANGE = 'cha'
@@ -39,6 +40,15 @@ SNode.prototype = {
 		if (!this.child) return
 		return this.child.findIndex(c => id === c.id)
 	},
+	findById(id){
+		if (id === this.id) return this
+		const cs = this.child
+		if (!cs) return
+		for (let c, i=0, r; (c=cs[i]); i++){
+			r = c.findById(id)
+			if (r) return r
+		}
+	},
 	getChild(index){
 		if (!this.child) return
 		return this.child[index]
@@ -46,10 +56,17 @@ SNode.prototype = {
 	insert(index, tree){
 		if (!this.child) return
 		const snode = new SNode(this, tree)
-		if (null == index) this.child.push(snode)
-		else this.child.splice(index, 0, snode)
+		if (-1 < index) this.child.splice(index, 0, snode)
+		else this.child.push(snode)
 		this.callback.trigger(SNode.ADD, snode)
 		this.host.callback.trigger(SNode.CHANGE, SNode.ADD, this)
+	},
+	move(index, snode){
+		if (!this.child) return
+		if (-1 < index) this.child.splice(index, 0, snode)
+		else this.child.push(snode)
+		this.callback.trigger(SNode.MOVE, snode)
+		this.host.callback.trigger(SNode.CHANGE, SNode.MOVE, this)
 	},
 	remove(){
 		const host = this.host
@@ -57,6 +74,11 @@ SNode.prototype = {
 		host.child.splice(index, 1)
 		this.callback.trigger(SNode.DELETE)
 		host.callback.trigger(SNode.CHANGE, SNode.DELETE, this)
+	},
+	splice(id){
+		const index = this.findIndex(id)
+		if (-1 === index) return
+		return this.child.splice(index, 1)
 	},
 	update(data){
 		Object.assign(this.data, data)
