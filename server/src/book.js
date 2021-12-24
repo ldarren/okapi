@@ -1,8 +1,11 @@
 const fs = require('fs')
 const path = require('path')
 const pico = require('pico-common')
+const psUtil = require('picos-util')
 const pObj = pico.export('pico/obj')
 const symPath = process.argv[1]
+
+pico.ajax = psUtil.ajax
 
 const fopt = {encoding: 'utf8'}
 
@@ -73,6 +76,7 @@ function readBook(wd, index, cb){
 	readPages(wd, [index], [], (err, res) => {
 		if (err) return cb(err)
 		if (!res.length) return cb(`not found: ${index}`)
+		if (!res[0].charAt) return cb(null, res)
 		readPages(wd, res[0], [], cb)
 	})
 }
@@ -85,7 +89,7 @@ module.exports = {
 			const name = path.basename(bpath)
 			readBook(wd, name, (err, book) => {
 				if (err) return cb(err)
-				cb(null, pObj.extends({}, book))
+				cb(null, pObj.extends({}, book, {flat:1}))
 			})
 		})
 	}

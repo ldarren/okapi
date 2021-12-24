@@ -136,7 +136,15 @@ module.exports = {
 				}
 				const arr = path.split(SEP)
 				const mname = arr.pop()
-				const obj = pObj.dot(mods, arr)
+				let obj
+				switch(path.charAt(0)){
+				case SRC_SPEC:
+					obj = pObj.dot(service, arr.slice(1))
+					break
+				default:
+					obj = pObj.dot(mods, arr)
+					break
+				}
 				if (!obj || !obj[mname]) throw `undefined method key:${key} path:${path}`
 				const func = obj[mname]
 				const route = []

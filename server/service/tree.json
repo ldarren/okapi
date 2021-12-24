@@ -1,4 +1,29 @@
 {
+	"spec": {
+		"tree_node": {
+			"name": {
+				"type": "string",
+				"gt": 0,
+				"lt": 64
+			},
+			"env": "object"
+		},
+		"tree_leaf": {
+			"name": {
+				"type": "string",
+				"gt": 0,
+				"lt": 64
+			},
+			"method": "object",
+			"url": "string",
+			"headers": {
+				"type": "array",
+				"spec": "string"
+			},
+			"body": "string",
+			"res": "string"
+		}
+	},
 	"rsc": {
 		"tree": {
 			"meta": {
@@ -6,34 +31,40 @@
 			"schema": {
 				"type": "object",
 				"spec": {
-					"name": {
-						"type": "array",
-						"gt": 0,
-						"lt": 5,
-						"spec": "string"
-					},
-					"ccode": {
-						"type": "number",
-						"gt": 0,
-						"lt": 1000
-					},
-					"mobile": {
-						"type": "number",
-						"gt": 60000000,
-						"lt": 100000000
-					},
-					"email": {
+					"id": {
 						"type": "string",
-						"regex": "^([a-z]\\w{3,32})@([a-z]\\w{3,16})\\.([a-z]\\w{1,2})$"
+						"gt": 5,
+						"lt": 64
 					},
-					"address": {
+					"tree_id": {
+						"type": "string",
+						"gt": 5,
+						"lt": 64
+					},
+					"child": {
 						"type": "array",
-						"gt": 0,
-						"lt": 5,
-						"spec": "string"
-					}
+						"spec": {
+							"type": "string",
+							"gt": 5,
+							"lt": 64
+						}
+					},
+					"body": "object",
+					"cred": "object"
 				}
 			}
 		}
+	},
+	"routes":{
+		"LIST/tree": [
+			[["web.output"], "_.res", "hello", {"page": 1}]
+		],
+		"/1.0/tree": [
+			["util.log", "hello"],
+			["@.tree.router",  "_.req.method", "_.params.id"]
+		],
+		"/1.0/tree/:id": [
+			["@.tree.router",  "_.req.method", "_.params.id"]
+		]
 	}
 } 
