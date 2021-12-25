@@ -4,10 +4,7 @@
         "params": {
             "type": "object",
             "spec": {
-                "rsc": {
-                    "type": "string",
-                    "required": 1
-                },
+                "rsc": "string",
                 "id": "number"
             }
         },

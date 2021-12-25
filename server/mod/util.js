@@ -101,6 +101,7 @@ module.exports = {
 
 	spawn_tree(schema, ext, layer, output){
 		// TODO: spawn tree structure with ${layer} layers
+		// do we need this if each node is a row?
 		return this.next()
 	},
 

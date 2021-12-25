@@ -19,9 +19,6 @@
 			}
 		}
 	},{
-		"id": "timer",
-		"mod": "timer"
-	},{
 		"id": "util",
 		"mod": "util"
 	}]

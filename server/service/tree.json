@@ -33,7 +33,7 @@
 				"spec": {
 					"id": {
 						"type": "string",
-						"gt": 5,
+						"gt": 0,
 						"lt": 64
 					},
 					"tree_id": {
@@ -49,7 +49,9 @@
 							"lt": 64
 						}
 					},
-					"body": "object",
+					"body": {
+						"type": "object"
+					},
 					"cred": "object"
 				}
 			}
@@ -59,12 +61,23 @@
 		"LIST/tree": [
 			[["web.output"], "_.res", "hello", {"page": 1}]
 		],
+		"GET/tree/:id": [
+			[["util.input", "@.spec.params"], "$.params", "_.input"],
+			["db.get", "tree", "_.input.id", "_.output"],
+			[["web.output"], "_.res", "_.output", {"page": 1}]
+		],
+		"NEW/tree": [
+			["web.bodyParser", "_.req", "_.body"],
+			[["util.input", "@.rsc.tree.schema"], "_.body", "_.input"],
+			["db.set", "tree", null, "_.input", "_.output"],
+			["util.log", "_.output"],
+			[["web.output"], "_.res", "_.output", {"page": 1}]
+		],
 		"/1.0/tree": [
-			["util.log", "hello"],
-			["@.tree.router",  "_.req.method", "_.params.id"]
+			["@.tree.router",  "_.req.method", "$.params.id"]
 		],
 		"/1.0/tree/:id": [
-			["@.tree.router",  "_.req.method", "_.params.id"]
+			["@.tree.router",  "_.req.method", "$.params.id"]
 		]
 	}
 } 
