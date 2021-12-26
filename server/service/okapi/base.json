@@ -7,17 +7,7 @@
 	},{
 		"id": "db",
 		"mod": "json_mem",
-		"meta": {
-			"type": "object",
-			"spec": {
-				"i": "number",
-				"s": "number",
-				"cat": "number",
-				"uat": "date",
-				"cby": "number",
-				"uby": "date"
-			}
-		}
+		"dir": "./db"
 	},{
 		"id": "util",
 		"mod": "util"

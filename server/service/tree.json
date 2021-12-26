@@ -26,8 +26,7 @@
 	},
 	"rsc": {
 		"tree": {
-			"meta": {
-			},
+			"db": "db",
 			"schema": {
 				"type": "object",
 				"spec": {
@@ -63,14 +62,13 @@
 		],
 		"GET/tree/:id": [
 			[["util.input", "@.spec.params"], "$.params", "_.input"],
-			["db.get", "tree", "_.input.id", "_.output"],
+			["db.get", "db", "tree", "_.input.id", "_.output"],
 			[["web.output"], "_.res", "_.output", {"page": 1}]
 		],
 		"NEW/tree": [
 			["web.bodyParser", "_.req", "_.body"],
 			[["util.input", "@.rsc.tree.schema"], "_.body", "_.input"],
-			["db.set", "tree", null, "_.input", "_.output"],
-			["util.log", "_.output"],
+			["db.set", "db", "tree", null, "_.input", "_.output"],
 			[["web.output"], "_.res", "_.output", {"page": 1}]
 		],
 		"/1.0/tree": [
