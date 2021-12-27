@@ -23,6 +23,9 @@ module.exports = {
 
 	// TODO: query string parser
 	queryParser(req, query){
+		Object.assign(query, URL.parse(req.url, true).query)
+		console.log('######', query, req.url)
+		return this.next()
 	},
 
 	bodyParser(req, body){
@@ -56,19 +59,6 @@ module.exports = {
 				return this.next()
 			})
 		})
-	},
-
-	// TODO: not generic enough, should move to util
-	router: rsc => async function(method, params) {
-		const rs = rsc[params.rsc]
-		if (!rs) return this.next(`unsupprted key: ${params.rsc}`)
-		const indi = params.id ? '/id' : ''
-		const name = `${method}/rsc${indi}`
-		await this.next(null, name, Object.assign({
-			params,
-			rs
-		}, this.data))
-		return this.next()
 	},
 
 	output: (contentType = 'application/json', dataType = 'json') => {

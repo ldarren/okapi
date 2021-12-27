@@ -82,7 +82,7 @@
         "/1.0/:rsc": [
             [["web.output"], "_.res", "_.:output", "_.meta"],
             ["util.input2", "$.params", "@.spec.params", "_.params"],
-            [["web.router", "@.rsc"], "_.req.method", "_.params"]
+            [["util.router", "@.rsc"], "_.req.method", "_.params"]
         ],
         "/1.0/:rsc/:id": [
             [["web.output"], "_.res", "_.output", "_.meta"],
