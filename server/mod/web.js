@@ -21,6 +21,10 @@ module.exports = {
 		proxy.listen(cfg.port, cfg.host, () => process.stdout.write(`listening to ${cfg.host}:${cfg.port}\n`))
 	},
 
+	// TODO: query string parser
+	queryParser(req, query){
+	},
+
 	bodyParser(req, body){
 		return new Promise((resolve, reject) => {
 			const arr = []
@@ -54,6 +58,7 @@ module.exports = {
 		})
 	},
 
+	// TODO: not generic enough, should move to util
 	router: rsc => async function(method, params) {
 		const rs = rsc[params.rsc]
 		if (!rs) return this.next(`unsupprted key: ${params.rsc}`)

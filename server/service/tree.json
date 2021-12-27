@@ -37,14 +37,14 @@
 					},
 					"tree_id": {
 						"type": "string",
-						"gt": 5,
+						"gt": 0,
 						"lt": 64
 					},
 					"child": {
 						"type": "array",
 						"spec": {
 							"type": "string",
-							"gt": 5,
+							"gt": 0,
 							"lt": 64
 						}
 					},
@@ -58,24 +58,38 @@
 	},
 	"routes":{
 		"LIST/tree": [
-			[["web.output"], "_.res", "hello", {"page": 1}]
+			[["util.input", "@.spec.query"], "$.query", "_.query"],
+			["db.find", "db", "tree", "_.query", "_.:output"],
+			[["web.output"], "_.res", "_.:output", "_.query"]
 		],
-		"GET/tree/:id": [
-			[["util.input", "@.spec.params"], "$.params", "_.input"],
-			["db.get", "db", "tree", "_.input.id", "_.output"],
-			[["web.output"], "_.res", "_.output", {"page": 1}]
+		"GET/tree/:i": [
+			[["util.input", "@.spec.params"], "$.params", "_.query"],
+			["db.get", "db", "tree", "_.query.i", "_.output"],
+			[["web.output"], "_.res", "_.output"]
 		],
 		"NEW/tree": [
 			["web.bodyParser", "_.req", "_.body"],
 			[["util.input", "@.rsc.tree.schema"], "_.body", "_.input"],
 			["db.set", "db", "tree", null, "_.input", "_.output"],
-			[["web.output"], "_.res", "_.output", {"page": 1}]
+			[["web.output"], "_.res", "_.output"]
+		],
+		"UPD/tree/:i": [
+			[["util.input", "@.spec.params"], "$.params", "_.query"],
+			["web.bodyParser", "_.req", "_.body"],
+			[["util.input", "@.rsc.tree.schema"], "_.body", "_.input"],
+			["db.set", "db", "tree", "_.query.i", "_.input", "_.output"],
+			[["web.output"], "_.res", "_.output"]
+		],
+		"REM/tree/:i": [
+			[["util.input", "@.spec.params"], "$.params", "_.query"],
+			["db.hide", "db", "tree", "_.query.i"],
+			[["web.output"], "_.res", null]
 		],
 		"/1.0/tree": [
-			["@.tree.router",  "_.req.method", "$.params.id"]
+			["@.tree.router",  "_.req.method"]
 		],
-		"/1.0/tree/:id": [
-			["@.tree.router",  "_.req.method", "$.params.id"]
+		"/1.0/tree/:i": [
+			["@.tree.router",  "_.req.method", "$.params.i"]
 		]
 	}
 } 

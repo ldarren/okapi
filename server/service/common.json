@@ -5,7 +5,7 @@
             "type": "object",
             "spec": {
                 "rsc": "string",
-                "id": "number"
+                "i": "number"
             }
         },
         "query": {
