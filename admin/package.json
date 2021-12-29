@@ -1,0 +1,27 @@
+{
+  "name": "admin",
+  "version": "0.0.1",
+  "description": "jsondb admin console",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ldarren/okapi.git"
+  },
+  "keywords": [
+    "jsondb",
+    "admin",
+    "console"
+  ],
+  "author": "Darren Liew",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ldarren/okapi/issues"
+  },
+  "homepage": "https://github.com/ldarren/okapi#readme",
+  "dependencies": {
+    "lowdefy": "^3.23.2"
+  }
+}
