@@ -21,10 +21,8 @@ module.exports = {
 		proxy.listen(cfg.port, cfg.host, () => process.stdout.write(`listening to ${cfg.host}:${cfg.port}\n`))
 	},
 
-	// TODO: query string parser
 	queryParser(req, query){
 		Object.assign(query, URL.parse(req.url, true).query)
-		console.log('######', query, req.url)
 		return this.next()
 	},
 
