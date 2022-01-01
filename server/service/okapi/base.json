@@ -11,5 +11,11 @@
 	},{
 		"id": "util",
 		"mod": "util"
+	},{
+		"id": "sys",
+		"mod": "sys"
+	},{
+		"id": "timer",
+		"mod": "timer"
 	}]
 } 

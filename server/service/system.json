@@ -1,0 +1,39 @@
+{
+	"rsc": {
+		"system": {
+			"db": "db",
+			"schema": {
+				"type": "object",
+				"spec": {
+					"userCPUTime": "number",
+					"systemCPUTime": "number",
+					"maxRSS": "number",
+					"sharedMemorySize": "number",
+					"unsharedDataSize": "number",
+					"unsharedStackSize": "number",
+					"minorPageFault": "number",
+					"majorPageFault": "number",
+					"swappedOut": "number",
+					"fsRead": "number",
+					"fsWrite": "number",
+					"ipcSent": "number",
+					"ipcReceived": "number",
+					"signalsCount": "number",
+					"voluntaryContextSwitches": "number",
+					"involuntaryContextSwitches": "number"
+				}
+			}
+		}
+	},
+	"routes":{
+		"* * * * * *": [
+			["sys.record",  "_.record"],
+			["db.set", "db", "system", null, "_.record", {}],
+			["db.truncate", "db", "system", 60]
+		],
+		"/1.0/system": [
+			[["web.output"], "_.res", "_.:output"],
+			["db.find", "db", "system", "_.query", "_.:output"]
+		]
+	}
+} 

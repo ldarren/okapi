@@ -6,19 +6,20 @@ properties:
     list: [Home, Dashboard]
 
 requests:
-  - id: list_crdts
+  - id: list_sys
     type: AxiosHttp
     connectionId: conn_okapi
     properties:
       method: get
-      url: /1.0/tree
+      url: /1.0/system
 
 events:
   onEnterAsync:
-    - id: fetch_crdts
+    - id: fetch_sys
       type: Request
-      params: list_crdts
+      params: list_sys
 
+# https://github.com/lowdefy/lowdefy/discussions/989
 areas:
   header:
     blocks:
@@ -31,3 +32,38 @@ areas:
           grow: 1
         properties:
           content: Dashboard
+      - id: memory
+        type: EChart
+        properties:
+          option:
+            xAxis:
+              type: category
+              data:
+                _array.map:
+                  - _request: list_sys.data.body
+                  - _function:
+                      __args: 0.cat
+            yAxis:
+              type: value
+            series:
+              - type: line
+                name: involuntaryContextSwitches
+                data:
+                  _array.map:
+                    - _request: list_sys.data.body
+                    - _function:
+                        __args: 0.d.involuntaryContextSwitches
+              - type: line
+                name: voluntaryContextSwitches
+                data:
+                  _array.map:
+                    - _request: list_sys.data.body
+                    - _function:
+                        __args: 0.d.voluntaryContextSwitches
+      - id: debug
+        type: Paragraph
+        properties:
+          content:
+            _json.stringify:
+              on:
+                _request: list_sys
