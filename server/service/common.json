@@ -47,6 +47,10 @@
         }
     },
 	"routes": {
+		"ERR": [
+            [["web.output", "text/plain", "text"], "_.res", "error"],
+			["util.log", "_.req.method", "_.req.url", "404"]
+        ],
         "POST/rsc": [
             ["web.bodyParser", "_.req", "_.input"],
             ["util.input2", "_.input", "_.rs.schema", "_.valid"],
@@ -88,6 +92,6 @@
             [["web.output"], "_.res", "_.output", "_.meta"],
             ["util.input2", "$.params", "@.spec.params", "_.params"],
             [["util.router", "@.rsc"], "_.req.method", "_.params"]
-        ]
+		]
 	}
 } 

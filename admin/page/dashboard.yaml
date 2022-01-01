@@ -1,0 +1,33 @@
+id: dashboard
+type: PageSiderMenu
+properties:
+  title: Dashboard
+  breadcrumb:
+    list: [Home, Dashboard]
+
+requests:
+  - id: list_crdts
+    type: AxiosHttp
+    connectionId: conn_okapi
+    properties:
+      method: get
+      url: /1.0/tree
+
+events:
+  onEnterAsync:
+    - id: fetch_crdts
+      type: Request
+      params: list_crdts
+
+areas:
+  header:
+    blocks:
+      - _ref: block/auth.yaml
+  content:
+    blocks:
+      - id: title
+        type: Title
+        layout:
+          grow: 1
+        properties:
+          content: Dashboard

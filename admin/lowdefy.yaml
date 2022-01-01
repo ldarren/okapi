@@ -1,51 +1,38 @@
 
 lowdefy: 3.23.2
 name: Lowdefy starter
+homePageId: dashboard
+
+types:
+  AgGridAlpine:
+    url: https://blocks-cdn.lowdefy.com/v3.12.3/blocks-aggrid/meta/AgGridAlpine.json
+
+connections:
+  - id: conn_okapi
+    type: AxiosHttp
+    properties:
+      baseURL: http://localhost:1337
+      headers:
+        Content-Type: application/json
+      responseType: json
+      responseEncoding: utf8
+
+menus:
+  - id: default
+    links:
+      - id: dashboard
+        type: MenuLink
+        pageId: dashboard
+        properties:
+          title: Dashboard
+          icon: DashboardOutlined
+      - id: crdt
+        type: MenuLink
+        pageId: crdt
+        properties:
+          title: CRDT
+          icon: MergeCellsOutlined
 
 pages:
-  - id: home
-    type: PageHeaderMenu
-    properties:
-      title: Home
-    areas:
-      content:
-        justify: center
-        blocks:
-          - id: content_card
-            type: Card
-            style:
-              maxWidth: 800
-            blocks:
-              - id: content
-                type: Result
-                properties:
-                  title: JSON DB Admin Console
-                  subTitle: We are excited to see what you are going to build
-                  icon:
-                    name: HeartTwoTone
-                    color: '#f00'
-                areas:
-                  extra:
-                    blocks:
-                      - id: docs_button
-                        type: Button
-                        properties:
-                          size: large
-                          title: Let's build something
-                          color: '#1890ff'
-                        events:
-                          onClick:
-                            - id: link_to_docs
-                              type: Link
-                              params:
-                                url: https://docs.lowdefy.com
-                                newTab: true
-      footer:
-        blocks:
-          - id: footer
-            type: Paragraph
-            properties:
-              type: secondary
-              content: |
-                Made by a Lowdefy 🤖
-
+  - _ref: page/dashboard.yaml
+  - _ref: page/crdt.yaml

@@ -76,7 +76,7 @@ module.exports = {
 		}
 
 		return async function(res, output, meta){
-			if (!res) return this.next()
+			if (!res || !res.end) return this.next()
 
 			try {
 				await this.next()

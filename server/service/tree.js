@@ -1,6 +1,6 @@
 return {
 	router(method, id){
-console.log('####router', method, id)
+console.log('#### tree router', method, id)
 		switch(method){
 		case 'GET':
 			if (id) return this.next(null, `GET/tree/${id}`)

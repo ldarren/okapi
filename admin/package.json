@@ -1,9 +1,11 @@
 {
   "name": "admin",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "jsondb admin console",
   "main": "index.js",
   "scripts": {
+  	"start": "npx lowdefy@latest dev --disable-telemetry",
+	"v": "vim -u ./.vimrc lowdefy.yaml",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
