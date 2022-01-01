@@ -11,7 +11,8 @@ connections:
   - id: conn_okapi
     type: AxiosHttp
     properties:
-      baseURL: http://localhost:1337
+      baseURL:
+        _secret: OKAPI_BASE_URL
       headers:
         Content-Type: application/json
       responseType: json
