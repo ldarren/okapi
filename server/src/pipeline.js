@@ -8,6 +8,8 @@ const KEYWORDS = [
 	'data',
 	'ptr'
 ]
+const ERROR_ROUTE = 'ERR'
+
 const SRC_SPEC = '@'
 const SRC_CTX = '$'
 const SRC_DATA = '_'
@@ -39,8 +41,11 @@ function _host(radix, libs, routes){
 		if (null != named) {
 			const params = {}
 			const key = radix.match(named, params)
-			const route = routes[key]
-			if (!route) return 'not found'
+			let route = routes[key]
+			if (!route) {
+				route = routes[ERROR_ROUTE]
+				if (!route) return 'not found'
+			}
 			return next.call(Object.assign({}, libs, {params, next, route, data, ptr: 0}))
 		}
 

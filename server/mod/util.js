@@ -43,10 +43,8 @@ module.exports = {
 	},
 
 	log(...args) {
-		for (const a of args){
-			// eslint-disable-next-line no-console
-			console.log(a)
-		}
+		// eslint-disable-next-line no-console
+		console.log(...args)
 		return this.next()
 	},
 

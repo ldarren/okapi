@@ -44,7 +44,6 @@ Database.prototype = {
  * @param {object} rs - resource
  * @param {string} rs.db - resource db name, see mod.id
  * @param {object} rs.schema - resource schema
- * @param {array} rs.child - resource children
  *
  * @returns {void} - this
  */
@@ -55,7 +54,6 @@ function Collection(db, name, rs){
 	this.documents = json.length ? JSON.parse(json) : []
 	this.index = this.documents.length + 1
 	this.schema = Object.assign({}, rs.schema)
-	this.child = Array.isArray(rs.child) ? rs.child.slice() : void 0
 }
 
 Collection.prototype = {
@@ -68,28 +66,16 @@ Collection.prototype = {
 		fs.writeFileSync(this.fname, JSON.stringify(this.documents))
 	},
 	insert(input){
+		const d = {}
+		const res = pObj.validate(this.schema, input, d)
+		if (res) throw `invalid parameter: ${res}`
+
 		const meta = {
 			i: this.index++,
 			s: 1,
 			cby: 0,
 			cat: new Date
 		}
-		const d = {}
-		const res = pObj.validate(this.schema, input, d)
-		if (res) throw `invalid parameter: ${res}`
-
-		if (Array.isArray(this.child)){
-			this.child.forEach(childName => {
-				const child = d[childName]
-				if (Array.isArray(child)){
-					child.forEach(c => this.db.getColl(childName).insert(Object.assign({[childName]: i}, c)))
-				}else{
-					this.db.getColl(childName).insert(Object.assign({[childName]: i}, child))
-				}
-				delete d[childName]
-			})
-		}
-
 		this.documents.push(Object.assign(meta, {d}))
 		this.save()
 		return meta
@@ -114,6 +100,11 @@ Collection.prototype = {
 			}
 		}
 		this.save()
+	},
+	truncate(size){
+		this.documents = this.documents.slice(-size)
+		this.save()
+		return this.documents.length
 	}
 }
 
@@ -210,6 +201,11 @@ module.exports = {
 	hide(key, name, id){
 		const coll = getColl(this, key, name)
 		coll.remove(id)
+		return this.next()
+	},
+	truncate(key, name, size){
+		const coll = getColl(this, key, name)
+		coll.truncate(size)
 		return this.next()
 	}
 }
