@@ -102,7 +102,7 @@ Collection.prototype = {
 		this.save()
 	},
 	truncate(size){
-		this.documents.slice(-size)
+		this.documents = this.documents.slice(-size)
 		this.save()
 		return this.documents.length
 	}
