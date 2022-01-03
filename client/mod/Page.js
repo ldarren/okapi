@@ -1,3 +1,9 @@
+const {
+    EditorView,
+    EditorState,
+    liteSetup,
+} = window.cm
+
 function form2Obj(form){
 	const obj = {}
 	for(let i = 0, l = form.length, input; i < l; i++){
@@ -24,6 +30,25 @@ return {
 	},
 	create(deps, params){
 		this.el.innerHTML=deps.tpl(deps.request)
+		this.view = new EditorView({
+			state: EditorState.create({
+				doc: this.deps.request.req, //this.merge.req.toString(),
+				extensions: [
+					liteSetup,
+					EditorView.updateListener.of(v => {
+						/*if (v.transactions.some(t => t.isUserEvent('am'))) return
+						const changes = this.cm2am(v)
+						if (!changes) return
+						server.update(changes)*/
+					}),
+				]
+			}),
+			parent: this.el.querySelector(`div.editor`)
+		})
+	},
+	remove(){
+		this.view.destroy()
+		this.super.remove.call(this)
 	},
 	events: {
 		'click input[type=button]': function(e, target){

@@ -1,10 +1,11 @@
 {
   "name": "okapi-fe",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "api collaboration toolset",
   "main": "index.js",
   "scripts": {
     "test": "node test.js",
+    "build:cm": "rollup -c",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -21,5 +22,10 @@
     "pico-client": "^0.7.6",
     "pico-common": "^0.14.21",
     "pojs": "^0.8.0"
+  },
+  "devDependencies": {
+    "@codemirror/basic-setup": "^0.19.1",
+    "@rollup/plugin-node-resolve": "^13.1.2",
+    "rollup": "^2.62.0"
   }
 }
