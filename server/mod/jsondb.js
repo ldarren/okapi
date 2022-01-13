@@ -1,14 +1,6 @@
 const fs = require('fs')
 const path = require('path')
 const pObj = require('pico-common').export('pico/obj')
-const meta = {
-	i: 'index',
-	s: 'status',
-	cat: 'created_at',
-	cby: 'created_by',
-	uat: 'updated_at',
-	uby: 'updated_by'
-}
 
 /**
  * Database class
@@ -36,13 +28,25 @@ Database.prototype = {
 	}
 }
 
+function row(d, meta, map){
+	const obj = {}
+	if (map){
+		Object.keys(map).reduce((acc, k) => {
+			acc[k] = d[map[k]]
+			return acc
+		}, obj)
+	}
+	return Object.assign(obj, meta, {d})
+}
+
 /**
  * Collection class
  *
  * @param {Database} db - database object
- * @param {Database} db - database object
+ * @param {string} name - collection name
  * @param {object} rs - resource
  * @param {string} rs.db - resource db name, see mod.id
+ * @param {string} rs.map - map resource fields to meta
  * @param {object} rs.schema - resource schema
  *
  * @returns {void} - this
@@ -51,8 +55,10 @@ function Collection(db, name, rs){
 	this.db = db
 	this.fname = path.join(db.dir, name + '.json')
 	const json = fs.readFileSync(this.fname, {flag: 'a+'})
-	this.documents = json.length ? JSON.parse(json) : []
-	this.index = this.documents.length + 1
+	const doc = json.length ? JSON.parse(json) : []
+	this.documents = doc
+	this.index = doc.length ? doc[doc.length - 1].i + 1 : 1
+	this.map = rs.map || Object.assign({}, rs.map)
 	this.schema = Object.assign({}, rs.schema)
 }
 
@@ -76,18 +82,17 @@ Collection.prototype = {
 			cby: 0,
 			cat: new Date
 		}
-		this.documents.push(Object.assign(meta, {d}))
+		this.documents.push(row(d, meta, this.map))
 		this.save()
 		return meta
 	},
 	update(i, d){
 		const doc = this.documents.find(item => i === item.i)
 		if (!doc) return
-		Object.assign(doc, {
-			d,
+		Object.assign(doc, row(d, {
 			uby: 0,
 			uat: new Date
-		})
+		}, this.map))
 		this.save()
 	},
 	remove(i){
@@ -179,6 +184,11 @@ module.exports = {
 		}, new Database(cfg))
 	},
 	set(key, name, id, input, output){
+		const coll = getColl(this, key, name)
+		set(coll, id, input, output)
+		return this.next()
+	},
+	sets(key, name, id, input, output){
 		const coll = getColl(this, key, name)
 		if (Array.isArray(input)){
 			sets(coll, id, input, output)

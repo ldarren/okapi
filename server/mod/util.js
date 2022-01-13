@@ -123,5 +123,9 @@ module.exports = {
 	async go(url, data){
 		await this.next(null, url, data)
 		return this.next()
-	}
+	},
+
+	die(err){
+		throw err
+	},
 }

@@ -2,7 +2,7 @@ const pObj = require('pico/obj')
 const base = require('service/okapi/base.json')
 const common = require('service/common.json')
 const treeCfg = require('service/tree.json')
-const tree = require('service/tree')
+const tree = require('service/tree_old')
 const system = require('service/system.json')
 
 const out = {}

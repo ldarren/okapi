@@ -26,8 +26,8 @@ module.exports = {
 		return this.next()
 	},
 
-	bodyParser(req, body){
-		return new Promise((resolve, reject) => {
+	async bodyParser(req, body){
+		const err = await new Promise((resolve, reject) => {
 			const arr = []
 
 			req.on('data', chuck => {
@@ -38,7 +38,6 @@ module.exports = {
 			})
 			req.on('error',err => {
 				reject(err)
-				this.next(err)
 			})
 			req.on('end', () => {
 				const str = Buffer.concat(arr).toString()
@@ -54,9 +53,9 @@ module.exports = {
 					Object.assign(body, raw)
 				}
 				resolve()
-				return this.next()
 			})
 		})
+		return this.next(err)
 	},
 
 	output: (contentType = 'application/json', dataType = 'json') => {

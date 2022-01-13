@@ -6,7 +6,7 @@
 		"port": 1337
 	},{
 		"id": "db",
-		"mod": "json_mem",
+		"mod": "jsondb",
 		"dir": "./db"
 	},{
 		"id": "util",

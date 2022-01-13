@@ -43,7 +43,7 @@ function _host(radix, libs, routes){
 			const key = radix.match(named, params)
 			let route = routes[key]
 			if (!route) {
-				route = routes[ERROR_ROUTE]
+				route = key && routes[ERROR_ROUTE]
 				if (!route) return 'not found'
 			}
 			return next.call(Object.assign({}, libs, {params, next, route, data, ptr: 0}))
@@ -89,6 +89,7 @@ function _host(radix, libs, routes){
 		go(url, data){
 			return next(null, url, data)
 		},
+		// listen to event such as route match, entering mw, leaving mw
 		listen(mod, filter, instance){
 		}
 	}

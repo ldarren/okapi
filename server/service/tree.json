@@ -1,90 +1,29 @@
 {
 	"spec": {
-		"tree_node": {
-			"name": {
-				"type": "string",
-				"gt": 0,
-				"lt": 64
-			},
-			"env": "object"
-		},
-		"tree_leaf": {
-			"name": {
-				"type": "string",
-				"gt": 0,
-				"lt": 64
-			},
-			"method": "object",
-			"url": "string",
-			"headers": {
-				"type": "array",
-				"spec": "string"
-			},
-			"body": "string",
-			"res": "string"
+		"tree": {
+			"type": "array",
+			"specs": [
+				{"type": "string", "required": 1, "force": 1},
+				"object",
+				{"type": "array", "spec": ["ref", "_"]}
+			]
 		}
 	},
 	"rsc": {
 		"tree": {
 			"db": "db",
 			"schema": {
-				"type": "object",
-				"spec": {
-					"id": {
-						"type": "string",
-						"gt": 0,
-						"lt": 64
-					},
-					"tree_id": {
-						"type": "string",
-						"gt": 0,
-						"lt": 64
-					},
-					"child": {
-						"type": "array",
-						"spec": {
-							"type": "string",
-							"gt": 0,
-							"lt": 64
-						}
-					},
-					"body": {
-						"type": "object"
-					},
-					"cred": "object"
-				}
+				"type": "array",
+				"specs": ["string", "object", {"type": "array", "spec": ["ref", "_"]}]
 			}
 		}
 	},
 	"routes":{
-		"LIST/tree": [
-			[["web.output"], "_.res", "_.:output", "_.query"],
-			["web.queryParser", "_.req", "_.input"],
-			[["util.input", "@.spec.query"], "_.input", "_.query"],
-			["db.find", "db", "tree", "_.query", "_.:output"]
-		],
-		"GET/tree/:i": [
-			[["web.output"], "_.res", "_.output"],
-			[["util.input", "@.spec.params"], "$.params", "_.query"],
-			["db.get", "db", "tree", "_.query.i", "_.output"]
-		],
 		"NEW/tree": [
 			[["web.output"], "_.res", "_.output"],
-			["web.bodyParser", "_.req", "_.body"],
-			[["util.input", "@.rsc.tree.schema"], "_.body", "_.input"],
-			["db.set", "db", "tree", null, "_.input", "_.output"]
-		],
-		"UPD/tree/:i": [
-			[["web.output"], "_.res", "_.output"],
-			[["util.input", "@.spec.params"], "$.params", "_.query"],
-			["web.bodyParser", "_.req", "_.body"],
-			[["util.input", "@.rsc.tree.schema"], "_.body", "_.input"],
-			["db.set", "db", "tree", "_.query.i", "_.input", "_.output"]
-		],
-		"REM/tree/:i": [
-			[["web.output"], "_.res", null],
-			[["util.input", "@.spec.params"], "$.params", "_.query"],
-			["db.hide", "db", "tree", "_.query.i"]
+			["web.bodyParser", "_.req", "_.:body"],
+			[["util.input", "@.spec.tree"], "_.:body", "_.:input", "@.spec.tree"],
+			["db.set", "db", "tree", null, "_.:input", "_.output"]
 		],
 		"/1.0/tree": [
 			["@.tree.router",  "_.req.method"]
@@ -93,4 +32,4 @@
 			["@.tree.router",  "_.req.method", "$.params.i"]
 		]
 	}
-} 
+}

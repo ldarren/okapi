@@ -1,6 +1,7 @@
 import {EditorView, keymap, highlightSpecialChars, drawSelection, highlightActiveLine} from "@codemirror/view"
 import {EditorState, ChangeSet, Annotation, Transaction} from '@codemirror/state'
 
+import {basicSetup} from "@codemirror/basic-setup"
 import {history, historyKeymap} from "@codemirror/history"
 import {foldGutter, foldKeymap} from "@codemirror/fold"
 import {indentOnInput} from "@codemirror/language"
@@ -18,6 +19,8 @@ import {lintKeymap} from "@codemirror/lint"
 window.cm = {
     EditorView,
     EditorState,
+	// see https://github.com/codemirror/basic-setup/blob/main/src/basic-setup.ts
+	basicSetup,
     liteSetup: [
         lineNumbers(),
         highlightActiveLineGutter(),
@@ -28,7 +31,7 @@ window.cm = {
         EditorState.allowMultipleSelections.of(true),
         indentOnInput(),
         defaultHighlightStyle.fallback,
-        bracketMatching(),
+        //bracketMatching(), // causing bracket auto open
         closeBrackets(),
         autocompletion(),
         rectangularSelection(),
