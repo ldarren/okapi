@@ -25,6 +25,10 @@
 			[["util.input", "@.spec.tree"], "_.:body", "_.:input", "@.spec.tree"],
 			["db.set", "db", "tree", null, "_.:input", "_.output"]
 		],
+		"GET/tree/:i": [
+			[["web.output"], "_.res", "_.:output"],
+			[["util.networkInterface", null, {"family":"IPv4", "internal":false}], "address", "_.:output"]
+		],
 		"/1.0/tree": [
 			["@.tree.router",  "_.req.method"]
 		],

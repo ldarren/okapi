@@ -126,7 +126,7 @@ module.exports = {
 					path = method[0]
 
 					method.slice(1).forEach(param => {
-						if (!param.charAt){
+						if (!param || !param.charAt){
 							params.push(param)
 							return
 						}

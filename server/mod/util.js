@@ -1,3 +1,4 @@
+const os = require('os')
 const pLib = require('pico-common')
 const pObj = pLib.export('pico/obj')
 const randex = require('randexp').randexp
@@ -126,6 +127,25 @@ module.exports = {
 	},
 
 	die(err){
-		throw err
+		this.next(err)
 	},
+
+	networkInterface(name, cond = {}){
+		const filter = addr => Object.keys(cond).every(key => cond[key] === addr[key])
+		const ni = os.networkInterfaces()
+		const addrs = Object.keys(ni).reduce((acc, key) => {
+			if (name && name !== key) return acc
+			const list = ni[key]
+			acc.push(...list.filter(filter))
+			return acc
+		}, [])
+
+		return function(key, output){
+			addrs.reduce((acc, net) => {
+				acc.push(net[key])
+				return acc
+			}, output)
+			this.next()
+		}
+	}
 }
