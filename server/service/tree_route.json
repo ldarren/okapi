@@ -1,23 +1,4 @@
 {
-	"spec": {
-		"tree": {
-			"type": "array",
-			"specs": [
-				{"type": "string", "required": 1, "force": 1},
-				"object",
-				{"type": "array", "spec": ["ref", "_"]}
-			]
-		}
-	},
-	"rsc": {
-		"tree": {
-			"db": "db",
-			"schema": {
-				"type": "array",
-				"specs": ["string", "object", {"type": "array", "spec": ["ref", "_"]}]
-			}
-		}
-	},
 	"routes":{
 		"NEW/tree": [
 			[["web.output"], "_.res", "_.output"],

@@ -34,6 +34,7 @@ function groupQuery(input, grouping, output = []){
 
 module.exports = {
 	setup(host, cfg, rsc, paths){
+		return this
 	},
 
 	async wait(sec){
@@ -141,10 +142,8 @@ module.exports = {
 		}, [])
 
 		return function(key, output){
-			addrs.reduce((acc, net) => {
-				acc.push(net[key])
-				return acc
-			}, output)
+			if (key) addrs.reduce((acc, net) => { acc.push(net[key]); return acc }, output)
+			else output.push(...addrs)
 			this.next()
 		}
 	}

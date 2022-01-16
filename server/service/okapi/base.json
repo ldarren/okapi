@@ -9,11 +9,11 @@
 		"mod": "jsondb",
 		"dir": "./db"
 	},{
-		"id": "util",
-		"mod": "util"
-	},{
 		"id": "sys",
 		"mod": "sys"
+	},{
+		"id": "util",
+		"mod": "util"
 	},{
 		"id": "timer",
 		"mod": "timer"

@@ -7,3 +7,4 @@ todo
 - create resources on server
 - update with changes
 - get update
+- shitdown server

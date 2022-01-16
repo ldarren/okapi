@@ -5,6 +5,13 @@
 		"host": "127.0.0.1",
 		"port": 1337
 	},{
+		"id": "db",
+		"mod": "jsondb",
+		"dir": "./db"
+	},{
+		"id": "sys",
+		"mod": "sys"
+	},{
 		"id": "util",
 		"mod": "util"
 	},{
@@ -15,6 +22,11 @@
 	},
 	"routes": {
 		"": [
+			["util.go", "/tests/unit"]
+		],
+		"broken_init": [
+			["util.go", "/tests/unit"],
+
 			["util.spawn_tree", "@.rsc.tree.schema", "_.ext", 3, "_.:tree"],
 			["db.set", "tree", null, "_.:tree", "_.:output"],
 
@@ -26,6 +38,9 @@
 
 			[["cms_cli.poll", "GET", "http://localhost:1337/1.0/health"]],
 			["util.go", "/inbounds/products"]
+		],
+		"/tests/unit": [
+			["it.parallel", "Unit Tests", "@.unit.test"]
 		],
 		"/inbounds/products": [
 			["it.parallel", "Products Listing Tests", "@.func.list"]
