@@ -28,12 +28,12 @@
 	"routes":{
 		"* * * * * *": [
 			["sys.record",  "_.record"],
-			["db.set", "db", "system", null, "_.record", {}],
-			["db.truncate", "db", "system", 60]
+			["db.set", "$.db.system", null, null, "_.record", {}],
+			["db.truncate", "$.db.system", 60]
 		],
 		"/1.0/system": [
 			[["web.output"], "_.res", "_.:output"],
-			["db.find", "db", "system", "_.query", "_.:output"]
+			["db.find", "$.db.system", "_.query", "_.:output"]
 		]
 	}
 } 

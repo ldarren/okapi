@@ -12,6 +12,12 @@
 	"rsc": {
 		"tree": {
 			"db": "db",
+			"meta": {
+				"type": "object",
+				"spec": {
+					"host_ip":"string"
+				}
+			},
 			"schema": {
 				"type": "array",
 				"specs": ["string", "object", {"type": "array", "spec": ["ref", "_"]}]

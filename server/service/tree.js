@@ -12,5 +12,9 @@ console.log('#### tree router', method, i)
 		case 'DELETE':
 			return this.next(null, `REM/tree/${i}`)
 		}
+	},
+	meta(ip, output){
+		Object.assign(output, {host_ip: ip[0]})
+		this.next()
 	}
 }

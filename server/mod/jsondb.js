@@ -58,6 +58,7 @@ function Collection(db, name, rs){
 	const doc = json.length ? JSON.parse(json) : []
 	this.documents = doc
 	this.index = doc.length ? doc[doc.length - 1].i + 1 : 1
+	this.meta = Object.assign({}, rs.meta || {})
 	this.map = rs.map || Object.assign({}, rs.map)
 	this.schema = Object.assign({}, rs.schema)
 }
@@ -71,20 +72,26 @@ Collection.prototype = {
 	save(){
 		fs.writeFileSync(this.fname, JSON.stringify(this.documents))
 	},
-	insert(input){
-		const d = {}
-		const res = pObj.validate(this.schema, input, d)
+	insert(meta, input){
+		const d = 'array' === this.schema.type ? [] : {}
+		let res = pObj.validate(this.schema, input, d)
 		if (res) throw `invalid parameter: ${res}`
 
-		const meta = {
+		let m = {}
+		if (this.meta.type){
+			res = pObj.validate(this.meta, meta, m)
+			if (res) throw `invalid meta: ${this.meta}, ${res}`
+		}
+		m = Object.assign({
 			i: this.index++,
 			s: 1,
 			cby: 0,
 			cat: new Date
-		}
-		this.documents.push(row(d, meta, this.map))
+		}, m)
+
+		this.documents.push(row(d, m, this.map))
 		this.save()
-		return meta
+		return m
 	},
 	update(i, d){
 		const doc = this.documents.find(item => i === item.i)
@@ -118,17 +125,18 @@ Collection.prototype = {
  *
  * @param {Collection} coll - Collection instance
  * @param {string} id - identity of the record, can be string or number
+ * @param {object} meta - meta object of data
  * @param {object} input - record to be set
  * @param {object} output - result of the set
  *
  * @returns {void} - undefined
  */
-function set(coll, id, input, output){
+function set(coll, id, meta, input, output){
 	if (id){
 		coll.update(id, input)
 		Object.assign(output, {id})
 	}else{
-		const res = coll.insert(input)
+		const res = coll.insert(meta, input)
 		Object.assign(output, res)
 	}
 }
@@ -138,6 +146,7 @@ function set(coll, id, input, output){
  *
  * @param {Collection} coll - Collection instance
  * @param {Array} ids - array of identity of the record, can be string or number
+ * @param {Array} metas - meta data of recards
  * @param {Array} inputs - records to be set
  * @param {Array} outputs - results of the sets
  *
@@ -157,64 +166,44 @@ function sets(coll, ids, inputs, outputs){
 	}
 }
 
-/**
- * Get Collection by database name and collection name
- *
- * @param {object} ctx - context
- * @param {string} dbiName - name of the database that contain the interested collection
- * @param {string} collName - name of the collection
- *
- * @returns {Collection} - Collection instance
- */
-function getColl(ctx, dbName, collName){
-	const db = ctx[dbName]
-	if (!db) throw `Invalid ${dbName}`
-	const coll = db.getColl(collName)
-	if (!coll) throw `Invalid ${dbName}.${collName}`
-	return coll
-}
-
 module.exports = {
 	setup(host, cfg, rsc, paths){
+		const db = new Database(cfg)
 		return Object.keys(rsc).reduce((acc, name) => {
 			const rs = rsc[name]
-			if (!rs || acc.name !== rs.db) return acc
-			acc.addColl(name, new Collection(acc, name, rs))
+			if (!rs || db.name !== rs.db) return acc
+			const coll = new Collection(db, name, rs)
+			db.addColl(name, coll)
+			acc[name] = coll
 			return acc
-		}, new Database(cfg))
+		}, {})
 	},
-	set(key, name, id, input, output){
-		const coll = getColl(this, key, name)
-		set(coll, id, input, output)
+	set(coll, id, meta, input, output){
+		set(coll, id, meta, input, output)
 		return this.next()
 	},
-	sets(key, name, id, input, output){
-		const coll = getColl(this, key, name)
+	sets(coll, id, meta, input, output){
 		if (Array.isArray(input)){
-			sets(coll, id, input, output)
+			sets(coll, id, meta, input, output)
 		}else{
-			set(coll, id, input, output)
+			set(coll, id, meta, input, output)
 		}
 		return this.next()
 	},
-	get(key, name, id, output){
-		const coll = getColl(this, key, name)
+	get(coll, id, output){
 		const res = coll.select({index: 'i', csv: [id]})
 		Object.assign(output, res[0])
 		return this.next()
 	},
-	find(key, name, query, output){
-		const coll = getColl(this, key, name)
+	find(coll, query, output){
 		output.push(...coll.select(query))
 		return this.next()
 	},
-	hide(key, name, id){
-		const coll = getColl(this, key, name)
+	hide(coll, id){
 		coll.remove(id)
 		return this.next()
 	},
-	truncate(key, name, size){
-		const coll = getColl(this, key, name)
+	truncate(coll, size){
 		coll.truncate(size)
 		return this.next()
 	}
