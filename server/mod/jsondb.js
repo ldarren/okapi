@@ -140,10 +140,10 @@ Collection.prototype = {
  *
  * @returns {void} - undefined
  */
-function set(coll, id, input, meta, output){
-	if (id){
-		coll.update(id, input, meta)
-		Object.assign(output, {id})
+function set(coll, i, input, meta, output){
+	if (i){
+		coll.update(i, input, meta)
+		Object.assign(output, {i})
 	}else{
 		const res = coll.insert(input, meta)
 		Object.assign(output, res)
@@ -161,15 +161,15 @@ function set(coll, id, input, meta, output){
  *
  * @returns {void} - undefined
  */
-function sets(coll, ids, inputs, metas, outputs){
-	if (ids){
-		ids.forEach((id, i) => {
-			coll.update(id, inputs[i], metas[i])
-			outputs.push({id})
+function sets(coll, is, inputs, metas, outputs){
+	if (is){
+		is.forEach((i, ix) => {
+			coll.update(i, inputs[ix], metas[ix])
+			outputs.push({i})
 		})
 	}else{
-		inputs.forEach((input, i) => {
-			const res = coll.insert(input, metas[i])
+		inputs.forEach((input, ix) => {
+			const res = coll.insert(input, metas[ix])
 			outputs.push(res)
 		})
 	}
@@ -199,8 +199,8 @@ module.exports = {
 		}
 		return this.next()
 	},
-	get(coll, id, output){
-		const res = coll.select({index: 'i', csv: [id]})
+	get(coll, i, output){
+		const res = coll.select({index: 'i', csv: [i]})
 		Object.assign(output, res[0])
 		return this.next()
 	},

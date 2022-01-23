@@ -65,9 +65,9 @@
         ],
         "PUT/rsc/i": [
             ["web.bodyParser", "_.req", "_.input"],
-            ["db.get", "_.params.rsc", "_.params.i", "_.origin"],
-            ["util.push", "_.:array", "_.input", "_.updated"],
-            [["util.lib", "pico/obj", "extends"], "_.origin.d", "_.array"],
+            ["db.get", "_.db.coll", "_.params.i", "_.origin"],
+            ["util.push", "_.:array", "_.origin.d", "_.input"],
+            [["util.lib", "pico/obj", "extends"], "_.updated", "_.:array"],
             ["util.input2", "_.updated", "_.rs.schema", "_.valid"],
             ["db.set", "_.db.coll", "_.params.i", "_.valid", null, "_.out"],
             ["db.get", "_.db.coll", "_.out.i", "_.output"]

@@ -90,10 +90,12 @@ module.exports = {
 	},
 
 	lib: (id, funcName) => {
-		const func = pLib.export(id)[funcName]
+		const lib = pLib.export(id)
+		const func = lib[funcName]
+		if (!func) throw `${funcName} not found in ${id}`
 
 		return function(...args){
-			func(...args)
+			func.apply(lib, args)
 			return this.next()
 		}
 	},
