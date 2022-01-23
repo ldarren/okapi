@@ -9,6 +9,9 @@
 		"mod": "jsondb",
 		"dir": "./db"
 	},{
+		"id": "room",
+		"mod": "room"
+	},{
 		"id": "sys",
 		"mod": "sys"
 	},{

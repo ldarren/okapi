@@ -28,15 +28,16 @@ Database.prototype = {
 	}
 }
 
-function row(d, meta, map){
-	const obj = {}
-	if (map){
-		Object.keys(map).reduce((acc, k) => {
-			acc[k] = d[map[k]]
-			return acc
-		}, obj)
-	}
-	return Object.assign(obj, meta, {d})
+function map(d, meta, map){
+	if (!map) return
+	return Object.keys(map).reduce((acc, k) => {
+		acc[k] = d[map[k]]
+		return acc
+	}, {})
+}
+
+function row(d, meta){
+	return Object.assign({}, meta, {d})
 }
 
 /**
@@ -72,14 +73,14 @@ Collection.prototype = {
 	save(){
 		fs.writeFileSync(this.fname, JSON.stringify(this.documents))
 	},
-	insert(meta, input){
+	insert(input, meta){
 		const d = 'array' === this.schema.type ? [] : {}
 		let res = pObj.validate(this.schema, input, d)
 		if (res) throw `invalid parameter: ${res}`
 
 		let m = {}
 		if (this.meta.type){
-			res = pObj.validate(this.meta, meta, m)
+			res = pObj.validate(this.meta, map(d, this.map, meta), m)
 			if (res) throw `invalid meta: ${this.meta}, ${res}`
 		}
 		m = Object.assign({
@@ -89,17 +90,25 @@ Collection.prototype = {
 			cat: new Date
 		}, m)
 
-		this.documents.push(row(d, m, this.map))
+		this.documents.push(row(d, m))
 		this.save()
 		return m
 	},
-	update(i, d){
+	update(i, d, meta){
 		const doc = this.documents.find(item => i === item.i)
 		if (!doc) return
-		Object.assign(doc, row(d, {
+
+		let m = {}
+		if (this.meta.type){
+			let res = pObj.validate(this.meta, map(d, this.map, meta), m)
+			if (res) throw `invalid meta: ${this.meta}, ${res}`
+		}
+		m = Object.assign({
 			uby: 0,
 			uat: new Date
-		}, this.map))
+		}, m)
+
+		Object.assign(doc, row(d, m))
 		this.save()
 	},
 	remove(i){
@@ -125,18 +134,18 @@ Collection.prototype = {
  *
  * @param {Collection} coll - Collection instance
  * @param {string} id - identity of the record, can be string or number
- * @param {object} meta - meta object of data
  * @param {object} input - record to be set
+ * @param {object} meta - meta object of data
  * @param {object} output - result of the set
  *
  * @returns {void} - undefined
  */
-function set(coll, id, meta, input, output){
+function set(coll, id, input, meta, output){
 	if (id){
-		coll.update(id, input)
+		coll.update(id, input, meta)
 		Object.assign(output, {id})
 	}else{
-		const res = coll.insert(meta, input)
+		const res = coll.insert(input, meta)
 		Object.assign(output, res)
 	}
 }
@@ -146,21 +155,21 @@ function set(coll, id, meta, input, output){
  *
  * @param {Collection} coll - Collection instance
  * @param {Array} ids - array of identity of the record, can be string or number
- * @param {Array} metas - meta data of recards
  * @param {Array} inputs - records to be set
+ * @param {Array} metas - meta data of recards
  * @param {Array} outputs - results of the sets
  *
  * @returns {void} - undefined
  */
-function sets(coll, ids, inputs, outputs){
+function sets(coll, ids, inputs, metas, outputs){
 	if (ids){
 		ids.forEach((id, i) => {
-			coll.update(id, inputs[i])
+			coll.update(id, inputs[i], metas[i])
 			outputs.push({id})
 		})
 	}else{
-		inputs.forEach(input => {
-			const res = coll.insert(input)
+		inputs.forEach((input, i) => {
+			const res = coll.insert(input, metas[i])
 			outputs.push(res)
 		})
 	}
@@ -178,15 +187,15 @@ module.exports = {
 			return acc
 		}, {})
 	},
-	set(coll, id, meta, input, output){
-		set(coll, id, meta, input, output)
+	set(coll, id, input, meta, output){
+		set(coll, id, input, meta, output)
 		return this.next()
 	},
-	sets(coll, id, meta, input, output){
+	sets(coll, id, input, meta, output){
 		if (Array.isArray(input)){
-			sets(coll, id, meta, input, output)
+			sets(coll, id, input, meta, output)
 		}else{
-			set(coll, id, meta, input, output)
+			set(coll, id, input, meta, output)
 		}
 		return this.next()
 	},

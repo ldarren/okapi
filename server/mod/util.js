@@ -53,8 +53,8 @@ module.exports = {
 	router: rsc => async function(method, params) {
 		const rs = rsc[params.rsc]
 		if (!rs) return this.next(`unsupprted key: ${params.rsc}`)
-		const indi = params.id ? '/id' : ''
-		const name = `${method}/rsc${indi}`
+		const idx = params.i ? '/i' : ''
+		const name = `${method}/${params.rsc}${idx}`
 		await this.next(null, name, Object.assign({
 			params,
 			rs
@@ -63,14 +63,14 @@ module.exports = {
 	},
 
 	input: spec => function(input, output, ext) {
-		const error = pObj.validate(spec, input, output, ext)
-		if (error) return this.next(`invalid params [${error}]`)
+		const err = pObj.validate(spec, input, output, ext)
+		if (err) return this.next(`invalid params [${err}]`)
 		return this.next()
 	},
 
 	input2(input, spec, output, ext) {
-		const error = pObj.validate(spec, input, output, ext)
-		if (error) return this.next(`invalid params [${error}]`)
+		const err = pObj.validate(spec, input, output, ext)
+		if (err) return this.next(`invalid params [${err}]`)
 		return this.next()
 	},
 
@@ -122,12 +122,16 @@ module.exports = {
 		return this.next()
 	},
 
-	async go(url, data){
+	async detour(url, data){
 		await this.next(null, url, data)
 		return this.next()
 	},
 
-	die(err){
+	branch(url, data){
+		this.next(null, url, data)
+	},
+
+	deadend(err){
 		this.next(err)
 	},
 
