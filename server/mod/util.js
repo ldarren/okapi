@@ -52,7 +52,7 @@ module.exports = {
 
 	router: rsc => async function(method, params) {
 		const rs = rsc[params.rsc]
-		if (!rs) return this.next(`unsupprted key: ${params.rsc}`)
+		if (!rs) return this.next(`unsupprted resource: ${params.rsc}`)
 		const idx = params.i ? '/i' : ''
 		const name = `${method}/${params.rsc}${idx}`
 		await this.next(null, name, Object.assign({

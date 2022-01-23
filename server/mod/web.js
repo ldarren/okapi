@@ -92,5 +92,5 @@ module.exports = {
 				res.end(exp.message || exp)
 			}
 		}
-	}
+	},
 }
