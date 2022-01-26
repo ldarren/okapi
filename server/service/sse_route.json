@@ -4,12 +4,6 @@
 			["auth.verify", "_.req", "_.user"],
             ["db.get", "$.db.user", "_.user.i", "_.user"],
 			["sse.connect", "_.req", "_.res", "_.user"]
-        ],
-        "/1.0/ssepost": [
-            [["web.output"], "_.res", "_.input", "_.meta"],
-			["auth.verify", "_.req", "_.user"],
-            ["web.bodyParser", "_.req", "_.input"],
-			["sse.sendAll", "_.input"]
         ]
 	}
 }

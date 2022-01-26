@@ -1,0 +1,69 @@
+{
+    "spec": {
+		"room": {
+            "type": "object",
+            "required": 1,
+            "spec": {
+				"id": "string",
+				"name": {
+					"type": "string",
+					"required": 1
+				}
+			}
+		},
+		"room_action": {
+            "type": "object",
+            "required": 1,
+            "spec": {
+				"id": {
+					"type": "string",
+					"required": 1
+				},
+				"action": {
+					"type": "string",
+					"required": 1
+				}
+			}
+		},
+		"room_msg": {
+            "type": "object",
+            "required": 1,
+            "spec": {
+				"id": {
+					"type": "string",
+					"required": 1
+				},
+				"msg": {
+					"type": "string",
+					"required": 1
+				}
+			}
+		}
+	},
+	"routes":{
+        "/1.0/chat": [
+            [["web.output"], "_.res", "_.output", "_.meta"],
+			["auth.verify", "_.req", "_.user"],
+			["web.bodyParser", "_.req", "_.body"],
+            [["util.input", "@.spec.room"]. "_.input", "_.room"],
+            ["db.get", "$.db.user", "_.user.i", "_.user"],
+			["room.create", "_.room", "_.user", "_.output"]
+        ],
+        "/1.0/chat/:i": [
+            [["web.output"], "_.res", "_.output", "_.meta"],
+			["auth.verify", "_.req", "_.user"],
+			["web.bodyParser", "_.req", "_.body"],
+            [["util.input", "@.spec.room_action"]. "_.input", "_.room"],
+            ["db.get", "$.db.user", "_.user.i", "_.user"],
+			["room.update", "_.room", "_.user", "_.output"]
+        ],
+        "/1.0/chat/:i/post": [
+            [["web.output"], "_.res", "_.output", "_.meta"],
+			["auth.verify", "_.req", "_.user"],
+			["web.bodyParser", "_.req", "_.body"],
+            [["util.input", "@.spec.room_msg"]. "_.input", "_.room"],
+            ["db.get", "$.db.user", "_.user.i", "_.user"],
+			["room.sendAll", "_.room", "_.user", "_.output"]
+        ]
+	}
+}

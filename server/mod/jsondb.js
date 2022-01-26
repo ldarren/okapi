@@ -43,7 +43,6 @@ function row(d, meta){
 /**
  * Collection class
  *
- * @param {Database} db - database object
  * @param {string} name - collection name
  * @param {object} rs - resource
  * @param {string} rs.db - resource db name, see mod.id
@@ -52,8 +51,7 @@ function row(d, meta){
  *
  * @returns {void} - this
  */
-function Collection(db, name, rs){
-	this.db = db
+function Collection(name, rs){
 	this.fname = path.join(db.dir, name + '.json')
 	const json = fs.readFileSync(this.fname, {flag: 'a+'})
 	const doc = json.length ? JSON.parse(json) : []
@@ -65,13 +63,13 @@ function Collection(db, name, rs){
 }
 
 Collection.prototype = {
+	save(){
+		fs.writeFileSync(this.fname, JSON.stringify(this.documents))
+	},
 	select(q){
 		const docs = this.documents
 		if (!Array.isArray(q.csv)) return docs.slice()
 		return q.csv.map(i => docs.find(item => i === item.i)).filter(item => item)
-	},
-	save(){
-		fs.writeFileSync(this.fname, JSON.stringify(this.documents))
 	},
 	insert(input, meta){
 		const d = 'array' === this.schema.type ? [] : {}
@@ -121,6 +119,14 @@ Collection.prototype = {
 			}
 		}
 		this.save()
+	},
+	pop(){
+		const d = this.documents.pop()
+		this.save()
+		return d
+	},
+	push(input, meta){
+		this.input(input, meta)
 	},
 	truncate(size){
 		this.documents = this.documents.slice(-size)
@@ -181,7 +187,7 @@ module.exports = {
 		return Object.keys(rsc).reduce((acc, name) => {
 			const rs = rsc[name]
 			if (!rs || db.name !== rs.db) return acc
-			const coll = new Collection(db, name, rs)
+			const coll = new Collection(name, rs)
 			db.addColl(name, coll)
 			acc[name] = coll
 			return acc
