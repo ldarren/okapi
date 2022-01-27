@@ -6,7 +6,7 @@ const treeSpec = require('~/tree_spec.json')
 const out = {}
 
 this.load = () => {
-    pObj.extends(out, [base, treeSpec, {unit}])
+	pObj.extends(out, [base, treeSpec, {unit}])
 }
 
 return out

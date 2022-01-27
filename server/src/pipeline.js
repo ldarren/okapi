@@ -89,7 +89,7 @@ function _host(radix, libs, routes){
 		go(url, data){
 			return next(null, url, data)
 		},
-		// listen to event such as route match, entering mw, leaving mw
+		// Listen to event such as route match, entering mw, leaving mw
 		listen(mod, filter, instance){
 		}
 	}

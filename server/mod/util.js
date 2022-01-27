@@ -113,12 +113,6 @@ module.exports = {
 		return this.next()
 	},
 
-	spawn_tree(schema, ext, layer, output){
-		// TODO: spawn tree structure with ${layer} layers
-		// do we need this if each node is a row?
-		return this.next()
-	},
-
 	add(value, key, output){
 		output[key] = value
 		return this.next()
@@ -148,7 +142,9 @@ module.exports = {
 		}, [])
 
 		return function(key, output){
-			if (key) addrs.reduce((acc, net) => { acc.push(net[key]); return acc }, output)
+			if (key) addrs.reduce((acc, net) => {
+				acc.push(net[key]); return acc
+			}, output)
 			else output.push(...addrs)
 			this.next()
 		}

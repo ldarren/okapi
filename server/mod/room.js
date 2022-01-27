@@ -1,4 +1,4 @@
-const pObj = require('pico-common').export('pico/obj')
+const pStr = require('pico-common').export('pico/str')
 const rooms = {}
 
 function add(room){
@@ -34,7 +34,7 @@ Room.prototype = {
 		return 0
 	},
 	remove(i){
-		const idx = this.team.findIndex(r => id === r.id)
+		const idx = this.team.findIndex(u => i === u.i)
 		this.rooms.splice(idx, 1)
 		if (!this.rooms.length) {
 			remove(this.room.id)
@@ -59,8 +59,8 @@ Room.prototype = {
 	send(q, msg, sender, recipient){
 		const senderi = sender.i
 		const recipienti = recipient.i
-		if (!senderi || !recipienti || senderi === reipienti) return 1
-		const found = 0
+		if (!senderi || !recipienti || senderi === recipienti) return 1
+		let found = 0
 		const team = this.team
 		for (let i = 0, m; (m = team[i]); i++){
 			if (senderi === m.i) found += 1
@@ -77,34 +77,36 @@ module.exports = {
 	},
 	create(room, owner, output){
 		const id = Date.now().toString(36) + pStr.rand()
-		r = new Room(id, room.name, owner)
-		rooms[id] = r
+		const r = new Room(id, room.name, owner)
+		add(r)
 		Object.assign(output, room, {id, online: r.team()})
 		this.next()
 	},
 	update(room, member, output){
 		const r = rooms[room.id]
-		if (!r) return this.next(`Room id[${id}] not found`)
+		if (!r) return this.next(`Room id[${room.id}] not found`)
 		switch(room.action){
 		case 'add':
-		if (r.add(member)) return this.next(`Checkin room[${id}] failed`)
+			if (r.add(member)) return this.next(`Checkin room[${room.id}] failed`)
+			break
 		case 'remove':
-		if (room.remove(member)) return this.next(`Checkout room[${id}] failed`)
+			if (room.remove(member)) return this.next(`Checkout room[${room.id}] failed`)
+			break
 		}
 		Object.assign(output, room, {online: r.team()})
 		return this.next()
 	},
 	sendAll(q, room, sender, output){
 		const r = rooms[room.id]
-		if (!r) return this.next(`Room id[${id}] not found`)
-		if (r.sendAll(q, room.msg, sender)) return this.next(`sendAll room[${id}] failed`)
+		if (!r) return this.next(`Room id[${room.id}] not found`)
+		if (r.sendAll(q, room.msg, sender)) return this.next(`sendAll room[${room.id}] failed`)
 		Object.assign(output, room, {online: r.team()})
 		return this.next()
 	},
 	send(q, room, msg, sender, recipient, output){
 		const r = rooms[room.id]
-		if (!r) return this.next(`Room id[${id}] not found`)
-		if (r.send(q, msg, sender, recipient)) return this.next(`send room[${id}] failed`)
+		if (!r) return this.next(`Room id[${room.id}] not found`)
+		if (r.send(q, msg, sender, recipient)) return this.next(`send room[${room.id}] failed`)
 		Object.assign(output, room, {online: r.team()})
 		return this.next()
 	}

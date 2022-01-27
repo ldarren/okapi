@@ -39,10 +39,16 @@
             "1tbs"
         ],
         "callback-return": "error",
-        "camelcase": "error",
+        "camelcase": ["error", {"properties": "never"}],
         "capitalized-comments": "error",
         "class-methods-use-this": "error",
-        "comma-dangle": "error",
+		"comma-dangle": ["error", {
+			"arrays": "never",
+			"objects": "only-multiline",
+			"imports": "never",
+			"exports": "never",
+			"functions": "never"
+		}],
         "comma-spacing": "off",
         "comma-style": "error",
         "complexity": "error",
@@ -244,7 +250,7 @@
         "prefer-regex-literals": "error",
         "prefer-rest-params": "error",
         "prefer-spread": "error",
-        "prefer-template": "error",
+        "prefer-template": "off",
         "quote-props": "off",
         "quotes": [
             "error",

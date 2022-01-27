@@ -7,7 +7,7 @@ const HEADERS = {
 const clients = {}
 
 function pack(data){
-	return `data: ${JSON.stringify(data)}\n\n`;
+	return `data: ${JSON.stringify(data)}\n\n`
 }
 
 function connect(req, res, id){
@@ -18,7 +18,6 @@ function connect(req, res, id){
 	clients[id] = res
 
 	req.on('close', () => {
-		console.log(`${id} Connection closed`)
 		delete clients[id]
 	})
 }

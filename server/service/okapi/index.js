@@ -25,7 +25,7 @@ this.load = () => {
 			tree
 		},
 		base
-	], {flat:1})
+	], {flat: 1})
 }
 
 return out

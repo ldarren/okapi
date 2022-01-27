@@ -89,7 +89,7 @@ module.exports = {
 			const name = path.basename(bpath)
 			readBook(wd, name, (err, book) => {
 				if (err) return cb(err)
-				cb(null, pObj.extends({}, book, {flat:1}))
+				cb(null, pObj.extends({}, book, {flat: 1}))
 			})
 		})
 	}

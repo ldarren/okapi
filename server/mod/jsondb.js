@@ -12,7 +12,9 @@ const pObj = require('pico-common').export('pico/obj')
 function Database(cfg){
 	this.name = cfg.id
 	const dir = cfg.dir
+	/* eslint-disable no-sync */
 	if (!fs.statSync(dir, {throwIfNoEntry: false})) {
+		/* eslint-disable no-sync */
 		fs.mkdirSync(dir, {recursive: true})
 	}
 	this.dir = cfg.dir
@@ -43,6 +45,7 @@ function row(d, meta){
 /**
  * Collection class
  *
+ * @param {Database} db - Database instance
  * @param {string} name - collection name
  * @param {object} rs - resource
  * @param {string} rs.db - resource db name, see mod.id
@@ -51,7 +54,7 @@ function row(d, meta){
  *
  * @returns {void} - this
  */
-function Collection(name, rs){
+function Collection(db, name, rs){
 	this.fname = path.join(db.dir, name + '.json')
 	const json = fs.readFileSync(this.fname, {flag: 'a+'})
 	const doc = json.length ? JSON.parse(json) : []
@@ -139,7 +142,7 @@ Collection.prototype = {
  * Set single record into collection
  *
  * @param {Collection} coll - Collection instance
- * @param {string} id - identity of the record, can be string or number
+ * @param {string} i - identity of the record, can be string or number
  * @param {object} input - record to be set
  * @param {object} meta - meta object of data
  * @param {object} output - result of the set
@@ -160,7 +163,7 @@ function set(coll, i, input, meta, output){
  * Set multiple records into collection
  *
  * @param {Collection} coll - Collection instance
- * @param {Array} ids - array of identity of the record, can be string or number
+ * @param {Array} is - array of identity of the record, can be string or number
  * @param {Array} inputs - records to be set
  * @param {Array} metas - meta data of recards
  * @param {Array} outputs - results of the sets
@@ -187,7 +190,7 @@ module.exports = {
 		return Object.keys(rsc).reduce((acc, name) => {
 			const rs = rsc[name]
 			if (!rs || db.name !== rs.db) return acc
-			const coll = new Collection(name, rs)
+			const coll = new Collection(db, name, rs)
 			db.addColl(name, coll)
 			acc[name] = coll
 			return acc
