@@ -1,5 +1,6 @@
 const pStr = require('pico-common').export('pico/str')
 const pObj = require('pico-common').export('pico/obj')
+const OverTime = require('./overtime')
 
 const KEYWORDS = [
 	'params',
@@ -23,10 +24,14 @@ const SEP = '.'
  * @param {object} radix - radix tree for routing
  * @param {object} libs - loaded lib/module from spec
  * @param {object} routes - middleware routes
+ * @param {number} [threshold=100] - max rpm
  *
  * @returns {void} - this
  */
-function _host(radix, libs, routes){
+function _host(radix, libs, routes, threshold){
+	const overtime = new OverTime('s')
+	const queue = []
+	let RPM = threshold || 100
 
 	/**
 	 * Forward to next middelware
@@ -87,7 +92,14 @@ function _host(radix, libs, routes){
 
 	return {
 		go(url, data){
-			return next(null, url, data)
+			queue.push([null, url, data])
+			this.relief()
+		},
+		relief(){
+			if (!queue.length) return
+			const off = RPM - overtime.total()
+			if (off < 0) return
+			return next.call(...queue.pop())
 		},
 		// Listen to event such as route match, entering mw, leaving mw
 		listen(mod, filter, instance){
@@ -95,14 +107,19 @@ function _host(radix, libs, routes){
 	}
 }
 
+function roll(host){
+	host.relief()
+	process.nextTick(roll, host)
+}
+
 module.exports = {
-	run(service){
+	run(service, threshold){
 		const radix = new pStr.Radix
 		const mods = {}
 		const libs = {}
 		const routes = {}
 		const paths = Object.keys(service.routes)
-		const host = _host(radix, libs, routes)
+		const host = _host(radix, libs, routes, threshold)
 
 		service.mod.forEach(cfg => {
 			const id = cfg.id
@@ -182,5 +199,6 @@ module.exports = {
 		})
 
 		host.go('')
+		roll(host)
 	}
 }

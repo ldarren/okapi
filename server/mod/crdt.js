@@ -41,11 +41,11 @@ console.log('server merge2', patch.diffs.props, merge2.req.toString())
 		}catch(ex){
 			console.error(ex)
 		}
-	},          
-	exit(cb){   
-		close()     
-		cb && cb()        
-	}            
+	},
+	exit(cb){
+		close()
+		cb && cb()
+	}
 }
 
 function CRDT(obj){
