@@ -31,7 +31,7 @@ const SEP = '.'
 function _host(radix, libs, routes, threshold){
 	const overtime = new OverTime('s')
 	const queue = []
-	let RPM = threshold || 100
+	let RPM = threshold || 1
 
 	/**
 	 * Forward to next middelware
@@ -42,7 +42,10 @@ function _host(radix, libs, routes, threshold){
 	 * @returns {void} - no returns
 	 */
 	async function next(err, named, data = this.data || {}){
-		if (err) throw err
+		if (err) {
+			overtime.decr(1)
+			throw err
+		}
 		if (null != named) {
 			const params = {}
 			const key = radix.match(named, params)
@@ -51,11 +54,14 @@ function _host(radix, libs, routes, threshold){
 				route = key && routes[ERROR_ROUTE]
 				if (!route) return 'not found'
 			}
+			overtime.incr()
 			return next.call(Object.assign({}, libs, {params, next, route, data, ptr: 0}))
 		}
 
 		const middleware = this.route[this.ptr++]
-		if (!middleware) return
+		if (!middleware) {
+			return overtime.decr(3)
+		}
 
 		const args = middleware.slice(1).map(key => {
 			if (!Array.isArray(key)) return key
