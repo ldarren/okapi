@@ -96,10 +96,10 @@ function _host(radix, libs, routes, threshold){
 			this.relief()
 		},
 		relief(){
-			if (!queue.length) return
+			if (!queue.length) return 1
 			const off = RPM - overtime.total()
-			if (off < 0) return
-			return next.call(...queue.pop())
+			if (off < 0) return 1
+			return next(...queue.pop())
 		},
 		// Listen to event such as route match, entering mw, leaving mw
 		listen(mod, filter, instance){
@@ -108,7 +108,8 @@ function _host(radix, libs, routes, threshold){
 }
 
 function roll(host){
-	host.relief()
+	const ret = host.relief()
+	if (ret) return setTimeout(roll, 1000, host)
 	process.nextTick(roll, host)
 }
 
