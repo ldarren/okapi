@@ -9,16 +9,10 @@ const CREATE_BODY = (body, meta) => JSON.stringify(Object.assign({}, meta, {body
 module.exports = {
 
 	setup(host, cfg, rsc, paths){
-		const proxy = http.createServer(async (req, res) => {
+		http.createServer((req, res) => {
 			const url = URL.parse(req.url, 1)
-			const err = await host.go(url.pathname, {req, res, url})
-			if (err) {
-				res.statusCode = 404 // eslint-disable-line require-atomic-updates
-				return res.end(err.charAt ? err : JSON.stringify(err))
-			}
-		})
-
-		proxy.listen(cfg.port, cfg.host, () => process.stdout.write(`listening to ${cfg.host}:${cfg.port}\n`))
+			host.go(url.pathname, {req, res, url})
+		}).listen(cfg.port, cfg.host, () => process.stdout.write(`listening to ${cfg.host}:${cfg.port}\n`))
 	},
 
 	queryParser(req, query){

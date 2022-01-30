@@ -26,12 +26,12 @@ const SEP = '.'
  * @param {object} routes - middleware routes
  * @param {number} [threshold=100] - max rpm
  *
- * @returns {void} - this
+ * @returns {object} - this
  */
 function _host(radix, libs, routes, threshold){
 	const overtime = new OverTime('s')
 	const queue = []
-	let RPM = threshold || 1
+	let RPM = threshold || 64
 
 	/**
 	 * Forward to next middelware
@@ -96,27 +96,44 @@ function _host(radix, libs, routes, threshold){
 		await middleware[0].apply(this, args)
 	}
 
+	/**
+	 * Relief queue pressure
+	 * this function execute next request in queue if there is any and current overtime is less than desired RPM
+	 *
+	 * @returns {void} - void if success and backoff time if no execution
+	 */
+	function relief(){
+		if (!queue.length) return 1000
+		let off = RPM - overtime.total()
+		if (off < 0) return 1000
+		while(off && queue.length){
+			off--
+			next(...queue.pop())
+		}
+		return queue.length ? 0 : 1000
+	}
+
+	/**
+	 * Roll the pipeline
+	 * implement backoff mechanism when no task in pipeline
+	 *
+	 * @returns {void} - no returns
+	 */
+	(function roll(){
+		const ret = relief()
+		if (ret) return setTimeout(roll, ret)
+		process.nextTick(roll)
+	}())
+
 	return {
 		go(url, data){
 			queue.push([null, url, data])
-			this.relief()
-		},
-		relief(){
-			if (!queue.length) return 1
-			const off = RPM - overtime.total()
-			if (off < 0) return 1
-			return next(...queue.pop())
+			process.nextTick(relief)
 		},
 		// Listen to event such as route match, entering mw, leaving mw
 		listen(mod, filter, instance){
-		}
+		},
 	}
-}
-
-function roll(host){
-	const ret = host.relief()
-	if (ret) return setTimeout(roll, 1000, host)
-	process.nextTick(roll, host)
 }
 
 module.exports = {
@@ -206,6 +223,5 @@ module.exports = {
 		})
 
 		host.go('')
-		roll(host)
 	}
 }
