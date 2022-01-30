@@ -45,7 +45,7 @@
             [["web.output"], "_.res", "_.output", "_.meta"],
 			["auth.verify", "_.req", "_.user"],
 			["web.bodyParser", "_.req", "_.body"],
-            [["util.input", "@.spec.room"]. "_.input", "_.room"],
+            [["util.input", "@.spec.room"], "_.input", "_.room"],
             ["db.get", "$.db.user", "_.user.i", "_.user"],
 			["room.create", "_.room", "_.user", "_.output"]
         ],
@@ -53,7 +53,7 @@
             [["web.output"], "_.res", "_.output", "_.meta"],
 			["auth.verify", "_.req", "_.user"],
 			["web.bodyParser", "_.req", "_.body"],
-            [["util.input", "@.spec.room_action"]. "_.input", "_.room"],
+            [["util.input", "@.spec.room_action"], "_.input", "_.room"],
             ["db.get", "$.db.user", "_.user.i", "_.user"],
 			["room.update", "_.room", "_.user", "_.output"]
         ],
@@ -61,7 +61,7 @@
             [["web.output"], "_.res", "_.output", "_.meta"],
 			["auth.verify", "_.req", "_.user"],
 			["web.bodyParser", "_.req", "_.body"],
-            [["util.input", "@.spec.room_msg"]. "_.input", "_.room"],
+            [["util.input", "@.spec.room_msg"], "_.input", "_.room"],
             ["db.get", "$.db.user", "_.user.i", "_.user"],
 			["room.sendAll", "_.room", "_.user", "_.output"]
         ]

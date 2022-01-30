@@ -1,15 +1,22 @@
+/*
+ * TODO: split this to 2 parts, server and client to have better mock
+ */
 const fs = require('fs')
 const path = require('path')
 const pObj = require('pico-common').export('pico/obj')
+const pStr = require('pico-common').export('pico/str')
+const radix = new pStr.Radix
 
 /**
  * Database class
  *
- * @param {object} cfg - cfg object
+ * @param {object} host - pipeline object
+ * @param {object} cfg - configuration
  *
  * @returns {void} - this
  */
-function Database(cfg){
+function Database(host, cfg){
+	this.host = host
 	this.name = cfg.id
 	const dir = cfg.dir
 	/* eslint-disable no-sync */
@@ -52,9 +59,10 @@ function row(d, meta){
  * @param {string} rs.map - map resource fields to meta
  * @param {object} rs.schema - resource schema
  *
- * @returns {void} - this
+ * @returns {object} - this
  */
 function Collection(db, name, rs){
+	this.host = db.host
 	this.fname = path.join(db.dir, name + '.json')
 	const json = fs.readFileSync(this.fname, {flag: 'a+'})
 	const doc = json.length ? JSON.parse(json) : []
@@ -63,6 +71,17 @@ function Collection(db, name, rs){
 	this.meta = Object.assign({}, rs.meta || {})
 	this.map = rs.map || Object.assign({}, rs.map)
 	this.schema = Object.assign({}, rs.schema)
+	this.route = rs.route || {}
+console.log('>>>>>>', rs.route)
+}
+
+function request(host, route, body){
+	if (!host || route || body) return
+	const out = {}
+	const res = pObj.validate(route[1], body, out)
+	if (res) return
+	const url = radix.build(route[0], out)
+	host.go(url)
 }
 
 Collection.prototype = {
@@ -93,6 +112,9 @@ Collection.prototype = {
 
 		this.documents.push(row(d, m))
 		this.save()
+
+		request(this.host, this.route.insert, d)
+
 		return m
 	},
 	update(i, d, meta){
@@ -186,7 +208,7 @@ function sets(coll, is, inputs, metas, outputs){
 
 module.exports = {
 	setup(host, cfg, rsc, paths){
-		const db = new Database(cfg)
+		const db = new Database(host, cfg)
 		return Object.keys(rsc).reduce((acc, name) => {
 			const rs = rsc[name]
 			if (!rs || db.name !== rs.db) return acc

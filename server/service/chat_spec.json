@@ -1,9 +1,17 @@
 {
 	"rsc": {
-		"user": {
+		"queue": {
 			"db": "db",
 			"route": {
-				"insert": ""
+				"insert": ["/1.0/sse/:i", {
+					"type": "object",
+					"spec": {
+						"recipient": {
+							"type": "number",
+							"alias": "i"
+						}
+					}
+				}]
 			},
 			"schema": {
 				"type": "object",

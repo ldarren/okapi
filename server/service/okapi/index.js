@@ -2,6 +2,8 @@ const pObj = require('pico/obj')
 const base = require('service/okapi/base.json')
 const common = require('service/common.json')
 const sseRoute = require('service/sse_route.json')
+const chatSpec = require('service/chat_spec.json')
+const chatRoute = require('service/chat_route.json')
 const treeSpec = require('service/tree_spec.json')
 const treeRoute = require('service/tree_route.json')
 const tree = require('service/tree')
@@ -15,6 +17,8 @@ this.load = () => {
 	pObj.extends(out, [
 		common,
 		sseRoute,
+		chatRoute,
+		chatSpec,
 		treeRoute,
 		treeSpec,
 		treeRoute,
