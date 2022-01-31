@@ -7,6 +7,7 @@ const chatRoute = require('service/chat_route.json')
 const treeSpec = require('service/tree_spec.json')
 const treeRoute = require('service/tree_route.json')
 const tree = require('service/tree')
+const queue = require('service/queue')
 const userSpec = require('service/user_spec.json')
 const userRoute = require('service/user_route.json')
 const system = require('service/system.json')
@@ -26,7 +27,8 @@ this.load = () => {
 		userRoute,
 		system,
 		{
-			tree
+			tree,
+			queue
 		},
 		base
 	], {flat: 1})

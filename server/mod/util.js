@@ -148,5 +148,9 @@ module.exports = {
 			else output.push(...addrs)
 			this.next()
 		}
+	},
+
+	match(a, b){
+		return Object.keys(a).every(k => a[k] === b[k])
 	}
 }

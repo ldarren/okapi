@@ -6,6 +6,7 @@ const path = require('path')
 const pObj = require('pico-common').export('pico/obj')
 const pStr = require('pico-common').export('pico/str')
 const radix = new pStr.Radix
+const util = require('./util')
 
 /**
  * Database class
@@ -72,7 +73,6 @@ function Collection(db, name, rs){
 	this.map = rs.map || Object.assign({}, rs.map)
 	this.schema = Object.assign({}, rs.schema)
 	this.route = rs.route || {}
-console.log('>>>>>>', rs.route)
 }
 
 function request(host, route, body){
@@ -145,10 +145,17 @@ Collection.prototype = {
 		}
 		this.save()
 	},
-	pop(){
-		const d = this.documents.pop()
+	pop(query){
+		const output = []
+		const docs = this.documents
+		for (let i = docs.length, doc; i > 0; i--){
+			doc = docs[i]
+			if (!doc || !util.match(query, doc.d)) continue
+			docs.splice(i, 1)
+			output.push(doc)
+		}
 		this.save()
-		return d
+		return output
 	},
 	push(input, meta){
 		this.input(input, meta)
@@ -241,6 +248,15 @@ module.exports = {
 	},
 	hide(coll, id){
 		coll.remove(id)
+		return this.next()
+	},
+	push(coll, msg){
+		coll.push(msg)
+		return this.next()
+	},
+	pop(coll, query, output){
+		const msg = coll.pop(query)
+		output.push(...msg)
 		return this.next()
 	},
 	truncate(coll, size){

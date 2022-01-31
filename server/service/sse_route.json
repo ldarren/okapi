@@ -6,10 +6,12 @@
 			["sse.connect", "_.req", "_.res", "_.user"]
         ],
 		"/1.0/sse/:i": [
-			["util.log", "###############################", "@.param"],
-			["auth.verify", "_.req", "_.user"],
-            ["db.get", "$.db.user", "_.user.i", "_.user"],
-			["sse.connect", "_.req", "_.res", "_.user"]
+			["util.log", "###############################", "$.param"],
+            ["db.get", "$.db.user", "$.param.i", "_.user"],
+			["sse.find", "_.user"],
+			["@.queue.query", "_.user", "_.query"],
+            ["db.pop", "$.db.queue", "_.query", "_.:msg"],
+			["sse.send", "_.user", "_.:msg"]
 		]
 	}
 }
