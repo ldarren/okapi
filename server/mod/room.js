@@ -96,6 +96,18 @@ module.exports = {
 		Object.assign(output, room, {online: r.team()})
 		return this.next()
 	},
+	get(id, output){
+		const r = rooms[id]
+		if (!r) return this.next(`Room id[${id}] not found`)
+		output.push(...r.team())
+		return this.next()
+	},
+	verify(id, userIdx){
+		const room = rooms[id]
+		if (!room) return this.next(`Room id[${id}] not found`)
+		if (room.team.find(u => u.i === userIdx)) return this.next('user not found')
+		return this.next()
+	},
 	sendAll(q, room, sender, output){
 		const r = rooms[room.id]
 		if (!r) return this.next(`Room id[${room.id}] not found`)
@@ -109,5 +121,5 @@ module.exports = {
 		if (r.send(q, msg, sender, recipient)) return this.next(`send room[${room.id}] failed`)
 		Object.assign(output, room, {online: r.team()})
 		return this.next()
-	}
+	},
 }

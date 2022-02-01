@@ -6,8 +6,8 @@
 			["sse.connect", "_.req", "_.res", "_.user"]
         ],
 		"/1.0/sse/:i": [
-			["util.log", "###############################", "$.param"],
-            ["db.get", "$.db.user", "$.param.i", "_.user"],
+			["util.log", "###############################", "$.params"],
+            ["db.get", "$.db.user", "$.params.i", "_.user"],
 			["sse.find", "_.user"],
 			["@.queue.query", "_.user", "_.query"],
             ["db.pop", "$.db.queue", "_.query", "_.:msg"],

@@ -49,13 +49,25 @@
             ["db.get", "$.db.user", "_.user.i", "_.user"],
 			["room.create", "_.room", "_.user", "_.output"]
         ],
-        "/1.0/chat/:i": [
+		"PUT/chat/i": [
             [["web.output"], "_.res", "_.output", "_.meta"],
 			["auth.verify", "_.req", "_.user"],
 			["web.bodyParser", "_.req", "_.body"],
             [["util.input", "@.spec.room_action"], "_.input", "_.room"],
             ["db.get", "$.db.user", "_.user.i", "_.user"],
-			["room.update", "_.room", "_.user", "_.output"]
+			["room.update", "_.room.id", "_.user", "_.output"]
+		],
+		"GET/chat/i": [
+            [["web.output"], "_.res", "_.:output", "_.meta"],
+			["auth.verify", "_.req", "_.user"],
+            [["util.input", "@.spec.room"], "_.params", "_.room"],
+            ["room.verify", "_.room.id", "_.user.i"],
+			["room.get", "_.room.id", "_.:output"]
+		],
+        "/1.0/chat/:i": [
+            [["web.output"], "_.res", "_.:output", "_.meta"],
+			[["util.input", "@.spec.params"], "$.params", "_.params"],
+            ["chat.router", "_.req.method", "_.params"]
         ],
         "/1.0/chat/:i/post": [
             [["web.output"], "_.res", "_.output", "_.meta"],
