@@ -5,7 +5,7 @@ module.exports = {
 
 	verify(req, user){
 		Object.assign(user, {i: 1})
-		this.next()
+		return this.next()
 	},
 
 }

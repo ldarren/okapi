@@ -79,8 +79,8 @@ module.exports = {
 		const id = Date.now().toString(36) + pStr.rand()
 		const r = new Room(id, room.name, owner)
 		add(r)
-		Object.assign(output, room, {id, online: r.team()})
-		this.next()
+		Object.assign(output, room, {id, online: r.team})
+		return this.next()
 	},
 	update(room, member, output){
 		const r = rooms[room.id]
@@ -93,13 +93,13 @@ module.exports = {
 			if (room.remove(member)) return this.next(`Checkout room[${room.id}] failed`)
 			break
 		}
-		Object.assign(output, room, {online: r.team()})
+		Object.assign(output, room, {online: r.team})
 		return this.next()
 	},
 	get(id, output){
 		const r = rooms[id]
 		if (!r) return this.next(`Room id[${id}] not found`)
-		output.push(...r.team())
+		output.push(...r.team)
 		return this.next()
 	},
 	verify(id, userIdx){
@@ -112,14 +112,14 @@ module.exports = {
 		const r = rooms[room.id]
 		if (!r) return this.next(`Room id[${room.id}] not found`)
 		if (r.sendAll(q, room.msg, sender)) return this.next(`sendAll room[${room.id}] failed`)
-		Object.assign(output, room, {online: r.team()})
+		Object.assign(output, room, {online: r.team})
 		return this.next()
 	},
 	send(q, room, msg, sender, recipient, output){
 		const r = rooms[room.id]
 		if (!r) return this.next(`Room id[${room.id}] not found`)
 		if (r.send(q, msg, sender, recipient)) return this.next(`send room[${room.id}] failed`)
-		Object.assign(output, room, {online: r.team()})
+		Object.assign(output, room, {online: r.team})
 		return this.next()
 	},
 }

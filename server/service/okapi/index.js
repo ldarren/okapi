@@ -4,6 +4,7 @@ const common = require('service/common.json')
 const sseRoute = require('service/sse_route.json')
 const chatSpec = require('service/chat_spec.json')
 const chatRoute = require('service/chat_route.json')
+const chat = require('service/chat')
 const treeSpec = require('service/tree_spec.json')
 const treeRoute = require('service/tree_route.json')
 const tree = require('service/tree')
@@ -28,7 +29,8 @@ this.load = () => {
 		system,
 		{
 			tree,
-			queue
+			queue,
+			chat
 		},
 		base
 	], {flat: 1})

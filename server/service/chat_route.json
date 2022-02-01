@@ -44,7 +44,7 @@
         "/1.0/chat": [
             [["web.output"], "_.res", "_.output", "_.meta"],
 			["auth.verify", "_.req", "_.user"],
-			["web.bodyParser", "_.req", "_.body"],
+			["web.bodyParser", "_.req", "_.input"],
             [["util.input", "@.spec.room"], "_.input", "_.room"],
             ["db.get", "$.db.user", "_.user.i", "_.user"],
 			["room.create", "_.room", "_.user", "_.output"]
@@ -67,7 +67,7 @@
         "/1.0/chat/:i": [
             [["web.output"], "_.res", "_.:output", "_.meta"],
 			[["util.input", "@.spec.params"], "$.params", "_.params"],
-            ["chat.router", "_.req.method", "_.params"]
+            ["@.chat.router", "_.req.method", "_.params"]
         ],
         "/1.0/chat/:i/post": [
             [["web.output"], "_.res", "_.output", "_.meta"],

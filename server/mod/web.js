@@ -21,7 +21,7 @@ module.exports = {
 	},
 
 	async bodyParser(req, body){
-		const err = await new Promise((resolve, reject) => {
+		const err = await (new Promise((resolve, reject) => {
 			const arr = []
 
 			req.on('data', chuck => {
@@ -48,7 +48,7 @@ module.exports = {
 				}
 				resolve()
 			})
-		})
+		}))
 		return this.next(err)
 	},
 
