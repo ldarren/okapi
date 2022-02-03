@@ -6,14 +6,14 @@ const HEADERS = {
 
 const clients = {}
 
-function pack(data){
-	return `data: ${JSON.stringify(data)}\n\n`
+function pack(evt, data){
+	return `event: ${evt}\ndata: ${JSON.stringify(data)}\n\n`
 }
 
 function connect(req, res, id){
 	res.writeHead(200, HEADERS)
 
-	res.write(pack('start'))
+	res.write(pack('start', id))
 
 	clients[id] = res
 
@@ -32,21 +32,21 @@ module.exports = {
 		return this.next()
 	},
 
-	find(client){
-		const c = clients[client.id]
+	find(user){
+		const c = clients[user.i]
 		if (!c) return this.next('not found')
 		return this.next()
 	},
 
-	send(client, data){
-		const c = clients[client.id]
+	send(user, data){
+		const c = clients[user.i]
 		if (!c) return this.next()
-		c.write(pack(data))
+		c.write(pack('msg', data))
 		return this.next()
 	},
 
 	sendAll(data){
-		Object.keys(clients).forEach(id => clients[id].write(pack(data)))
+		Object.keys(clients).forEach(id => clients[id].write(pack('msg', data)))
 		return this.next()
 	},
 }

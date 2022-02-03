@@ -131,6 +131,17 @@ module.exports = {
 		return this.next(err)
 	},
 
+	async silence(res, errors){
+		try {
+			await this.next()
+		}catch(ex){
+			if (!errors.includes(ex)) console.error(ex)
+			if (!res) return
+			res.writeHead(400)
+			res.end()
+		}
+	},
+
 	networkInterface(name, cond = {}){
 		const filter = addr => Object.keys(cond).every(key => cond[key] === addr[key])
 		const ni = os.networkInterfaces()

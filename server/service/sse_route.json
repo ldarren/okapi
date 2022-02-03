@@ -1,13 +1,15 @@
 {
 	"routes":{
         "/1.0/sse": [
-			["auth.verify", "_.req", "_.user"],
+			["util.silence", "_.res", []],
+			["util.extend", {"i": 1}, "_.user"],
             ["db.get", "$.db.user", "_.user.i", "_.user"],
 			["sse.connect", "_.req", "_.res", "_.user"]
         ],
 		"/1.0/sse/:i": [
-			["util.log", "###############################", "$.params"],
-            ["db.get", "$.db.user", "$.params.i", "_.user"],
+			["util.silence", null, ["not found"]],
+			[["util.input", "@.spec.params"], "$.params", "_.input"],
+            ["db.get", "$.db.user", "_.input.i", "_.user"],
 			["sse.find", "_.user"],
 			["@.queue.query", "_.user", "_.query"],
             ["db.pop", "$.db.queue", "_.query", "_.:msg"],

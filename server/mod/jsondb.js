@@ -12,7 +12,7 @@ const META_SPEC = {
 	type: 'object',
 	required: 1,
 	spec: {
-		i: { type: 'number', required: 1 },
+		i: { type: 'number' },
 		s: { type: 'number', required: 1 },
 		cby: { type: 'number', required: 1 },
 		cat: { type: 'date', required: 1 },
@@ -51,8 +51,8 @@ Database.prototype = {
 	}
 }
 
-function map(d, meta, map){
-	if (!map) return
+function map(d, map){
+	if (!map) return {}
 	return Object.keys(map).reduce((acc, k) => {
 		acc[k] = d[map[k]]
 		return acc
@@ -95,7 +95,7 @@ function Collection(db, name, rs){
 }
 
 function request(host, route, body){
-	if (!host || route || body) return
+	if (!host || !route || !body) return
 	const out = {}
 	const res = pObj.validate(route[1], body, out)
 	if (res) return
@@ -117,17 +117,17 @@ Collection.prototype = {
 		let res = pObj.validate(this.schema, input, d)
 		if (res) throw `invalid parameter: ${res}`
 
-		let m = {}
-		if (this.meta.type){
-			res = pObj.validate(this.meta, map(d, this.map, meta), m)
-			if (res) throw `invalid meta: ${this.meta}, ${res}`
-		}
-		m = Object.assign({
+		const raw = Object.assign({
 			i: this.index++,
 			s: 1,
 			cby: 0,
 			cat: new Date
-		}, m)
+		}, map(d, this.map), meta)
+		const m = {}
+		if (this.meta.type){
+			res = pObj.validate(this.meta, raw, m)
+			if (res) throw `invalid meta: ${this.meta}, ${res}`
+		}
 
 		this.documents.push(row(d, m))
 		this.save()
@@ -135,34 +135,6 @@ Collection.prototype = {
 		request(this.host, this.route.insert, d)
 
 		return m
-	},
-	update(i, d, meta){
-		const doc = this.documents.find(item => i === item.i)
-		if (!doc) return
-
-		let m = {}
-		if (this.meta.type){
-			let res = pObj.validate(this.meta, map(d, this.map, meta), m)
-			if (res) throw `invalid meta: ${this.meta}, ${res}`
-		}
-		m = Object.assign({
-			uby: 0,
-			uat: new Date
-		}, m)
-
-		Object.assign(doc, row(d, m))
-		this.save()
-	},
-	remove(i){
-		for (let j = 0, d, docs = this.documents; (d = docs[j]); j++){
-			if (i === d.i){
-				d.s = 0
-				d.uat = new Date
-				d.uby = 0
-				break
-			}
-		}
-		this.save()
 	},
 	pop(query){
 		const output = []
@@ -178,6 +150,34 @@ Collection.prototype = {
 	},
 	push(input, meta){
 		this.insert(input, meta)
+	},
+	update(i, d, meta){
+		const doc = this.documents.find(item => i === item.i)
+		if (!doc) return
+
+		const raw = Object.assign({
+			uby: 0,
+			uat: new Date
+		}, map(d, this.map), meta)
+		const m = {}
+		if (this.meta.type){
+			res = pObj.validate(this.meta, raw, m)
+			if (res) throw `invalid meta: ${this.meta}, ${res}`
+		}
+
+		Object.assign(doc, row(d, m))
+		this.save()
+	},
+	remove(i){
+		for (let j = 0, d, docs = this.documents; (d = docs[j]); j++){
+			if (i === d.i){
+				d.s = 0
+				d.uat = new Date
+				d.uby = 0
+				break
+			}
+		}
+		this.save()
 	},
 	truncate(size){
 		this.documents = this.documents.slice(-size)
