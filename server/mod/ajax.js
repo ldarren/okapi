@@ -55,7 +55,7 @@ module.exports = {
 				resolve()
 			})
 		})
-		this.next()
+		return this.next()
 	},
 	query: (method, href) => async function(params, opt, output){
 		try{

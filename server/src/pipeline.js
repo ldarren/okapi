@@ -52,7 +52,7 @@ function _host(radix, libs, routes, threshold){
 			let route = routes[key]
 			if (!route) {
 				route = key && routes[ERROR_ROUTE]
-				if (!route) return 'not found'
+				if (!route) return console.error(`route[${route}] not found`)
 			}
 			overtime.incr()
 			return next.call(Object.assign({}, libs, {params, next, route, data, ptr: 0}))
@@ -93,7 +93,9 @@ function _host(radix, libs, routes, threshold){
 			}
 			return arg
 		})
-		await middleware[0].apply(this, args)
+		const promise = middleware[0].apply(this, args)
+		if (!promise) console.error(`${middleware[0].name} doesn't return a promise object`)
+		await promise
 	}
 
 	/**
@@ -106,6 +108,7 @@ function _host(radix, libs, routes, threshold){
 		if (!queue.length) return 1000
 		let off = RPM - overtime.total()
 		if (off < 0) return 1000
+		let res
 		while(off && queue.length){
 			off--
 			next(...queue.pop())

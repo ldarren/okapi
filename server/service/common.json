@@ -3,9 +3,20 @@
         "grouping": [["index", "csv"], ["range", "start", "end"]],
         "params": {
             "type": "object",
+			"required": 1,
             "spec": {
                 "rsc": "string",
                 "i": "number"
+            }
+        },
+        "params_id": {
+            "type": "object",
+			"required": 1,
+            "spec": {
+				"id": {
+					"type": "string",
+					"required": 1
+				}
             }
         },
         "query": {

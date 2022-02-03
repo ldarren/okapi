@@ -124,11 +124,11 @@ module.exports = {
 	},
 
 	branch(url, data){
-		this.next(null, url, data)
+		return this.next(null, url, data)
 	},
 
 	deadend(err){
-		this.next(err)
+		return this.next(err)
 	},
 
 	networkInterface(name, cond = {}){
@@ -146,7 +146,7 @@ module.exports = {
 				acc.push(net[key]); return acc
 			}, output)
 			else output.push(...addrs)
-			this.next()
+			return this.next()
 		}
 	},
 

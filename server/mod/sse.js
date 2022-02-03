@@ -29,24 +29,24 @@ module.exports = {
 
 	connect(req, res, user){
 		connect(req, res, user.i)
-		this.next()
+		return this.next()
 	},
 
 	find(client){
 		const c = clients[client.id]
 		if (!c) return this.next('not found')
-		this.next()
+		return this.next()
 	},
 
 	send(client, data){
 		const c = clients[client.id]
 		if (!c) return this.next()
 		c.write(pack(data))
-		this.next()
+		return this.next()
 	},
 
 	sendAll(data){
 		Object.keys(clients).forEach(id => clients[id].write(pack(data)))
-		this.next()
+		return this.next()
 	},
 }

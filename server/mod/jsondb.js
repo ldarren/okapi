@@ -8,6 +8,19 @@ const pStr = require('pico-common').export('pico/str')
 const radix = new pStr.Radix
 const util = require('./util')
 
+const META_SPEC = {
+	type: 'object',
+	required: 1,
+	spec: {
+		i: { type: 'number', required: 1 },
+		s: { type: 'number', required: 1 },
+		cby: { type: 'number', required: 1 },
+		cat: { type: 'date', required: 1 },
+		uby: { type: 'number' },
+		uat: { type: 'date' },
+	}
+}
+
 /**
  * Database class
  *
@@ -64,15 +77,21 @@ function row(d, meta){
  */
 function Collection(db, name, rs){
 	this.host = db.host
-	this.fname = path.join(db.dir, name + '.json')
-	const json = fs.readFileSync(this.fname, {flag: 'a+'})
-	const doc = json.length ? JSON.parse(json) : []
-	this.documents = doc
-	this.index = doc.length ? doc[doc.length - 1].i + 1 : 1
-	this.meta = Object.assign({}, rs.meta || {})
+	this.meta = pObj.extends({}, [rs.meta || {}, META_SPEC])
 	this.map = rs.map || Object.assign({}, rs.map)
 	this.schema = Object.assign({}, rs.schema)
 	this.route = rs.route || {}
+
+	this.fname = path.join(db.dir, name + '.json')
+	const json = fs.readFileSync(this.fname, {flag: 'a+'})
+	const doc = json.length ? JSON.parse(json) : []
+	this.documents = []
+	const res = pObj.validate({
+		type: 'array',
+		spec: pObj.extends({}, [{spec: {d: this.schema}}, this.meta])
+	}, doc, this.documents)
+	if (res) throw `invalid ${name} colllection saved file. error[${res}]`
+	this.index = doc.length ? doc[doc.length - 1].i + 1 : 1
 }
 
 function request(host, route, body){
@@ -158,7 +177,7 @@ Collection.prototype = {
 		return output
 	},
 	push(input, meta){
-		this.input(input, meta)
+		this.insert(input, meta)
 	},
 	truncate(size){
 		this.documents = this.documents.slice(-size)
