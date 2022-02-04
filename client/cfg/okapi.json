@@ -2,9 +2,12 @@
 	["Sapling", "type", "ext/Sapling", [
 		"data", 1
 	]],
-    ["models", "type", "ext/Collection", [
-        "data", 1, "options"
-    ]],
+	["models", "type", "ext/Collection", [
+		"data", 1, "options"
+	]],
+	["SSE", "type", "p/SSE", [
+		"env", "cred", "params", "events", "autoconnect"
+	]],
 	["p/View", "view", [
 		["options", "map", {"el": "body"}],
 		["tree", "Sapling", [
@@ -30,6 +33,18 @@
 		["settings", "models", [
 		]],
 		["requests", "models", [
+		]],
+		["sse", "SSE", [
+			["env", "map", {
+				"path":"/1.0/sse",
+				"withCredentials":false
+			}],
+			["cred", "map", {
+				"key": "Basic Mzox"
+			}],
+			["params", "map", {}],
+			["events", "list", []],
+			["autoconnect", "bool", true]
 		]],
 		["fe", "ref", "fe"],
 		["p/View", "view", [
