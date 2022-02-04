@@ -1,8 +1,7 @@
 {
 	"rsc": {
-		"req": {
-			"meta": {
-			},
+		"user": {
+			"db": "db",
 			"schema": {
 				"type": "object",
 				"spec": {
@@ -36,4 +35,4 @@
 			}
 		}
 	}
-} 
+}

@@ -1,3 +1,4 @@
+const os = require('os')
 const pLib = require('pico-common')
 const pObj = pLib.export('pico/obj')
 const randex = require('randexp').randexp
@@ -33,6 +34,7 @@ function groupQuery(input, grouping, output = []){
 
 module.exports = {
 	setup(host, cfg, rsc, paths){
+		return this
 	},
 
 	async wait(sec){
@@ -50,9 +52,9 @@ module.exports = {
 
 	router: rsc => async function(method, params) {
 		const rs = rsc[params.rsc]
-		if (!rs) return this.next(`unsupprted key: ${params.rsc}`)
-		const indi = params.id ? '/id' : ''
-		const name = `${method}/rsc${indi}`
+		if (!rs) return this.next(`unsupprted resource: ${params.rsc}`)
+		const idx = params.i ? '/i' : ''
+		const name = `${method}/${params.rsc}${idx}`
 		await this.next(null, name, Object.assign({
 			params,
 			rs
@@ -61,14 +63,14 @@ module.exports = {
 	},
 
 	input: spec => function(input, output, ext) {
-		const error = pObj.validate(spec, input, output, ext)
-		if (error) return this.next(`invalid params [${error}]`)
+		const err = pObj.validate(spec, input, output, ext)
+		if (err) return this.next(`invalid params [${err}]`)
 		return this.next()
 	},
 
 	input2(input, spec, output, ext) {
-		const error = pObj.validate(spec, input, output, ext)
-		if (error) return this.next(`invalid params [${error}]`)
+		const err = pObj.validate(spec, input, output, ext)
+		if (err) return this.next(`invalid params [${err}]`)
 		return this.next()
 	},
 
@@ -88,10 +90,12 @@ module.exports = {
 	},
 
 	lib: (id, funcName) => {
-		const func = pLib.export(id)[funcName]
+		const lib = pLib.export(id)
+		const func = lib[funcName]
+		if (!func) throw `${funcName} not found in ${id}`
 
 		return function(...args){
-			func(...args)
+			func.apply(lib, args)
 			return this.next()
 		}
 	},
@@ -109,19 +113,55 @@ module.exports = {
 		return this.next()
 	},
 
-	spawn_tree(schema, ext, layer, output){
-		// TODO: spawn tree structure with ${layer} layers
-		// do we need this if each node is a row?
-		return this.next()
-	},
-
 	add(value, key, output){
 		output[key] = value
 		return this.next()
 	},
 
-	async go(url, data){
+	async detour(url, data){
 		await this.next(null, url, data)
 		return this.next()
+	},
+
+	branch(url, data){
+		return this.next(null, url, data)
+	},
+
+	deadend(err){
+		return this.next(err)
+	},
+
+	async silence(res, errors){
+		try {
+			await this.next()
+		}catch(ex){
+			if (!errors.includes(ex)) console.error(ex)
+			if (!res) return
+			res.writeHead(400)
+			res.end()
+		}
+	},
+
+	networkInterface(name, cond = {}){
+		const filter = addr => Object.keys(cond).every(key => cond[key] === addr[key])
+		const ni = os.networkInterfaces()
+		const addrs = Object.keys(ni).reduce((acc, key) => {
+			if (name && name !== key) return acc
+			const list = ni[key]
+			acc.push(...list.filter(filter))
+			return acc
+		}, [])
+
+		return function(key, output){
+			if (key) addrs.reduce((acc, net) => {
+				acc.push(net[key]); return acc
+			}, output)
+			else output.push(...addrs)
+			return this.next()
+		}
+	},
+
+	match(a, b){
+		return Object.keys(a).every(k => a[k] === b[k])
 	}
 }

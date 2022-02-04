@@ -1,0 +1,27 @@
+{
+	"spec": {
+		"tree": {
+			"type": "array",
+			"specs": [
+				{"type": "string", "required": 1, "force": 1},
+				"object",
+				{"type": "array", "spec": ["ref", "_"]}
+			]
+		}
+	},
+	"rsc": {
+		"tree": {
+			"db": "db",
+			"meta": {
+				"type": "object",
+				"spec": {
+					"host_ip":"string"
+				}
+			},
+			"schema": {
+				"type": "array",
+				"specs": ["string", "object", {"type": "array", "spec": ["ref", "_"]}]
+			}
+		}
+	}
+}

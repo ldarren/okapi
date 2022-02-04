@@ -9,16 +9,10 @@ const CREATE_BODY = (body, meta) => JSON.stringify(Object.assign({}, meta, {body
 module.exports = {
 
 	setup(host, cfg, rsc, paths){
-		const proxy = http.createServer(async (req, res) => {
+		http.createServer((req, res) => {
 			const url = URL.parse(req.url, 1)
-			const err = await host.go(url.pathname, {req, res, url})
-			if (err) {
-				res.statusCode = 404 // eslint-disable-line require-atomic-updates
-				return res.end(err.charAt ? err : JSON.stringify(err))
-			}
-		})
-
-		proxy.listen(cfg.port, cfg.host, () => process.stdout.write(`listening to ${cfg.host}:${cfg.port}\n`))
+			host.go(url.pathname, {req, res, url})
+		}).listen(cfg.port, cfg.host, () => process.stdout.write(`listening to ${cfg.host}:${cfg.port}\n`))
 	},
 
 	queryParser(req, query){
@@ -26,8 +20,8 @@ module.exports = {
 		return this.next()
 	},
 
-	bodyParser(req, body){
-		return new Promise((resolve, reject) => {
+	async bodyParser(req, body){
+		const err = await (new Promise((resolve, reject) => {
 			const arr = []
 
 			req.on('data', chuck => {
@@ -38,7 +32,6 @@ module.exports = {
 			})
 			req.on('error',err => {
 				reject(err)
-				this.next(err)
 			})
 			req.on('end', () => {
 				const str = Buffer.concat(arr).toString()
@@ -54,9 +47,9 @@ module.exports = {
 					Object.assign(body, raw)
 				}
 				resolve()
-				return this.next()
 			})
-		})
+		}))
+		return this.next(err)
 	},
 
 	output: (contentType = 'application/json', dataType = 'json') => {
@@ -93,5 +86,5 @@ module.exports = {
 				res.end(exp.message || exp)
 			}
 		}
-	}
+	},
 }

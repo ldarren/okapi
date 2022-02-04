@@ -1,5 +1,6 @@
 const pStr = require('pico-common').export('pico/str')
 const pObj = require('pico-common').export('pico/obj')
+const OverTime = require('./overtime')
 
 const KEYWORDS = [
 	'params',
@@ -23,10 +24,14 @@ const SEP = '.'
  * @param {object} radix - radix tree for routing
  * @param {object} libs - loaded lib/module from spec
  * @param {object} routes - middleware routes
+ * @param {number} [threshold=100] - max rpm
  *
- * @returns {void} - this
+ * @returns {object} - this
  */
-function _host(radix, libs, routes){
+function _host(radix, libs, routes, threshold){
+	const overtime = new OverTime('s')
+	const queue = []
+	let RPM = threshold || 64
 
 	/**
 	 * Forward to next middelware
@@ -37,20 +42,26 @@ function _host(radix, libs, routes){
 	 * @returns {void} - no returns
 	 */
 	async function next(err, named, data = this.data || {}){
-		if (err) throw err
+		if (err) {
+			overtime.decr(1)
+			throw err
+		}
 		if (null != named) {
 			const params = {}
 			const key = radix.match(named, params)
 			let route = routes[key]
 			if (!route) {
-				route = routes[ERROR_ROUTE]
-				if (!route) return 'not found'
+				route = key && routes[ERROR_ROUTE]
+				if (!route) return console.error(`route[${route}] not found`)
 			}
+			overtime.incr()
 			return next.call(Object.assign({}, libs, {params, next, route, data, ptr: 0}))
 		}
 
 		const middleware = this.route[this.ptr++]
-		if (!middleware) return
+		if (!middleware) {
+			return overtime.decr(3)
+		}
 
 		const args = middleware.slice(1).map(key => {
 			if (!Array.isArray(key)) return key
@@ -82,26 +93,59 @@ function _host(radix, libs, routes){
 			}
 			return arg
 		})
-		await middleware[0].apply(this, args)
+		const promise = middleware[0].apply(this, args)
+		if (!promise) console.error(`${middleware[0].name} doesn't return a promise object`)
+		await promise
 	}
+
+	/**
+	 * Relief queue pressure
+	 * this function execute next request in queue if there is any and current overtime is less than desired RPM
+	 *
+	 * @returns {void} - void if success and backoff time if no execution
+	 */
+	function relief(){
+		if (!queue.length) return 1000
+		let off = RPM - overtime.total()
+		if (off < 0) return 1000
+		while(off && queue.length){
+			off--
+			next(...queue.pop())
+		}
+		return queue.length ? 0 : 1000
+	}
+
+	/**
+	 * Roll the pipeline
+	 * implement backoff mechanism when no task in pipeline
+	 *
+	 * @returns {void} - no returns
+	 */
+	(function roll(){
+		const ret = relief()
+		if (ret) return setTimeout(roll, ret)
+		process.nextTick(roll)
+	}())
 
 	return {
 		go(url, data){
-			return next(null, url, data)
+			queue.push([null, url, data])
+			process.nextTick(relief)
 		},
+		// Listen to event such as route match, entering mw, leaving mw
 		listen(mod, filter, instance){
-		}
+		},
 	}
 }
 
 module.exports = {
-	run(service){
+	run(service, threshold){
 		const radix = new pStr.Radix
 		const mods = {}
 		const libs = {}
 		const routes = {}
 		const paths = Object.keys(service.routes)
-		const host = _host(radix, libs, routes)
+		const host = _host(radix, libs, routes, threshold)
 
 		service.mod.forEach(cfg => {
 			const id = cfg.id
@@ -125,7 +169,7 @@ module.exports = {
 					path = method[0]
 
 					method.slice(1).forEach(param => {
-						if (!param.charAt){
+						if (!param || !param.charAt){
 							params.push(param)
 							return
 						}

@@ -21,8 +21,8 @@
 </span>
 <span>
 	<label for="req">Request: </label>
-	<!--<div class=editor></div>-->
-	<textarea name="req" id="req" rows="5" cols="80"><%d.req%></textarea>
+	<div name=req id=req class=editor></div>
+	<!--<textarea name="req" id="req" rows="5" cols="80"><%d.req%></textarea>-->
 </span>
 <span>
 	<input type="button" value="Send">

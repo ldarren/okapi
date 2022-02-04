@@ -1,0 +1,24 @@
+{
+	"routes":{
+        "POST/user": [
+			["util.add", "$.db.user", "coll", "_.db"],
+			["util.detour", "POST/rsc"]
+        ],
+        "GET/user": [
+			["util.add", "$.db.user", "coll", "_.db"],
+			["util.detour", "GET/rsc"]
+        ],
+        "PUT/user/i": [
+			["util.add", "$.db.user", "coll", "_.db"],
+			["util.detour", "PUT/rsc/i"]
+        ],
+        "GET/user/i": [
+			["util.add", "$.db.user", "coll", "_.db"],
+			["util.detour", "GET/rsc/i"]
+        ],
+        "DELETE/user/i": [
+			["util.add", "$.db.user", "coll", "_.db"],
+			["util.detour", "DELETE/rsc/i"]
+        ]
+	}
+}

@@ -3,6 +3,6 @@ module.exports = {
 	},
 	record(output){
 		Object.assign(output, process.resourceUsage())
-		this.next()
+		return this.next()
 	}
 }

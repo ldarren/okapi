@@ -45,17 +45,17 @@ function poll(method, href, params, opt, cb){
 module.exports = {
 	setup(host, cfg, rsc, paths){
 	},
-	poll: (method, href) => function(params, opt, output){
+	poll: (method, href) => async function(params, opt, output){
 		process.stdout.write(`waiting ${href} response... `)
-		return new Promise((resolve, reject) => {
+		await new Promise((resolve, reject) => {
 			poll(method, href, params, opt, (err, res) => {
 				if (err) return reject(err)
 				if (output) Object.assign(output, res)
 				process.stdout.write('done\n')
 				resolve()
-				this.next()
 			})
 		})
+		return this.next()
 	},
 	query: (method, href) => async function(params, opt, output){
 		try{

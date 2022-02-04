@@ -85,6 +85,8 @@ SNode.prototype = {
 		this.callback.trigger(SNode.UPDATE)
 		this.host.callback.trigger(SNode.CHANGE, SNode.UPDATE, this)
 	},
+	sync(){
+	},
 }
 
 return SNode

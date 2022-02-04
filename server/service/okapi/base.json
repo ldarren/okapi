@@ -5,15 +5,24 @@
 		"host": "0.0.0.0",
 		"port": 1337
 	},{
+		"id": "sse",
+		"mod": "sse"
+	},{
 		"id": "db",
-		"mod": "json_mem",
+		"mod": "jsondb",
 		"dir": "./db"
 	},{
-		"id": "util",
-		"mod": "util"
+		"id": "room",
+		"mod": "room"
+	},{
+		"id": "auth",
+		"mod": "basicAuth"
 	},{
 		"id": "sys",
 		"mod": "sys"
+	},{
+		"id": "util",
+		"mod": "util"
 	},{
 		"id": "timer",
 		"mod": "timer"
