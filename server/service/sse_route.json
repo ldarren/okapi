@@ -2,7 +2,7 @@
 	"routes":{
         "/1.0/sse": [
 			["util.silence", "_.res", []],
-			["util.extend", {"i": 1}, "_.user"],
+			["auth.verify", "_.req", "_.user"],
             ["db.get", "$.db.user", "_.user.i", "_.user"],
 			["sse.connect", "_.req", "_.res", "_.user"]
         ],

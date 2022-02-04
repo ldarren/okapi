@@ -108,7 +108,6 @@ function _host(radix, libs, routes, threshold){
 		if (!queue.length) return 1000
 		let off = RPM - overtime.total()
 		if (off < 0) return 1000
-		let res
 		while(off && queue.length){
 			off--
 			next(...queue.pop())

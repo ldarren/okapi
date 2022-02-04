@@ -1,3 +1,5 @@
+const URL = require('url')
+
 const BASIC = 'Basic '
 const BASE64 = 'base64'
 
@@ -6,9 +8,14 @@ module.exports = {
 	setup(host, cfg, rsc, paths){
 	},
 
-	verify({authorization}, user){
-		if (!authorization || !authorization.includes(BASIC)) return this.next('Not auth')
-		const b64 = authorization.substring(BASIC.length)
+	verify(req, user){
+		let key = req.headers.authorization
+		if (!key){
+			const q = URL.parse(req.url, true).query
+			key = q.key
+		}
+		if (!key || !key.includes(BASIC)) return this.next('invalid credential')
+		const b64 = key.substring(BASIC.length)
 		const buff = Buffer.from(b64, BASE64)
 		const text = buff.toString()
 		const cred = text.split(':')

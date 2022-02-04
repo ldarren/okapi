@@ -36,13 +36,13 @@
 		],
         "/1.0/chat/:id": [
             [["web.output"], "_.res", "_.output", "_.meta"],
-			["auth.verify", "_.req.headers", "_.user"],
+			["auth.verify", "_.req", "_.user"],
 			[["util.input", "@.spec.params_id"], "$.params", "_.params"],
             ["@.chat.router", "_.req.method", "_.params"]
         ],
         "/1.0/chat/:id/post": [
             [["web.output"], "_.res", "_.output", "_.meta"],
-			["auth.verify", "_.req.headers", "_.user"],
+			["auth.verify", "_.req", "_.user"],
 			[["util.input", "@.spec.params_id"], "$.params", "_.params"],
 			["web.bodyParser", "_.req", "_.body"],
             [["util.input", "@.spec.room_msg"], "_.body", "_.input"],

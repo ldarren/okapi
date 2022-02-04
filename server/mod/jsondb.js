@@ -12,12 +12,12 @@ const META_SPEC = {
 	type: 'object',
 	required: 1,
 	spec: {
-		i: { type: 'number' },
-		s: { type: 'number', required: 1 },
-		cby: { type: 'number', required: 1 },
-		cat: { type: 'date', required: 1 },
-		uby: { type: 'number' },
-		uat: { type: 'date' },
+		i: {type: 'number', required: 1},
+		s: {type: 'number', required: 1},
+		cby: {type: 'number', required: 1},
+		cat: {type: 'date', required: 1},
+		uby: {type: 'number'},
+		uat: {type: 'date'},
 	}
 }
 
@@ -161,7 +161,7 @@ Collection.prototype = {
 		}, map(d, this.map), meta)
 		const m = {}
 		if (this.meta.type){
-			res = pObj.validate(this.meta, raw, m)
+			const res = pObj.validate(this.meta, raw, m)
 			if (res) throw `invalid meta: ${this.meta}, ${res}`
 		}
 
