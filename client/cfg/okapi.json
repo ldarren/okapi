@@ -6,7 +6,7 @@
 		"data", 1, "options"
 	]],
 	["SSE", "type", "p/SSE", [
-		"env", "cred", "params", "events", "autoconnect"
+		"cfg", "env", "params", "events", "autoconnect"
 	]],
 	["p/View", "view", [
 		["options", "map", {"el": "body"}],
@@ -34,19 +34,20 @@
 		]],
 		["requests", "models", [
 		]],
+		["be_sse", "ref", "be_sse"],
+		["fe", "ref", "fe"],
 		["sse", "SSE", [
-			["env", "map", {
+			["env", "ref", "be_sse"],
+			["cfg", "map", {
 				"path":"/1.0/sse",
 				"withCredentials":false
 			}],
-			["cred", "map", {
+			["params", "map", {
 				"key": "Basic Mzox"
 			}],
-			["params", "map", {}],
 			["events", "list", []],
 			["autoconnect", "bool", true]
 		]],
-		["fe", "ref", "fe"],
 		["p/View", "view", [
 			["options", "map", {"el": "section"}],
 			["fe", "ref", "fe"],
