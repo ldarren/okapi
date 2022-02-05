@@ -1,0 +1,23 @@
+{
+  "name": "okapi",
+  "version": "0.1.0",
+  "description": "okapi monorepo",
+  "main": "server/index.js",
+  "scripts": {
+    "test": "cd server; node run.js -s test",
+    "lint": "eslint ./server --ext .js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ldarren/okapi.git"
+  },
+  "keywords": [
+    "okapi"
+  ],
+  "author": "Darren Liew",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ldarren/okapi/issues"
+  },
+  "homepage": "https://github.com/ldarren/okapi#readme"
+}
