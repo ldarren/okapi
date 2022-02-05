@@ -5,10 +5,9 @@
  * https://github.com/antonmedv/codejar
  */
 const {
-    EditorView,
-    EditorState,
+	EditorView,
+	EditorState,
 	basicSetup,
-    liteSetup,
 } = window.cm
 
 function char2Ele(ele, from, count){
@@ -63,7 +62,7 @@ function index2At(text, index, deleteCount, insertText){
 
 function at2Index(text, at){
 	let index = 0
-	for (val of text) {
+	for (let val of text) {
 		if (!at) break
 		index += val.length
 		at--
@@ -73,7 +72,7 @@ function at2Index(text, at){
 
 function count2Char(text, at, count){
 	let chr = 0
-	for (val of text) {
+	for (let val of text) {
 		if (!count) break
 		if (at) at--
 		else {
@@ -89,13 +88,12 @@ function form2Obj(form){
 	for(let i = 0, l = form.length, input; i < l; i++){
 		input = form[i]
 		obj[input.name] = input.value
-		console.log(input.name, input.value)
 	}
 	const arr = []
 	if (obj.h1) arr.push(obj.h1)
 	if (obj.h2){
-		if (obj.r1 >= obj.r2) arr.push(obj.h2)	
-		else arr.unshift(obj.h2)	
+		if (obj.r1 >= obj.r2) arr.push(obj.h2)
+		else arr.unshift(obj.h2)
 	}
 	obj.headers = arr
 	return obj
@@ -172,7 +170,6 @@ return {
 			state: EditorState.create({
 				doc: this.deps.request.req, //this.merge.req.toString(),
 				extensions: [
-					//liteSetup,
 					basicSetup,
 					EditorView.updateListener.of(v => {
 						// exclude changes from non-user, non-user event === am
@@ -182,7 +179,7 @@ return {
 					}),
 				]
 			}),
-			parent: this.el.querySelector(`div.editor`)
+			parent: this.el.querySelector('div.editor')
 		})
 
 		deps.snode.sync()
@@ -279,18 +276,16 @@ return {
 				const changes = {}
 				index = at2Index(merge2.req, diff.index)
 				switch (diff.action) {
-					case 'insert': {
-						changes.from = index
-						changes.to = index
-						changes.insert = diff.value.value
-						break
-					}
-					case 'remove': {
-						changes.from = index
-						changes.to = index + count2Char(merge.req, diff.index, diff.count)
-						changes.insert = ''
-						break
-					}
+				case 'insert':
+					changes.from = index
+					changes.to = index
+					changes.insert = diff.value.value
+					break
+				case 'remove':
+					changes.from = index
+					changes.to = index + count2Char(merge.req, diff.index, diff.count)
+					changes.insert = ''
+					break
 				}
 				// update codemirror
 				cm.dispatch(cm.state.update({
