@@ -1,4 +1,5 @@
 *.min.*
 node_modules/
 bin/
+lib/
 examples/*/lib/

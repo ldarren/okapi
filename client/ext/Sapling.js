@@ -51,7 +51,7 @@ Sapling.prototype={
 	fini(){},
 
 	get(id){
-		return this.root.findById(id)	
+		return this.root.findById(id)
 	},
 	insert(path, node, index, tree = this.root){
 		const host = tree.find(path)

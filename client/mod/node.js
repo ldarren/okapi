@@ -10,8 +10,8 @@ function populate(self, node, child){
 	for(let i=0,c; (c=child[i]); i++){
 		// get [node, view] from parent
 		self.spawn(node, null, [
-		["options", "map", {"tag":"li", "draggable":true}],
-		['snode', 'SNode',c]
+			['options', 'map', {tag:'li', draggable:true}],
+			['snode', 'SNode', c]
 		])
 	}
 }
@@ -103,12 +103,12 @@ return {
 			this.signal.uncheck(trace).send(this.host)
 		},
 		menu_add(from, sender, type){
-			const snode = this.deps.snode
-			if (!ctx.classList.contains(SELECTED)) return true
+			if (!this.classList.contains(SELECTED)) return true
 
 			const uuid = Date.now().toString(36) + ':' + pStr.rand()
 			const name = prompt('Name', '/users')
 			const tree = [uuid, {name}]
+			const snode = this.deps.snode
 
 			if (snode.child){
 				snode.insert(null, tree)
@@ -117,8 +117,8 @@ return {
 			host.insert(null, tree)
 		},
 		menu_del(from, sender, force){
+			if (!this.classList.contains(SELECTED)) return true
 			const snode = this.deps.snode
-			if (!ctx.classList.contains(SELECTED)) return true
 			snode.remove()
 			this.remove()
 		},
@@ -133,7 +133,7 @@ return {
 		dragenter(from, sender, id){
 			const snode = pObj.dot(this, ['deps', 'snode'])
 			if (id !== snode.id) return 1
-		
+
 			if (snode.child){
 				this._el.querySelector('input').checked = 1
 			}
@@ -148,13 +148,13 @@ return {
 			const snode = pObj.dot(this, ['deps', 'snode'])
 			if (!snode.child) return
 			if (id === snode.id) {
-				cb(this, snode.child.length)	
+				cb(this, snode.child.length)
 			}else{
 				const index = snode.child.findIndex(c => id === c.id)
 				if (-1 === index) return 1
 				const childSNode = snode.child[index]
 				if (childSNode.child) return 1 // skip if not a leaf
-				cb(this, index)	
+				cb(this, index)
 			}
 		},
 		drop(from, sender, id, host, index){

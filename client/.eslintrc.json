@@ -14,7 +14,8 @@
 		"__": true,
 		"pico": true,
 		"window": true,
-		"document": true
+		"document": true,
+		"Automerge": true
 	},
 	"rules": {
 		"brace-style": "error",

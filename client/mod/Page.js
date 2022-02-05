@@ -21,7 +21,7 @@ function char2Ele(ele, from, count){
 			if (from >= 0) continue
 		}
 		if (!count) break
-		// offset the chars before "from"
+		// offset the chars before 'from'
 		count += (start.length + (from ? from : -start.length))
 		for (countAt = fromAt; countAt < l; countAt++){
 			end = ele.get(countAt)

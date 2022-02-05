@@ -21,8 +21,8 @@ return {
 	create(deps, params){
 		// get [node, view] from parent
 		this.spawn(deps.node, null, [
-			["options", "map", {"tag":"li", "draggable":false}],
-			['snode','SNode',deps.tree.root]
+			['options', 'map', {tag:'li', draggable:false}],
+			['snode','SNode', deps.tree.root]
 		])
 	},
 	events:{
