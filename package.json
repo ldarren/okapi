@@ -5,7 +5,8 @@
   "main": "server/index.js",
   "scripts": {
     "test": "cd server; node run.js -s test",
-    "lint": "eslint ./server --ext .js"
+    "lint": "eslint ./server --ext .js",
+	"ci": "cd server; npm ci"
   },
   "repository": {
     "type": "git",
