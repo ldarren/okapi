@@ -12,11 +12,16 @@ function getChildId(ele){
 	return label.id || label.getAttribute('for')
 }
 
+function treeUpdate(...args){
+	console.log(...args)
+}
+
 return {
 	signals: ['tree_unsel', 'tree_sel', 'dragstart', 'dragend', 'dragenter', 'dragleave', 'dropdest', 'drop'],
 	deps:{
 		tree:'Sapling',
 		node:'view',
+		sse:'SSE'
 	},
 	create(deps, params){
 		// get [node, view] from parent
@@ -24,6 +29,11 @@ return {
 			['options', 'map', {tag:'li', draggable:false}],
 			['snode','SNode', deps.tree.root]
 		])
+		deps.sse.callback.on('update', treeUpdate)
+	},
+	remove(){
+		this.deps.sse.callback.off('update', treeUpdate)
+		this.super.remove.call(this)
 	},
 	events:{
 		'click .tree_label':function(e, target){
