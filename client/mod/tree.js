@@ -21,7 +21,8 @@ return {
 	deps:{
 		tree:'Sapling',
 		node:'view',
-		sse:'SSE'
+		sse:'SSE',
+		sync:'models'
 	},
 	create(deps, params){
 		// get [node, view] from parent

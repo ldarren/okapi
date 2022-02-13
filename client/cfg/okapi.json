@@ -10,6 +10,9 @@
 	]],
 	["p/View", "view", [
 		["options", "map", {"el": "body"}],
+		["be_sse", "ref", "be_sse"],
+		["be", "ref", "be"],
+		["fe", "ref", "fe"],
 		["tree", "Sapling", [
 			["data","list",["root", {"name":"root"},[
 				["blu", {"name":"blu"}, [
@@ -30,12 +33,8 @@
 				]]
 			]]]
 		]],
-		["settings", "models", [
-		]],
 		["requests", "models", [
 		]],
-		["be_sse", "ref", "be_sse"],
-		["fe", "ref", "fe"],
 		["sse", "SSE", [
 			["env", "ref", "be_sse"],
 			["cfg", "map", {
@@ -48,6 +47,9 @@
 			["events", "list", ["update"]],
 			["autoconnect", "bool", true]
 		]],
+		["sync", "models", [
+			["env", "ref", "be"]
+		], "sync"],
 		["p/View", "view", [
 			["options", "map", {"el": "section"}],
 			["fe", "ref", "fe"],
@@ -74,10 +76,11 @@
 					["css", "file", "dnd.css"],
 					["tree", "ref", "tree"],
 					["sse", "ref", "sse"],
-					["models", "refs", "models"],
+					["sync", "ref", "sync"],
 					["node", "view", [
 						["tplNode", "file", "node.asp"],
-						["tplLeaf", "file", "leaf.asp"]
+						["tplLeaf", "file", "leaf.asp"],
+						["sync", "ref", "sync"]
 					]]
 				]]
 			]],
@@ -94,15 +97,13 @@
 						["options", "map", {"tag":"form", "class":"apiform"}],
 						["tpl", "file", "Group.asp"],
 						["css", "file", "Page.css"],
-						["snode", "model", "tree", "id"],
-						["setting", "model", "settings", "id"]
+						["snode", "model", "tree", "id"]
 					]],
 					"page": ["Page", "view", [
 						["options", "map", {"tag":"form", "class":"apiform"}],
 						["tpl", "file", "Page.asp"],
 						["css", "file", "Page.css"],
 						["snode", "model", "tree", "id"],
-						["settings", "ref", "settings"],
 						["request", "model", "requests", "id"]
 					]]
 				}],

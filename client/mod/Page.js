@@ -160,7 +160,6 @@ return {
 	deps: {
 		tpl: 'file',
 		snode: 'snode',
-		settings: 'models',
 		request: 'model',
 	},
 	create(deps, params){

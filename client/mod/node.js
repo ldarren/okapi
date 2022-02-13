@@ -51,10 +51,12 @@ function check(ctx, checked){
 }
 
 return {
-	signals: ['check', 'uncheck'],
+	signals: ['check', 'uncheck', 'sync'],
 	deps:{
 		tplNode:'file',
 		tplLeaf:'file',
+		sync: 'models',
+		// below are injected by tree
 		snode:'SNode',
 		node:'view',
 	},
@@ -62,6 +64,7 @@ return {
 		this.isInner = Array.isArray(deps.snode.child)
 		render(this, deps.snode, deps.node, deps.tplNode, deps.tplLeaf)
 		this.classList = classList(this)
+		// TODO: move this test to drop, add and remove
 		deps.snode.callback.on('add', onAdd, this)
 	},
 	remove(){
@@ -69,6 +72,16 @@ return {
 		this.super.remove()
 	},
 	slots: {
+		sync(from, sender, data){
+			// TODO: add CRDT here
+			if (this.isInner) {
+				const snode = pObj.dot(this, ['deps', 'snode'])
+				console.log(snode)
+				this.deps.sync.send(snode.id, data)
+			}else{
+				this.signal.sync(data).send(this.host)
+			}
+		},
 		tree_sel(from, sender, id){
 			const snode = pObj.dot(this, ['deps', 'snode'])
 			if (id === snode.id) {
@@ -77,6 +90,7 @@ return {
 				if (this.isInner) router.go('#/g/'+snode.id)
 				else router.go('#/p/'+snode.id)
 				this.signal.check([id]).send(this.host)
+				this.signal.sync({act: 'add', id}).send(this.host)
 				return
 			}
 			return 1
