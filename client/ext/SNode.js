@@ -16,6 +16,7 @@ function SNode(host, tree){
 	if (tree[2]){
 		this.child = tree[2].map(node => new SNode(this, node) )
 	}
+	this.isInner = Array.isArray(this.child)
 	this.callback.on(SNode.CHANGE, onChange, this)
 }
 

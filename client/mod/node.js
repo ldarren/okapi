@@ -2,6 +2,7 @@ const router = require('po/router')
 const pStr = require('pico/str')
 const pObj = require('pico/obj')
 const SNode = require('ext/snode')
+const CRDT = require('ext/CRDT')
 
 const SELECTED = 'sel'
 
@@ -30,8 +31,8 @@ function render(ctx, snode, node, tplNode, tplLeaf){
 		ctx.signal.check([id]).send(ctx.host)
 	}
 }
-function classList(ctx){
-	if (ctx.isInner) {
+function classList(ctx, isInner){
+	if (isInner) {
 		return ctx._el.getElementsByTagName('label')[0].classList
 	}
 	return ctx.el.getElementsByTagName('span')[0].classList
@@ -61,11 +62,11 @@ return {
 		node:'view',
 	},
 	create(deps, params){
-		this.isInner = Array.isArray(deps.snode.child)
-		render(this, deps.snode, deps.node, deps.tplNode, deps.tplLeaf)
-		this.classList = classList(this)
-		// TODO: move this test to drop, add and remove
-		deps.snode.callback.on('add', onAdd, this)
+		const snode = deps.snode
+		render(this, snode, deps.node, deps.tplNode, deps.tplLeaf)
+		this.classList = classList(this, snode.isInner)
+if (snode.isInner && snode.data.key) console.log('>>>', snode.data, snode.join())
+		snode.callback.on('add', onAdd, this)
 	},
 	remove(){
 		this.deps.snode.callback.off()
@@ -74,8 +75,9 @@ return {
 	slots: {
 		sync(from, sender, data){
 			// TODO: add CRDT here
-			if (this.isInner) {
-				const snode = pObj.dot(this, ['deps', 'snode'])
+			const snode = pObj.dot(this, ['deps', 'snode'])
+			if (!snode) return
+			if (snode.isInner) {
 				console.log(snode)
 				this.deps.sync.send(snode.id, data)
 			}else{
@@ -87,9 +89,10 @@ return {
 			if (id === snode.id) {
 				const cl = this.classList
 				cl.add(SELECTED)
-				if (this.isInner) router.go('#/g/'+snode.id)
+				if (snode.isInner) router.go('#/g/'+snode.id)
 				else router.go('#/p/'+snode.id)
 				this.signal.check([id]).send(this.host)
+				// TODO: move this test to drop, add and remove
 				this.signal.sync({act: 'add', id}).send(this.host)
 				return
 			}
