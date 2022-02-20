@@ -56,7 +56,7 @@ return {
 	deps:{
 		tplNode:'file',
 		tplLeaf:'file',
-		sync: 'models',
+		env: 'map',
 		// below are injected by tree
 		snode:'SNode',
 		node:'view',
@@ -65,8 +65,11 @@ return {
 		const snode = deps.snode
 		render(this, snode, deps.node, deps.tplNode, deps.tplLeaf)
 		this.classList = classList(this, snode.isInner)
-if (snode.isInner && snode.data.key) console.log('>>>', snode.data, snode.join())
 		snode.callback.on('add', onAdd, this)
+		if (snode.isInner && snode.data.key){
+			console.log('>>>', snode.data, snode.join())
+			this.crdt = new CRDT(snode.data.key, env)
+		}
 	},
 	remove(){
 		this.deps.snode.callback.off()

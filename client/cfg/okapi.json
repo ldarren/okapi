@@ -13,6 +13,9 @@
 		["be_sse", "ref", "be_sse"],
 		["be", "ref", "be"],
 		["fe", "ref", "fe"],
+		["users", "models", [
+			["env", "ref", "be"]
+		], "users"],
 		["tree", "Sapling", [
 			["data","list",["root", {"name":"root"},[
 			]]]
@@ -31,12 +34,10 @@
 			["events", "list", ["update"]],
 			["autoconnect", "bool", true]
 		]],
-		["sync", "models", [
-			["env", "ref", "be"]
-		], "sync"],
 		["p/View", "view", [
 			["options", "map", {"el": "section"}],
 			["fe", "ref", "fe"],
+			["be", "ref", "be"],
 			["tree", "ref", "tree"],
 			["sse", "ref", "sse"],
 			["p/View", "view", [
@@ -44,6 +45,7 @@
 				["tree", "ref", "tree"],
 				["models", "refs", "models"],
 				["sse", "ref", "sse"],
+				["be", "ref", "be"],
 				["menu", "view", [
 					["options", "map", {"tag":"menu", "class": "toolbar flex-row p-xxs" }],
 					["tpl", "file", "menu.asp"],
@@ -60,11 +62,11 @@
 					["css", "file", "dnd.css"],
 					["tree", "ref", "tree"],
 					["sse", "ref", "sse"],
-					["sync", "ref", "sync"],
+					["be", "ref", "be"],
 					["node", "view", [
 						["tplNode", "file", "node.asp"],
 						["tplLeaf", "file", "leaf.asp"],
-						["sync", "ref", "sync"]
+						["be", "ref", "be"]
 					]]
 				]]
 			]],

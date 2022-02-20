@@ -1,7 +1,30 @@
+function get(ctx, cb){
+	const url = `${ctx.domain}/1.0/chat/${ctx.id}`
+	pico.ajax('GET', url, null, ctx.option, (err, state, xhr) => {
+		if (state < 4) return
+		cb(err, xhr)
+	})
+}
+
+function set(ctx, body){
+	const url = `${ctx.domain}/1.0/chat/${ctx.id}`
+	pico.ajax('PUT', url, body, ctx.option, (err, state, xhr) => {
+		if (state < 4) return
+		cb(err, xhr)
+	})
+}
+
 /*
  * CRDT Class
  */
-function CRDT(){
+function CRDT(id, env){
+	this.id = id
+	this.domain = env.domain
+	this.option = {
+		headers: {
+			Authorization: env.cred
+		}
+	}
 }
 
 CRDT.prototype = {
@@ -10,6 +33,10 @@ CRDT.prototype = {
 
 	create(init){
 		this.merge = Automerge.change(Automerge.init(), init)
+		get(this, (err, xhr) => {
+			if (err) return console.error(err)
+			this.update(xhr)
+		})
 	},
 	update(changes){
 		console.log('server receive ######', changes)
@@ -26,7 +53,7 @@ CRDT.prototype = {
 		}catch(ex){
 			console.error(ex)
 		}
-	}
+	},
 }
 
 return CRDT

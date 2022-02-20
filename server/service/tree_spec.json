@@ -15,6 +15,7 @@
 			"meta": {
 				"type": "object",
 				"spec": {
+					"type": ["ROOT", "STD"],
 					"host_ip":"string"
 				}
 			},
