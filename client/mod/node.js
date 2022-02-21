@@ -68,7 +68,7 @@ return {
 		snode.callback.on('add', onAdd, this)
 		if (snode.isInner && snode.data.key){
 			console.log('>>>', snode.data, snode.join())
-			this.crdt = new CRDT(snode.data.key, env)
+			this.crdt = new CRDT(snode.data.key, deps.env)
 		}
 	},
 	remove(){

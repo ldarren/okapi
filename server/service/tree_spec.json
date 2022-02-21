@@ -1,5 +1,14 @@
 {
 	"spec": {
+		"params_key": {
+			"type": "object",
+			"spec": {
+				"key": {
+					"type": "string",
+					"required": 1
+				}
+			}
+		},
 		"tree": {
 			"type": "array",
 			"specs": [

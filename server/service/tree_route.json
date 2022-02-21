@@ -11,6 +11,18 @@
 		],
 		"GET/tree/i": [
 			[["util.networkInterface", null, {"family":"IPv4", "internal":false}], "address", "_.:output"]
+		],
+        "/1.0/tree/key/:key": [
+            [["web.output"], "_.res", "_.:output", "_.meta"],
+			[["util.input", "@.spec.params_key"], "$.params", "_.meta"],
+			["@.tree.query_by_key", "_.meta.key", "_.query"],
+			["db.find", "$.db.tree", "_.query", "_.:output"]
+		],
+        "/1.0/user/:i/tree": [
+            [["web.output"], "_.res", "_.:output", "_.meta"],
+			[["util.input", "@.spec.params"], "$.params", "_.meta"],
+			["@.tree.query_by_creator", "_.meta.i", "_.query"],
+			["db.find", "$.db.tree", "_.query", "_.:output"]
 		]
 	}
 }

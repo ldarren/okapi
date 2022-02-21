@@ -110,7 +110,7 @@ Collection.prototype = {
 	select(q){
 		const docs = this.documents
 		if (!Array.isArray(q.csv)) return docs.slice()
-		return q.csv.map(i => docs.find(item => i === item.i)).filter(item => item)
+		return q.csv.map(index => docs.find(item => index === pObj.dot(item, q.index))).filter(item => item)
 	},
 	insert(input, meta){
 		const d = 'array' === this.schema.type ? [] : {}
@@ -257,7 +257,7 @@ module.exports = {
 		return this.next()
 	},
 	get(coll, i, output){
-		const res = coll.select({index: 'i', csv: [i]})
+		const res = coll.select({index: ['i'], csv: [i]})
 		Object.assign(output, res[0])
 		return this.next()
 	},

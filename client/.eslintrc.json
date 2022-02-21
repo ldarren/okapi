@@ -17,6 +17,7 @@
 		"__": true,
 		"pico": true,
 		"window": true,
+		"RandExp": true,
 		"document": true,
 		"Automerge": true
 	},

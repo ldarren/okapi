@@ -14,12 +14,16 @@
 		["be", "ref", "be"],
 		["fe", "ref", "fe"],
 		["users", "models", [
+			["options", "map", {
+				"idAttr": "i"
+			}],
 			["env", "ref", "be"]
 		], "users"],
 		["tree", "Sapling", [
+			["users", "ref", "users"],
 			["data","list",["root", {"name":"root"},[
 			]]]
-		]],
+		], "sync"],
 		["requests", "models", [
 		]],
 		["sse", "SSE", [

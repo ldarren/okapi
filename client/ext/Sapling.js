@@ -32,23 +32,25 @@ function onChange(type, ...args){
 	}
 }
 
-function Sapling(seed, name, opt){
-	opt = opt || {}
+function Sapling(seed, name){
 	this.name = name
 	this.callback = new Callback
 	this.callback.on(SNode.CHANGE, onChange, this)
 
-	this.init.apply(this, Array.prototype.slice.call(arguments, 3))
+	this.init.apply(this, Array.prototype.slice.call(arguments, 2))
 
 	const cache = get(this)
 	this.root = new SNode(this, cache || seed)
 	set(this)
+
+	this.ready()
 }
 
 Sapling.prototype={
 	// to be overriden
 	init(spec){},
 	fini(){},
+	ready(){},
 
 	get(id){
 		return this.root.findById(id)
