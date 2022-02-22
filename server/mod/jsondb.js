@@ -107,10 +107,13 @@ Collection.prototype = {
 	save(){
 		fs.writeFileSync(this.fname, JSON.stringify(this.documents))
 	},
-	select(q){
-		const docs = this.documents
-		if (!Array.isArray(q.csv)) return docs.slice()
-		return q.csv.map(index => docs.find(item => index === pObj.dot(item, q.index))).filter(item => item)
+	select(qs){
+		let out = this.documents
+		if (!Array.isArray(qs)) return out.slice()
+		for (let i=0, q; (q = qs[i]); i++){
+			out = q.csv.map(index => out.find(item => index === pObj.dot(item, q.index))).filter(item => item)
+		}
+		return out
 	},
 	insert(input, meta){
 		const d = 'array' === this.schema.type ? [] : {}
@@ -257,7 +260,7 @@ module.exports = {
 		return this.next()
 	},
 	get(coll, i, output){
-		const res = coll.select({index: ['i'], csv: [i]})
+		const res = coll.select([{index: ['i'], csv: [i]}])
 		Object.assign(output, res[0])
 		return this.next()
 	},

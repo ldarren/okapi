@@ -4,16 +4,19 @@ return {
 		return this.next()
 	},
 	query_by_key(key, query){
-		Object.assign(query, {
+		query.push({
 			index: ['d', 'key'],
 			csv: [key]
 		})
 		return this.next()
 	},
 	query_by_creator(cby, query){
-		Object.assign(query, {
+		query.push({
 			index: ['cby'],
 			csv: [cby]
+		}, {
+			index: ['d', 't'],
+			csv: ['ROOT']
 		})
 		return this.next()
 	}

@@ -9,6 +9,15 @@
 				}
 			}
 		},
+		"params_type": {
+			"type": "object",
+			"spec": {
+				"t": {
+					"type": "string",
+					"required": 1
+				}
+			}
+		},
 		"tree": {
 			"type": "array",
 			"specs": [
@@ -24,7 +33,10 @@
 			"meta": {
 				"type": "object",
 				"spec": {
-					"type": ["ROOT", "STD"],
+					"t": {
+						"type": ["ROOT", "STD"],
+						"required": 1
+					},
 					"host_ip":"string"
 				}
 			},
