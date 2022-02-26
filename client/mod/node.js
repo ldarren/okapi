@@ -50,9 +50,34 @@ function onAdd(type, snode) {
 function check(ctx, checked){
 	ctx._el.querySelector('input').checked = checked
 }
+function onChange(type, node){
+	const snode = pObj.dot(this, ['deps', 'snode'])
+	if (!snode) return
+	// find any sync node in between
+	if (snode.findByData({
+		type: 'object',
+		required: 1,
+		spec: {
+			key: 'string',
+			required: 1,
+		}
+	}, node)) return
+
+	// TODO: do CRDT merge here
+	//this.crdt.merge()
+}
+function toggleSync(data){
+	if (data.key) {
+		this.crdt = new CRDT(data, this.deps.env)
+		this.deps.snode.callback.on(SNode.CHANGE, onChange, this)
+	} else {
+		delete this.crdt
+		this.deps.snode.callback.off(SNode.CHANGE, onChange, this)
+	}
+}
 
 return {
-	signals: ['check', 'uncheck', 'sync'],
+	signals: ['check', 'uncheck'],
 	deps:{
 		tplNode:'file',
 		tplLeaf:'file',
@@ -60,15 +85,17 @@ return {
 		// below are injected by tree
 		snode:'SNode',
 		node:'view',
+		isRoot:'bool'
 	},
 	create(deps, params){
 		const snode = deps.snode
 		render(this, snode, deps.node, deps.tplNode, deps.tplLeaf)
 		this.classList = classList(this, snode.isInner)
 		snode.callback.on('add', onAdd, this)
-		if (snode.isInner && snode.data.key){
+		if (snode.isInner && deps.isRoot){
 			console.log('>>>', snode.data, snode.join())
-			this.crdt = new CRDT(snode.data.key, deps.env)
+			snode.callback.on(SNode.UPDATE, toggleSync, this)
+			if (snode.data.key)this.crdt = new CRDT(snode.data, deps.env)
 		}
 	},
 	remove(){
@@ -76,17 +103,6 @@ return {
 		this.super.remove()
 	},
 	slots: {
-		sync(from, sender, data){
-			// TODO: add CRDT here
-			const snode = pObj.dot(this, ['deps', 'snode'])
-			if (!snode) return
-			if (snode.isInner) {
-				console.log(snode)
-				this.deps.sync.send(snode.id, data)
-			}else{
-				this.signal.sync(data).send(this.host)
-			}
-		},
 		tree_sel(from, sender, id){
 			const snode = pObj.dot(this, ['deps', 'snode'])
 			if (id === snode.id) {
@@ -95,8 +111,6 @@ return {
 				if (snode.isInner) router.go('#/g/'+snode.id)
 				else router.go('#/p/'+snode.id)
 				this.signal.check([id]).send(this.host)
-				// TODO: move this test to drop, add and remove
-				this.signal.sync({act: 'add', id}).send(this.host)
 				return
 			}
 			return 1

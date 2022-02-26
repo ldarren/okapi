@@ -28,7 +28,8 @@ return {
 		// get [node, view] from parent
 		this.spawn(deps.node, null, [
 			['options', 'map', {tag:'li', draggable:false}],
-			['snode','SNode', deps.tree.root]
+			['snode','SNode', deps.tree.root],
+			['isRoot', 'bool', 1]
 		])
 		deps.sse.callback.on('update', treeUpdate)
 	},

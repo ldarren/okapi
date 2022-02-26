@@ -50,6 +50,10 @@ SNode.prototype = {
 			if (r) return r
 		}
 	},
+	findByData(spec, endNode){
+		// TODO: recursive find node with matching spec or reach the endNode
+		return this
+	},
 	getChild(index){
 		if (!this.child) return
 		return this.child[index]
@@ -83,10 +87,8 @@ SNode.prototype = {
 	},
 	update(data){
 		Object.assign(this.data, data)
-		this.callback.trigger(SNode.UPDATE)
+		this.callback.trigger(SNode.UPDATE, data)
 		this.host.callback.trigger(SNode.CHANGE, SNode.UPDATE, this)
-	},
-	sync(){
 	},
 }
 
