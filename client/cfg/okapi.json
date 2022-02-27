@@ -70,7 +70,7 @@
 					["node", "view", [
 						["tplNode", "file", "node.asp"],
 						["tplLeaf", "file", "leaf.asp"],
-						["be", "ref", "be"]
+						["env", "ref", "be"]
 					]]
 				]]
 			]],

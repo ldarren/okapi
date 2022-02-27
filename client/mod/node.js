@@ -51,6 +51,7 @@ function check(ctx, checked){
 	ctx._el.querySelector('input').checked = checked
 }
 function onChange(type, node){
+console.log('onChange >>>', type, node)
 	const snode = pObj.dot(this, ['deps', 'snode'])
 	if (!snode) return
 	// find any sync node in between
@@ -67,12 +68,15 @@ function onChange(type, node){
 	//this.crdt.merge()
 }
 function toggleSync(data){
-	if (data.key) {
-		this.crdt = new CRDT(data, this.deps.env)
-		this.deps.snode.callback.on(SNode.CHANGE, onChange, this)
+	const deps = this.deps
+	if (data.key || deps.isRoot) {
+console.log('toggleSync >>>', data)
+		this.crdt = new CRDT(data, deps.env)
+		deps.snode.callback.on(SNode.CHANGE, onChange, this)
 	} else {
+console.log('toggleSync >>>', data)
 		delete this.crdt
-		this.deps.snode.callback.off(SNode.CHANGE, onChange, this)
+		deps.snode.callback.off(SNode.CHANGE, onChange, this)
 	}
 }
 
@@ -93,9 +97,9 @@ return {
 		this.classList = classList(this, snode.isInner)
 		snode.callback.on('add', onAdd, this)
 		if (snode.isInner && deps.isRoot){
-			console.log('>>>', snode.data, snode.join())
+console.log('create >>>', snode.data, snode.join())
 			snode.callback.on(SNode.UPDATE, toggleSync, this)
-			if (snode.data.key)this.crdt = new CRDT(snode.data, deps.env)
+			if (snode.data.key || deps.isRoot) toggleSync.call(this, snode.data)
 		}
 	},
 	remove(){
