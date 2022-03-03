@@ -6,14 +6,18 @@ const CRDT = require('ext/CRDT')
 
 const SELECTED = 'sel'
 
+function spawn(ctx, host, child){
+	ctx.spawn(host, null, [
+		['options', 'map', {tag:'li', draggable:true}],
+		['snode', 'SNode', child]
+	])
+}
+
 function populate(self, node, child){
 	if (!child) return
 	for(let i=0,c; (c=child[i]); i++){
 		// get [node, view] from parent
-		self.spawn(node, null, [
-			['options', 'map', {tag:'li', draggable:true}],
-			['snode', 'SNode', c]
-		])
+		spawn(self, node, c)
 	}
 }
 function render(ctx, snode, node, tplNode, tplLeaf){
@@ -43,15 +47,19 @@ function onAdd(type, snode) {
 
 	switch(type){
 	case SNode.ADD:
-		this.spawn(node, null, [['snode', 'SNode', snode]])
+		spawn(this, node, snode)
 		break
 	}
+
+	if (!this.crdt) return
+	// TODO: do CRDT merge here
+console.log('onAdd >>>', type, snode)
 }
 function check(ctx, checked){
 	ctx._el.querySelector('input').checked = checked
 }
-function onChange(type, node){
-console.log('onChange >>>', type, node)
+function onChange(type, subtype, node){
+console.log('onChange >>>', type, subtype, node)
 	const snode = pObj.dot(this, ['deps', 'snode'])
 	if (!snode) return
 	// find any sync node in between
@@ -67,14 +75,21 @@ console.log('onChange >>>', type, node)
 	// TODO: do CRDT merge here
 	//this.crdt.merge()
 }
-function toggleSync(data){
+function toggleSync(snode){
 	const deps = this.deps
-	if (data.key || deps.isRoot) {
-console.log('toggleSync >>>', data)
-		this.crdt = new CRDT(data, deps.env)
+	const key = pObj.dot(snode, ['data', 'key'])
+	if (deps.isRoot) {
+console.log('toggleSync on1 >>>', key)
+		const user = deps.users.at(0)
+		if (!user) return console.error('no active user')
+		this.crdt = new CRDT(snode, deps.env, snode.join(), user.i)
+		deps.snode.callback.on(SNode.CHANGE, onChange, this)
+	} else if (key) {
+console.log('toggleSync on2 >>>', key)
+		this.crdt = new CRDT(snode, deps.env, snode.join())
 		deps.snode.callback.on(SNode.CHANGE, onChange, this)
 	} else {
-console.log('toggleSync >>>', data)
+console.log('toggleSync off >>>', data)
 		delete this.crdt
 		deps.snode.callback.off(SNode.CHANGE, onChange, this)
 	}
@@ -86,6 +101,7 @@ return {
 		tplNode:'file',
 		tplLeaf:'file',
 		env: 'map',
+		users: 'models',
 		// below are injected by tree
 		snode:'SNode',
 		node:'view',
@@ -95,11 +111,11 @@ return {
 		const snode = deps.snode
 		render(this, snode, deps.node, deps.tplNode, deps.tplLeaf)
 		this.classList = classList(this, snode.isInner)
-		snode.callback.on('add', onAdd, this)
+		snode.callback.on(SNode.ADD, onAdd, this)
 		if (snode.isInner && deps.isRoot){
 console.log('create >>>', snode.data, snode.join())
 			snode.callback.on(SNode.UPDATE, toggleSync, this)
-			if (snode.data.key || deps.isRoot) toggleSync.call(this, snode.data)
+			if (snode.data.key || deps.isRoot) toggleSync.call(this, snode)
 		}
 	},
 	remove(){
@@ -150,6 +166,7 @@ console.log('create >>>', snode.data, snode.join())
 
 			if (snode.child){
 				snode.insert(null, tree)
+				return
 			}
 			const host = snode.host
 			host.insert(null, tree)

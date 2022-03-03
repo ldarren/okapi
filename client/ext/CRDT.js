@@ -1,14 +1,5 @@
-function get(ctx, cb){
-	const url = `${ctx.domain}/1.0/chat/${ctx.id}`
-	pico.ajax('GET', url, null, ctx.option, (err, state, xhr) => {
-		if (state < 4) return
-		cb(err, xhr)
-	})
-}
-
-function set(ctx, body){
-	const url = `${ctx.domain}/1.0/chat/${ctx.id}`
-	pico.ajax('PUT', url, body, ctx.option, (err, state, xhr) => {
+function request(ctx, method, url, body, cb){
+	pico.ajax(method, url, body, ctx.option, (err, state, xhr) => {
 		if (state < 4) return
 		cb(err, xhr)
 	})
@@ -16,27 +7,37 @@ function set(ctx, body){
 
 /*
  * CRDT Class
+ * TODO: should pass in entire node? [id, meta, data], root id is root
+ * TODO: should saved sapling with user id?
  */
-function CRDT(id, env){
-	this.id = id
+function CRDT(meta, env, init = [], userId){
+	this.meta = meta
 	this.domain = env.domain
+	this.userId = userId
 	this.option = {
 		headers: {
 			Authorization: env.cred
 		}
 	}
+	this.create(init)
 }
 
 CRDT.prototype = {
 	init(spec){},
 	fini(){},
 
-	create(init){
-		this.merge = Automerge.change(Automerge.init(), init)
-		get(this, (err, xhr) => {
+	create(tree){
+		let url
+		if ('root' === this.meta.id){
+			url = `${this.domain}/1.0/user/${this.userId}/tree`
+		}else{
+			url = `${this.domain}/1.0/tree/${this.meta.data.key}`
+		}
+		request(this, 'GET', url, null, (err, xhr) => {
 			if (err) return console.error(err)
 			this.update(xhr)
 		})
+		this.doc = Automerge.from({tree})
 	},
 	update(changes){
 		console.log('server receive ######', changes)

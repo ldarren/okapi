@@ -67,10 +67,12 @@
 					["tree", "ref", "tree"],
 					["sse", "ref", "sse"],
 					["be", "ref", "be"],
+					["users", "ref", "users"],
 					["node", "view", [
 						["tplNode", "file", "node.asp"],
 						["tplLeaf", "file", "leaf.asp"],
-						["env", "ref", "be"]
+						["env", "ref", "be"],
+						["users", "ref", "users"]
 					]]
 				]]
 			]],

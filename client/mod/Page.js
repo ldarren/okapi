@@ -181,7 +181,8 @@ return {
 			parent: this.el.querySelector('div.editor')
 		})
 
-		deps.snode.sync()
+		// TODO: sync snode
+		//deps.snode.sync()
 		deps.snode.callback.on('update', () => {
 			const [merge] = Automerge.applyChanges(Automerge.init(), state)
 			this.merge = merge
