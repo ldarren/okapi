@@ -1,4 +1,5 @@
-const Callback=require('po/Callback')
+const Callback = require('po/Callback')
+const CRDT = require('ext/CRDT')
 
 function onChange(type, ...args){
 	switch(type){
@@ -8,15 +9,17 @@ function onChange(type, ...args){
 	}
 }
 
-function SNode(host, tree){
+function SNode(host, tree, net){
 	this.callback = new Callback
 	this.host = host
 	this.id = tree[0]
 	this.data = tree[1]
+	this.dataCRDT = new CRDT(this.data, net)
 	if (tree[2]){
 		this.child = tree[2].map(node => new SNode(this, node) )
+		this.isInner = Array.isArray(this.child)
+		this.childCRDT = new CRDT(this.child.map(node => node.id), net)
 	}
-	this.isInner = Array.isArray(this.child)
 	this.callback.on(SNode.CHANGE, onChange, this)
 }
 

@@ -1,31 +1,9 @@
-function request(ctx, method, url, body, cb){
-	pico.ajax(method, url, body, ctx.option, (err, state, xhr) => {
-		if (state < 4) return
-		cb(err, xhr)
-	})
-}
-
-/*
- * CRDT Class
- * TODO: should pass in entire node? [id, meta, data], root id is root
- * TODO: should saved sapling with user id?
- */
-function CRDT(meta, env, init = [], userId){
-	this.meta = meta
-	this.domain = env.domain
-	this.userId = userId
-	this.option = {
-		headers: {
-			Authorization: env.cred
-		}
-	}
-	this.create(init)
+function CRDT(init, net){
+	this.doc = Automerge.from(init)
+	this.net = net
 }
 
 CRDT.prototype = {
-	init(spec){},
-	fini(){},
-
 	create(tree){
 		let url
 		if ('root' === this.meta.id){
@@ -33,7 +11,7 @@ CRDT.prototype = {
 		}else{
 			url = `${this.domain}/1.0/tree/${this.meta.data.key}`
 		}
-		request(this, 'GET', url, null, (err, xhr) => {
+		this.net.request(this, 'GET', url, null, (err, xhr) => {
 			if (err) return console.error(err)
 			this.update(xhr)
 		})

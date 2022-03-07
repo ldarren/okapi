@@ -160,14 +160,14 @@ return {
 	deps: {
 		tpl: 'file',
 		snode: 'snode',
-		request: 'model',
+		behest: 'model',
 	},
 	create(deps, params){
-		this.el.innerHTML=deps.tpl(deps.request)
+		this.el.innerHTML=deps.tpl(deps.behest)
 
 		this.view = new EditorView({
 			state: EditorState.create({
-				doc: this.deps.request.req, //this.merge.req.toString(),
+				doc: this.deps.behest.req, //this.merge.req.toString(),
 				extensions: [
 					basicSetup,
 					EditorView.updateListener.of(v => {
@@ -209,7 +209,7 @@ return {
 
 				obj.res = xhr
 				obj.headers = JSON.stringify(obj.headers)
-				Object.assign(this.deps.request, obj)
+				Object.assign(this.deps.behest, obj)
 			})
 		}
 	},

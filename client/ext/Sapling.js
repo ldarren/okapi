@@ -32,7 +32,7 @@ function onChange(type, ...args){
 	}
 }
 
-function Sapling(seed, name){
+function Sapling(net, name){
 	this.name = name
 	this.callback = new Callback
 	this.callback.on(SNode.CHANGE, onChange, this)

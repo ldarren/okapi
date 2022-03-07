@@ -20,13 +20,13 @@ return {
 	signals: ['tree_unsel', 'tree_sel', 'dragstart', 'dragend', 'dragenter', 'dragleave', 'dropdest', 'drop'],
 	deps:{
 		tree:'Sapling',
-		node:'view',
+		Node:'view',
 		sse:'SSE',
 		sync:'models'
 	},
 	create(deps, params){
 		// get [node, view] from parent
-		this.spawn(deps.node, null, [
+		this.spawn(deps.Node, null, [
 			['options', 'map', {tag:'li', draggable:false}],
 			['snode','SNode', deps.tree.root],
 			['isRoot', 'bool', 1]

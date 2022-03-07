@@ -2,7 +2,6 @@ const router = require('po/router')
 const pStr = require('pico/str')
 const pObj = require('pico/obj')
 const SNode = require('ext/snode')
-const CRDT = require('ext/CRDT')
 
 const SELECTED = 'sel'
 
@@ -51,7 +50,6 @@ function onAdd(type, snode) {
 		break
 	}
 
-	if (!this.crdt) return
 	// TODO: do CRDT merge here
 console.log('onAdd >>>', type, snode)
 }
@@ -78,19 +76,11 @@ console.log('onChange >>>', type, subtype, node)
 function toggleSync(snode){
 	const deps = this.deps
 	const key = pObj.dot(snode, ['data', 'key'])
-	if (deps.isRoot) {
-console.log('toggleSync on1 >>>', key)
-		const user = deps.users.at(0)
-		if (!user) return console.error('no active user')
-		this.crdt = new CRDT(snode, deps.env, snode.join(), user.i)
-		deps.snode.callback.on(SNode.CHANGE, onChange, this)
-	} else if (key) {
-console.log('toggleSync on2 >>>', key)
-		this.crdt = new CRDT(snode, deps.env, snode.join())
+	if (deps.isRoot || key) {
+console.log('toggleSync on >>>', key)
 		deps.snode.callback.on(SNode.CHANGE, onChange, this)
 	} else {
 console.log('toggleSync off >>>', data)
-		delete this.crdt
 		deps.snode.callback.off(SNode.CHANGE, onChange, this)
 	}
 }
@@ -101,7 +91,6 @@ return {
 		tplNode:'file',
 		tplLeaf:'file',
 		env: 'map',
-		users: 'models',
 		// below are injected by tree
 		snode:'SNode',
 		node:'view',
@@ -112,10 +101,10 @@ return {
 		render(this, snode, deps.node, deps.tplNode, deps.tplLeaf)
 		this.classList = classList(this, snode.isInner)
 		snode.callback.on(SNode.ADD, onAdd, this)
-		if (snode.isInner && deps.isRoot){
+		if (snode.isInner){
 console.log('create >>>', snode.data, snode.join())
 			snode.callback.on(SNode.UPDATE, toggleSync, this)
-			if (snode.data.key || deps.isRoot) toggleSync.call(this, snode)
+			toggleSync.call(this, snode)
 		}
 	},
 	remove(){
