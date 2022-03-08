@@ -42,7 +42,7 @@ function classList(ctx, isInner){
 }
 function onAdd(type, snode) {
 	const deps = this.deps
-	const node = deps.node
+	const node = deps.Node
 
 	switch(type){
 	case SNode.ADD:
@@ -80,7 +80,7 @@ function toggleSync(snode){
 console.log('toggleSync on >>>', key)
 		deps.snode.callback.on(SNode.CHANGE, onChange, this)
 	} else {
-console.log('toggleSync off >>>', data)
+console.log('toggleSync off >>>')
 		deps.snode.callback.off(SNode.CHANGE, onChange, this)
 	}
 }
@@ -93,12 +93,12 @@ return {
 		env: 'map',
 		// below are injected by tree
 		snode:'SNode',
-		node:'view',
+		Node:'view',
 		isRoot:'bool'
 	},
 	create(deps, params){
 		const snode = deps.snode
-		render(this, snode, deps.node, deps.tplNode, deps.tplLeaf)
+		render(this, snode, deps.Node, deps.tplNode, deps.tplLeaf)
 		this.classList = classList(this, snode.isInner)
 		snode.callback.on(SNode.ADD, onAdd, this)
 		if (snode.isInner){

@@ -1,25 +1,78 @@
 const Callback = require('po/Callback')
 const CRDT = require('ext/CRDT')
+const storage=window.localStorage
+
+const getKey = key => ('snode:' + key)
+
+function toString(ctx){
+	if (ctx.child) return JSON.stringify([ctx.id, ctx.data, ctx.child.map(c => c.id) ])
+	return JSON.stringify([ctx.id, ctx.data])
+}
+
+function get(ctx){
+	let obj
+	if (!ctx.key) return obj
+	const key = ctx.key
+	try{
+		const json=storage.getItem(key)
+		if (!json) return obj
+		obj = JSON.parse(json)
+	}catch(ex){
+		storage.removeItem(key)
+	}
+	return obj
+}
+
+function set(ctx){
+	if (!ctx.key) return
+	storage.setItem(ctx.key, toString(ctx))
+}
+
+function unroll(seeds){
+	return [seeds[0], seeds[1], seeds.length > 2 ? seeds[2].map(c => c[0]) : void 0]
+}
+
+function mapChilds(seeds){
+	const childs = seeds[2]
+	if (!childs) return {}
+	return childs.reduce((acc, c) => {
+		acc[c[0]] = c
+		return acc
+	}, {})
+}
 
 function onChange(type, ...args){
 	switch(type){
+	case SNode.ADD:
+	case SNode.UPDATE:
+	case SNode.DELETE:
+		set(this)
+		break
 	case SNode.CHANGE:
 		this.host.callback.trigger(type, ...args)
 		break
 	}
 }
 
-function SNode(host, tree, net){
+function SNode(key, host, net, seeds){
 	this.callback = new Callback
+	this.key = getKey(key)
 	this.host = host
+
+	let tree = get(this) || unroll(seeds)
+
 	this.id = tree[0]
 	this.data = tree[1]
 	this.dataCRDT = new CRDT(this.data, net)
 	if (tree[2]){
-		this.child = tree[2].map(node => new SNode(this, node) )
+		const map = mapChilds(seeds)
+		this.child = tree[2].map(id => new SNode(id, this, net, map[id]) )
 		this.isInner = Array.isArray(this.child)
-		this.childCRDT = new CRDT(this.child.map(node => node.id), net)
+		this.childCRDT = new CRDT(tree[2], net)
 	}
+
+	set(this)
+
 	this.callback.on(SNode.CHANGE, onChange, this)
 }
 

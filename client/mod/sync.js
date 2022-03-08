@@ -1,5 +1,9 @@
+const SNode=require('ext/SNode')
+
 return {
 	init(spec){
-		this.users = spec.users
+		const net = spec.net
+		const key = 'root:' + net.currUserI
+		this.root = new SNode(key, this, net, spec.data)
 	},
 }
