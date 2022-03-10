@@ -10,35 +10,46 @@ function toString(ctx){
 }
 
 function get(ctx){
-	let obj
-	if (!ctx.key) return obj
+	let ret
 	const key = ctx.key
+	if (!key) return ret
 	try{
 		const json=storage.getItem(key)
-		if (!json) return obj
-		obj = JSON.parse(json)
+		if (!json) return ret
+		ret = JSON.parse(json)
 	}catch(ex){
 		storage.removeItem(key)
 	}
-	return obj
+	return ret
 }
 
 function set(ctx){
-	if (!ctx.key) return
-	storage.setItem(ctx.key, toString(ctx))
+	const key = ctx.key
+	if (!key) return
+	storage.setItem(key, toString(ctx))
 }
 
 function unroll(seeds){
-	return [seeds[0], seeds[1], seeds.length > 2 ? seeds[2].map(c => c[0]) : void 0]
+	if (!seeds || !Array.isArray(seeds) || 2 > seeds.length) return
+	if (2 < seeds.length){
+		return [seeds[0], seeds[1], seeds[2].map(c => c[0])]
+	}
+	return seeds.slice()
+}
+
+function defRoot(){
+	return ['root', {name: 'root'}, []]
 }
 
 function mapChilds(seeds){
+	const ret = {}
+	if (!seeds || !Array.isArray(seeds) || 3 > seeds.length) return ret
 	const childs = seeds[2]
-	if (!childs) return {}
+	if (!childs || !Array.isArray(childs)) return ret
 	return childs.reduce((acc, c) => {
 		acc[c[0]] = c
 		return acc
-	}, {})
+	}, ret)
 }
 
 function onChange(type, ...args){
@@ -59,7 +70,7 @@ function SNode(key, host, net, seeds){
 	this.key = getKey(key)
 	this.host = host
 
-	let tree = get(this) || unroll(seeds)
+	let tree = get(this) || unroll(seeds) || defRoot()
 
 	this.id = tree[0]
 	this.data = tree[1]
@@ -115,7 +126,7 @@ SNode.prototype = {
 	},
 	insert(index, tree){
 		if (!this.child) return
-		this.move(index, new SNode(this, tree))
+		this.move(index, new SNode(tree[0], this, this.net, tree))
 	},
 	move(index, snode){
 		if (!this.child) return

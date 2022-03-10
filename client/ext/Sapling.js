@@ -13,7 +13,7 @@ function Sapling(name, net){
 Sapling.prototype={
 	// to be overriden
 	init(spec){
-		this.root = new SNode('', this, spec.net)
+		this.root = new SNode('root:0', this, spec.net)
 	},
 	fini(){},
 	ready(){},
