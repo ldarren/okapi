@@ -1,50 +1,21 @@
+const pObj = require('pico/obj')
 const Callback = require('po/Callback')
 const CRDT = require('ext/CRDT')
-const storage=window.localStorage
 
-const getKey = key => ('snode:' + key)
-
-function toString(ctx){
-	if (ctx.child) return JSON.stringify([ctx.id, ctx.data, ctx.child.map(c => c.id) ])
-	return JSON.stringify([ctx.id, ctx.data])
-}
-
-function get(ctx){
-	let ret
-	const key = ctx.key
-	if (!key) return ret
-	try{
-		const json=storage.getItem(key)
-		if (!json) return ret
-		ret = JSON.parse(json)
-	}catch(ex){
-		storage.removeItem(key)
+function onChange(type, subtype, snode){
+	let ref = pObj.dot(this, ['data', 'ref'])
+	if (!ref){
+		this.host.callback.trigger(type, subtype, snode)
+		return
 	}
-	return ret
+
+	snode.crdt.updateChild(ref, snode.id, snode.child)
 }
 
-function set(ctx){
-	const key = ctx.key
-	if (!key) return
-	storage.setItem(key, toString(ctx))
-}
-
-function unroll(seeds){
-	if (!seeds || !Array.isArray(seeds) || 2 > seeds.length) return
-	if (2 < seeds.length){
-		return [seeds[0], seeds[1], seeds[2].map(c => c[0])]
-	}
-	return seeds.slice()
-}
-
-function defRoot(){
-	return ['root', {name: 'root'}, []]
-}
-
-function mapChilds(seeds){
+function mapChilds(seed){
 	const ret = {}
-	if (!seeds || !Array.isArray(seeds) || 3 > seeds.length) return ret
-	const childs = seeds[2]
+	if (!seed || !Array.isArray(seed) || 3 > seed.length) return ret
+	const childs = seed[2]
 	if (!childs || !Array.isArray(childs)) return ret
 	return childs.reduce((acc, c) => {
 		acc[c[0]] = c
@@ -52,37 +23,18 @@ function mapChilds(seeds){
 	}, ret)
 }
 
-function onChange(type, ...args){
-	switch(type){
-	case SNode.ADD:
-	case SNode.UPDATE:
-	case SNode.DELETE:
-		set(this)
-		break
-	case SNode.CHANGE:
-		this.host.callback.trigger(type, ...args)
-		break
-	}
-}
-
-function SNode(key, host, net, seeds){
+function SNode(ref, key, host, net, seeds){
 	this.callback = new Callback
-	this.key = getKey(key)
 	this.host = host
+	this.id = key
 
-	let tree = get(this) || unroll(seeds) || defRoot()
-
-	this.id = tree[0]
-	this.data = tree[1]
-	this.dataCRDT = new CRDT(this.data, net)
-	if (tree[2]){
+	this.crdt = new CRDT(this, ref, key, net, seeds)
+	const child = this.crdt.child
+	this.isInner = Array.isArray(child)
+	if (this.isInner){
 		const map = mapChilds(seeds)
-		this.child = tree[2].map(id => new SNode(id, this, net, map[id]) )
-		this.isInner = Array.isArray(this.child)
-		this.childCRDT = new CRDT(tree[2], net)
+		this.child = child.map(id => new SNode(ref, id, this, net, map[id]) )
 	}
-
-	set(this)
 
 	this.callback.on(SNode.CHANGE, onChange, this)
 }
@@ -134,16 +86,12 @@ SNode.prototype = {
 		else this.child.push(snode)
 		this.callback.trigger(SNode.ADD, snode)
 		this.host.callback.trigger(SNode.CHANGE, SNode.ADD, snode, this)
+		set(this)
 	},
 	remove(){
 		const host = this.host
-		const index = host.findIndex(this.id)
-		const [snode] = host.child.splice(index, 1)
-		host.callback.trigger(SNode.DELETE, snode)
-		const hhost = host.host
-		if (hhost && hhost.callback){
-			hhost.callback.trigger(SNode.CHANGE, SNode.DELETE, snode, this)
-		}
+		if (!host) return
+		host.splice(this.id)
 	},
 	splice(id){
 		const index = this.findIndex(id)
@@ -151,12 +99,15 @@ SNode.prototype = {
 		const [snode] = this.child.splice(index, 1)
 		this.callback.trigger(SNode.DELETE, snode)
 		this.host.callback.trigger(SNode.CHANGE, SNode.DELETE, snode, this)
+		set(this)
+		reset(snode)
 		return snode
 	},
 	update(data){
 		Object.assign(this.data, data)
 		this.callback.trigger(SNode.UPDATE, this)
 		this.host.callback.trigger(SNode.CHANGE, SNode.UPDATE, this)
+		set(this)
 	},
 }
 

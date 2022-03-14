@@ -49,40 +49,9 @@ function onAdd(type, snode) {
 		spawn(this, node, snode)
 		break
 	}
-
-	// TODO: do CRDT merge here
-console.log('onAdd >>>', type, snode)
 }
 function check(ctx, checked){
 	ctx._el.querySelector('input').checked = checked
-}
-function onChange(type, subtype, node){
-console.log('onChange >>>', type, subtype, node)
-	const snode = pObj.dot(this, ['deps', 'snode'])
-	if (!snode) return
-	// find any sync node in between
-	if (snode.findByData({
-		type: 'object',
-		required: 1,
-		spec: {
-			key: 'string',
-			required: 1,
-		}
-	}, node)) return
-
-	// TODO: do CRDT merge here
-	//this.crdt.merge()
-}
-function toggleSync(snode){
-	const deps = this.deps
-	const key = pObj.dot(snode, ['data', 'key'])
-	if (deps.isRoot || key) {
-console.log('toggleSync on >>>', key)
-		deps.snode.callback.on(SNode.CHANGE, onChange, this)
-	} else {
-console.log('toggleSync off >>>')
-		deps.snode.callback.off(SNode.CHANGE, onChange, this)
-	}
 }
 
 return {
@@ -101,15 +70,10 @@ return {
 		render(this, snode, deps.Node, deps.tplNode, deps.tplLeaf)
 		this.classList = classList(this, snode.isInner)
 		snode.callback.on(SNode.ADD, onAdd, this)
-		if (snode.isInner){
-console.log('create >>>', snode.data, snode.join())
-			snode.callback.on(SNode.UPDATE, toggleSync, this)
-			toggleSync.call(this, snode)
-		}
 	},
 	remove(){
 		this.deps.snode.callback.off()
-		this.super.remove()
+		this.super.remove.call(this)
 	},
 	slots: {
 		tree_sel(from, sender, id){
