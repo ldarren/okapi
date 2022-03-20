@@ -1,3 +1,5 @@
+const Sapling=require('ext/Sapling')
+
 function getNodeId(ele){
 	const id = ele.id
 	if (id) return id
@@ -16,6 +18,15 @@ function treeUpdate(...args){
 	console.log(...args)
 }
 
+function onStart(){
+	const deps = this.deps
+	this.spawn(deps.Node, null, [
+		['options', 'map', {tag:'li', draggable:false}],
+		['snode','SNode', deps.tree.root],
+		['isRoot', 'bool', 1]
+	])
+}
+
 return {
 	signals: ['tree_unsel', 'tree_sel', 'dragstart', 'dragend', 'dragenter', 'dragleave', 'dropdest', 'drop'],
 	deps:{
@@ -25,16 +36,15 @@ return {
 		sync:'models'
 	},
 	create(deps, params){
-		// get [node, view] from parent
-		this.spawn(deps.Node, null, [
-			['options', 'map', {tag:'li', draggable:false}],
-			['snode','SNode', deps.tree.root],
-			['isRoot', 'bool', 1]
-		])
-		deps.sse.callback.on('update', treeUpdate)
+		if (deps.tree.root){
+			onStart.call(this)
+		}
+		deps.tree.callback.on(Sapling.ADD, onStart, this)
+		deps.sse.callback.on('update', treeUpdate, this)
 	},
 	remove(){
 		this.deps.sse.callback.off('update', treeUpdate)
+		this.deps.tree.callback.off(Sapling.ADD, onStart)
 		this.super.remove.call(this)
 	},
 	events:{

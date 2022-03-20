@@ -5,10 +5,10 @@ const SNode = require('ext/snode')
 
 const SELECTED = 'sel'
 
-function spawn(ctx, host, child){
-	ctx.spawn(host, null, [
+function spawn(ctx, View, snode, params){
+	ctx.spawn(View, params, [
 		['options', 'map', {tag:'li', draggable:true}],
-		['snode', 'SNode', child]
+		['snode', 'SNode', snode]
 	])
 }
 
@@ -24,11 +24,11 @@ function render(ctx, snode, node, tplNode, tplLeaf){
 	const id = snode.id
 	const sel = id === router.getParam('id')
 	if (child){
-		ctx.el.innerHTML=tplNode({id, data: snode.data, sel})
+		ctx.el.innerHTML=tplNode({id, data: snode.data(), sel})
 		populate(ctx, node, child)
 		ctx.setElement(ctx.el.getElementsByTagName('ul')[0])
 	}else{
-		ctx.el.innerHTML=tplLeaf({id, data: snode.data, sel})
+		ctx.el.innerHTML=tplLeaf({id, data: snode.data(), sel})
 	}
 	if (sel){
 		ctx.signal.check([id]).send(ctx.host)
@@ -40,13 +40,20 @@ function classList(ctx, isInner){
 	}
 	return ctx.el.getElementsByTagName('span')[0].classList
 }
-function onAdd(type, snode) {
+function onChange(type, snode, _idx) {
 	const deps = this.deps
-	const node = deps.Node
 
 	switch(type){
 	case SNode.ADD:
-		spawn(this, node, snode)
+		// TODO: insert new node to index position
+		spawn(this, deps.Node, snode, {_idx})
+		break
+	case SNode.DELETE:
+		{
+			const id = snode.id
+			const node = this.modules.find(mod => id === mod.getSNodeId())
+			node.remove()
+		}
 		break
 	}
 }
@@ -69,7 +76,10 @@ return {
 		const snode = deps.snode
 		render(this, snode, deps.Node, deps.tplNode, deps.tplLeaf)
 		this.classList = classList(this, snode.isInner)
-		snode.callback.on(SNode.ADD, onAdd, this)
+		if (snode.isInner){
+			snode.callback.on(SNode.ADD, onChange, this)
+			snode.callback.on(SNode.DELETE, onChange, this)
+		}
 	},
 	remove(){
 		this.deps.snode.callback.off()
@@ -170,10 +180,12 @@ return {
 			if (id !== snode.id) return 1
 
 			// view rewire
+			/* handled by events
 			let i = this.host.modules.findIndex(m => m === this)
 			this.host.modules.splice(i, 1)
 			this.host = host
 			host.modules.splice(index, 0, this)
+			*/
 
 			// snode rewire
 			snode.host.splice(id)
@@ -181,8 +193,13 @@ return {
 			host.deps.snode.move(index, snode)
 
 			// element rewire
+			/* handled by events
 			const child = host.el.children[index]
 			host.el.insertBefore(this.el, child)
+			*/
 		},
+	},
+	getSNodeId(){
+		return this.deps.snode.id
 	}
 }

@@ -1,9 +1,5 @@
+const pObj = require('pico/obj')
 const storage=window.localStorage
-
-function toString(ctx){
-	if (ctx.child) return JSON.stringify([ctx.id, ctx.data, ctx.child.map(c => c.id) ])
-	return JSON.stringify([ctx.id, ctx.data])
-}
 
 function get(ctx){
 	let ret
@@ -19,9 +15,9 @@ function get(ctx){
 }
 
 function set(ctx){
-	const key = ctx.key
-	if (!key) return
-	storage.setItem(key, toString(ctx))
+	const {id, data, child} = ctx
+	if (!id) return
+	storage.setItem(id, JSON.stringify(child ? [id, data, child] : [id, data]))
 }
 
 function reset(ctx){
@@ -53,21 +49,17 @@ function CRDT(ctx, ref, key, net, seed){
 	this.child = node[2]
 
 	this.dataDiff = Automerge.from(this.data)
-	this.dataDiff.on('changes', () => {
-	})
 	if (this.child) {
 		this.childDiff = Automerge.from(this.child)
-		this.childDiff.on('changes', () => {
-		})
 	}
 
 	set(this)
 
-	this.sync(ref)
+	//this.pull(pObj.dot(this, ['data', 'ref']) || ref)
 }
 
 CRDT.prototype = {
-	sync(ref){
+	pull(ref){
 		this.net.request('GET', `/1.0/tree/${this.id}`, {ref}, null, (err, xhr) => {
 			if (err) return console.error(err)
 			if (!xhr) return // new data
@@ -78,14 +70,27 @@ CRDT.prototype = {
 				this.childDiff.appliChanges(child)
 			}else{
 				this.childDiff = Automerge.from(child)
-				this.childDiff.on('changes', () => {
-				})
 			}
 		})
 	},
-	updateData(){
+	sync(ref){
 	},
-	updateChild(){
+	updateData(data){
+		pObj.extend(this.data, data)
+		set(this)
+	},
+	updateChild(child){
+		let c = this.child
+		if (Array.isArray(c)) {
+			c.length = 0
+		}else{
+			c = []
+		}
+		c.push(...child)
+		this.child = c
+		set(this)
+	},
+	clear(){
 	}
 }
 

@@ -9,7 +9,7 @@ function onChange(type, subtype, snode){
 		return
 	}
 
-	snode.crdt.updateChild(ref, snode.id, snode.child)
+	snode.crdt.sync(ref)
 }
 
 function mapChilds(seed){
@@ -31,6 +31,7 @@ function SNode(ref, key, host, net, seeds){
 	this.crdt = new CRDT(this, ref, key, net, seeds)
 	const child = this.crdt.child
 	this.isInner = Array.isArray(child)
+	ref = pObj.dot(this, ['crdt', 'data', 'ref']) || ref
 	if (this.isInner){
 		const map = mapChilds(seeds)
 		this.child = child.map(id => new SNode(ref, id, this, net, map[id]) )
@@ -47,6 +48,12 @@ SNode.CHANGE = 'cha'
 SNode.prototype = {
 	join(){
 		return [this.id, this.data, this.child ? this.child.map(c => c.join()) : void 0]
+	},
+	data(){
+		return this.crdt.data
+	},
+	clear(){
+		return this.crdt.clear()
 	},
 	find(path, i = 0){
 		if (path[0] !== this.id) return
@@ -73,20 +80,21 @@ SNode.prototype = {
 		return this
 	},
 	getChild(index){
-		if (!this.child) return
+		if (!Array.isArray(this.child)) return
 		return this.child[index]
 	},
 	insert(index, tree){
-		if (!this.child) return
-		this.move(index, new SNode(tree[0], this, this.net, tree))
+		if (!Array.isArray(this.child)) return
+		const ref = this.data().ref
+		this.move(index, new SNode(ref, tree[0], this, this.net, tree))
 	},
 	move(index, snode){
-		if (!this.child) return
+		if (!Array.isArray(this.child)) return
 		if (-1 < index) this.child.splice(index, 0, snode)
 		else this.child.push(snode)
-		this.callback.trigger(SNode.ADD, snode)
-		this.host.callback.trigger(SNode.CHANGE, SNode.ADD, snode, this)
-		set(this)
+		this.callback.trigger(SNode.ADD, snode, index)
+		this.host.callback.trigger(SNode.CHANGE, SNode.ADD, snode, index, this)
+		this.crdt.updateChild(this.child.map(c => c.id))
 	},
 	remove(){
 		const host = this.host
@@ -99,15 +107,14 @@ SNode.prototype = {
 		const [snode] = this.child.splice(index, 1)
 		this.callback.trigger(SNode.DELETE, snode)
 		this.host.callback.trigger(SNode.CHANGE, SNode.DELETE, snode, this)
-		set(this)
-		reset(snode)
+		this.crdt.updateChild(this.child.map(c => c.id))
+		snode.crdt.clear()
 		return snode
 	},
 	update(data){
-		Object.assign(this.data, data)
+		this.crdt.updateData(data)
 		this.callback.trigger(SNode.UPDATE, this)
 		this.host.callback.trigger(SNode.CHANGE, SNode.UPDATE, this)
-		set(this)
 	},
 }
 

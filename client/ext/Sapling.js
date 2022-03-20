@@ -10,15 +10,20 @@ function Sapling(name, net){
 	this.ready()
 }
 
+Sapling.ADD = 'add'
+Sapling.DELETE = 'del'
+
 Sapling.prototype={
 	// to be overriden
 	init(spec){
 		this.root = new SNode('root:0', this, spec.net)
+		this.callback.trigger(Sapling.ADD, this.root)
 	},
 	fini(){},
 	ready(){},
 
 	get(id){
+		debugger
 		return this.root.findById(id)
 	},
 	insert(path, node, index, tree = this.root){

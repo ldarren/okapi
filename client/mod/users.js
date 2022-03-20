@@ -37,14 +37,15 @@ function signup(ctx, body, cb){
 	pico.ajax('POST', `${ctx.domain}/1.0/user`, body, ctx.params, (err, state, xhr) => {
 		if (4 !== state) return
 		if (err) return cb(err)
-		let user
+		let users
 		try {
-			user = JSON.parse(xhr).body
-			ctx.set(user)
+			users = JSON.parse(xhr).body
+			if (users.length) ctx.currUserI = users[0].i
+			ctx.set(users)
 		} catch (ex) {
 			return cb(ex)
 		}
-		cb(null, user)
+		cb(null, users)
 	})
 }
 
@@ -81,11 +82,10 @@ return {
 			const user = pObj.create(user_spec, {randex: RandExp.randexp})
 			signup(this, user, (err, currUser) => {
 				if (err) return console.error(err)
-				this.currUserI = currUser.i
 			})
 		}
 	},
 	request(method, url, body, params, cb){
-		request(this, `${this.domain}${url}`, body, pObj.extends({}, [this.params, params]), cb)
+		request(method, `${this.domain}${url}`, body, pObj.extends({}, [this.params, params]), cb)
 	}
 }

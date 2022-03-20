@@ -7,7 +7,7 @@ return {
 		snode: 'snode',
 	},
 	create(deps, params){
-		this.el.innerHTML=deps.tpl(deps.snode.data)
+		this.el.innerHTML=deps.tpl(deps.snode.data())
 	},
 	events:{
 		'click input':function(e, target){
@@ -28,7 +28,7 @@ return {
 			}
 
 			snode.update({ref})
-			this.el.innerHTML=this.deps.tpl(snode.data)
+			this.el.innerHTML=this.deps.tpl(snode.data())
 		}
 	}
 }
