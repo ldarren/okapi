@@ -5,9 +5,9 @@ const sseRoute = require('service/sse_route.json')
 const chatSpec = require('service/chat_spec.json')
 const chatRoute = require('service/chat_route.json')
 const chat = require('service/chat')
-const treeSpec = require('service/tree_spec.json')
-const treeRoute = require('service/tree_route.json')
-const tree = require('service/tree')
+const snodeSpec = require('service/snode_spec.json')
+const snodeRoute = require('service/snode_route.json')
+const snode = require('service/snode')
 const queue = require('service/queue')
 const userSpec = require('service/user_spec.json')
 const userRoute = require('service/user_route.json')
@@ -21,14 +21,13 @@ this.load = () => {
 		sseRoute,
 		chatRoute,
 		chatSpec,
-		treeRoute,
-		treeSpec,
-		treeRoute,
+		snodeSpec,
+		snodeRoute,
 		userSpec,
 		userRoute,
 		system,
 		{
-			tree,
+			snode,
 			queue,
 			chat
 		},

@@ -1,9 +1,9 @@
 {
 	"spec": {
-		"params_key": {
+		"params_id": {
 			"type": "object",
 			"spec": {
-				"key": {
+				"id": {
 					"type": "string",
 					"required": 1
 				}

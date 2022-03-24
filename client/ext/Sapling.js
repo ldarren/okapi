@@ -1,6 +1,10 @@
 const Callback=require('po/Callback')
 const SNode=require('ext/SNode')
 
+function treeUpdate(...args){
+	console.log(...args)
+}
+
 function Sapling(name, net){
 	this.name = name
 	this.callback = new Callback
@@ -17,13 +21,16 @@ Sapling.prototype={
 	// to be overriden
 	init(spec){
 		this.root = new SNode('root:0', this, spec.net)
+		this.sse = sepc.sse
+		this.sse.callback.on('update', treeUpdate, this)
 		this.callback.trigger(Sapling.ADD, this.root)
 	},
-	fini(){},
+	fini(){
+		this.sse.callback.off('update', treeUpdate, this)
+	},
 	ready(){},
 
 	get(id){
-		debugger
 		return this.root.findById(id)
 	},
 	insert(path, node, index, tree = this.root){

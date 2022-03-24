@@ -3,10 +3,10 @@ return {
 		Object.assign(output, {host_ip: ip[0]})
 		return this.next()
 	},
-	query_by_key(key, query){
+	query_by_id(id, query){
 		query.push({
-			index: ['d', 'key'],
-			csv: [key]
+			index: ['d', 0],
+			csv: [id]
 		})
 		return this.next()
 	},

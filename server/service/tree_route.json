@@ -16,10 +16,10 @@
 			[["util.input", "@.spec.params"], "$.params", "_.meta"],
 			["db.get", "$.db.tree", "_.meta.i", "_.output"]
 		],
-        "/1.0/tree/key/:key": [
+        "/1.0/tree/id/:id": [
             [["web.output"], "_.res", "_.:output", "_.meta"],
-			[["util.input", "@.spec.params_key"], "$.params", "_.meta"],
-			["@.tree.query_by_key", "_.meta.key", "_.:query"],
+			[["util.input", "@.spec.params_id"], "$.params", "_.meta"],
+			["@.tree.query_by_id", "_.meta.id", "_.:query"],
 			["db.find", "$.db.tree", "_.:query", "_.:output"]
 		],
         "/1.0/user/:i/tree": [

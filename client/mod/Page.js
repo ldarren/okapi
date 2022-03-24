@@ -162,7 +162,7 @@ return {
 		snode: 'snode',
 	},
 	create(deps, params){
-		this.el.innerHTML=deps.tpl(deps.snode.data)
+		this.el.innerHTML=deps.tpl(deps.snode.data())
 
 		this.view = new EditorView({
 			state: EditorState.create({

@@ -14,10 +14,6 @@ function getChildId(ele){
 	return label.id || label.getAttribute('for')
 }
 
-function treeUpdate(...args){
-	console.log(...args)
-}
-
 function onStart(){
 	const deps = this.deps
 	this.spawn(deps.Node, null, [
@@ -32,7 +28,6 @@ return {
 	deps:{
 		tree:'Sapling',
 		Node:'view',
-		sse:'SSE',
 		sync:'models'
 	},
 	create(deps, params){
@@ -40,10 +35,8 @@ return {
 			onStart.call(this)
 		}
 		deps.tree.callback.on(Sapling.ADD, onStart, this)
-		deps.sse.callback.on('update', treeUpdate, this)
 	},
 	remove(){
-		this.deps.sse.callback.off('update', treeUpdate)
 		this.deps.tree.callback.off(Sapling.ADD, onStart)
 		this.super.remove.call(this)
 	},

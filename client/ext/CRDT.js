@@ -15,9 +15,11 @@ function get(ctx){
 }
 
 function set(ctx){
-	const {id, data, child} = ctx
-	if (!id) return
-	storage.setItem(id, JSON.stringify(child ? [id, data, child] : [id, data]))
+	const key = ctx.key
+	if (!key) return
+	const id = ctx.id
+	const {data, child} = ctx.feEdge
+	storage.setItem(ctx.key, JSON.stringify(child ? [id, data, child] : [id, data]))
 }
 
 function reset(ctx){
@@ -38,57 +40,67 @@ function defRoot(id, data = {name: 'untitled'}, child = []){
 	return [id, data, child]
 }
 
-function CRDT(ctx, ref, key, net, seed){
-	this.ctx = ctx
+function sse(changes){
+	this.beEdge = Automerge.applyChanges(this.beEdge, changes)
+	this.feEdge = Automerge.merge(this.feEdge, this.beEdge)
+	this.host.callback.trigger(SNode.UPDATE)
+}
+
+function CRDT(host, ref, key, net, seed){
+	this.host = host
 	this.key = key
 	this.net = net
 
 	let node = get(this) || unroll(seed) || defRoot(key)
 	this.id = node[0]
-	this.data = node[1]
-	this.child = node[2]
 
-	this.dataDiff = Automerge.from(this.data)
-	if (this.child) {
-		this.childDiff = Automerge.from(this.child)
-	}
+	this.feEdge = Automerge.from({data: node[1], child: node[2]})
 
 	set(this)
+	this.host.callback.trigger(SNode.UPDATE)
 
-	//this.pull(pObj.dot(this, ['data', 'ref']) || ref)
+	this.pull(pObj.dot(this, ['data', 'ref']) || ref)
 }
 
 CRDT.prototype = {
 	pull(ref){
-		this.net.request('GET', `/1.0/tree/${this.id}`, {ref}, null, (err, xhr) => {
+		this.net.request('GET', `/1.0/tree/id/${this.id}`, {ref}, null, (err, xhr) => {
 			if (err) return console.error(err)
-			if (!xhr) return // new data
-			const [id, body, child] = xhr.body
-			if (id !== this.id) return console.error(`invalid id ${id}`)
-			this.dataDiff.applyChanges(data)
-			if (this.childDiff){
-				this.childDiff.appliChanges(child)
-			}else{
-				this.childDiff = Automerge.from(child)
-			}
+			if (!xhr) return console.error(`tree id[${id}] not found`)
+			const [id, data, child] = xhr.body
+			if (id !== this.id) return console.error(`wrong tree, expecting ${this.id}, received ${id}`)
+
+			this.beEdge = Automerge.from(node2Doc({data, child}))
+			this.feEdge = Autommerge.merge(Automerge.init(), this.beEdge)
+
+			set(this)
+			this.host.callback.trigger(SNode.UPDATE)
 		})
 	},
-	sync(ref){
+	sync(){
+		const changes = Automerge.getChanges(this.beEdge, this.feEdge)
+		this.net.request('PUT', `/1.0/chat/key/${this.key}`, changes, null, (err, xhr) => {
+			if (err) return console.error(err)
+		})
 	},
 	updateData(data){
-		pObj.extend(this.data, data)
+		this.feEdge = Automerge.change(this.feEdge, doc => {
+			pObj.extend(doc.data, data)
+		})
 		set(this)
+		this.sync()
 	},
-	updateChild(child){
-		let c = this.child
-		if (Array.isArray(c)) {
-			c.length = 0
-		}else{
-			c = []
-		}
-		c.push(...child)
-		this.child = c
+	updateChild(index, count, child){
+		this.feEdge = Automerge.change(this.feEdge, doc => {
+			let c = doc.child
+			if (!Array.isArray(c)) {
+				c = doc.child = []
+			}
+			c.splice(index, count, child)
+		})
+
 		set(this)
+		this.sync()
 	},
 	clear(){
 	}
