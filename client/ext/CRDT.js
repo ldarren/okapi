@@ -1,4 +1,5 @@
 const pObj = require('pico/obj')
+const SNode = require('ext/SNode')
 const storage=window.localStorage
 
 function get(ctx){
@@ -36,8 +37,13 @@ function unroll(seed){
 	return seed.slice()
 }
 
-function defRoot(id, data = {name: 'untitled'}, child = []){
-	return [id, data, child]
+function node2Doc(node){
+	if (!Array.isArray(node)) throw `invalid node ${node}`
+	return 2 < node.length ? {data: node[1], child: node[2]} : {data: node[1]}
+}
+
+function doc2Node(id, data, child){
+	return child ? [id, data, child] : [id, data]
 }
 
 function sse(changes){
@@ -51,10 +57,10 @@ function CRDT(host, ref, key, net, seed){
 	this.key = key
 	this.net = net
 
-	let node = get(this) || unroll(seed) || defRoot(key)
+	let node = get(this) || unroll(seed) || doc2Node(key, {name: 'untitled'}, [])
 	this.id = node[0]
 
-	this.feEdge = Automerge.from({data: node[1], child: node[2]})
+	this.feEdge = Automerge.from(node2Doc(node))
 
 	set(this)
 	this.host.callback.trigger(SNode.UPDATE)
@@ -67,15 +73,27 @@ CRDT.prototype = {
 		this.net.request('GET', `/1.0/tree/id/${this.id}`, {ref}, null, (err, xhr) => {
 			if (err) return console.error(err)
 			if (!xhr) return console.error(`tree id[${id}] not found`)
-			const [id, data, child] = xhr.body
-			if (id !== this.id) return console.error(`wrong tree, expecting ${this.id}, received ${id}`)
-
-			this.beEdge = Automerge.from(node2Doc({data, child}))
-			this.feEdge = Autommerge.merge(Automerge.init(), this.beEdge)
+			const node = xhr.body
+			const id = node[0]
+			if (null == id){
+				// be has no data
+				this.beEdge = Automerge.init()
+			}else if (id === this.id){
+				this.beEdge = Automerge.from(node2Doc(node))
+				this.feEdge = Automerge.merge(Automerge.init(), this.beEdge)
+			}else{
+				return console.error(`wrong tree, expecting ${this.id}, received ${id}`)
+			}
 
 			set(this)
 			this.host.callback.trigger(SNode.UPDATE)
 		})
+	},
+	data(){
+		return this.feEdge.data
+	},
+	child(){
+		return this.feEdge.child
 	},
 	sync(){
 		const changes = Automerge.getChanges(this.beEdge, this.feEdge)
@@ -96,7 +114,8 @@ CRDT.prototype = {
 			if (!Array.isArray(c)) {
 				c = doc.child = []
 			}
-			c.splice(index, count, child)
+			if (null == index) c.push(child)
+			else child ? c.splice(index, count, child) : c.splice(index, count)
 		})
 
 		set(this)

@@ -29,7 +29,7 @@ function SNode(ref, key, host, net, seeds){
 	this.id = key
 
 	this.crdt = new CRDT(this, ref, key, net, seeds)
-	const child = this.crdt.child
+	const child = this.crdt.child()
 	this.isInner = Array.isArray(child)
 	ref = pObj.dot(this, ['crdt', 'data', 'ref']) || ref
 	if (this.isInner){
@@ -50,7 +50,7 @@ SNode.prototype = {
 		return [this.id, this.data, this.child ? this.child.map(c => c.join()) : void 0]
 	},
 	data(){
-		return this.crdt.data
+		return this.crdt.data()
 	},
 	clear(){
 		return this.crdt.clear()
@@ -84,9 +84,9 @@ SNode.prototype = {
 		return this.child[index]
 	},
 	insert(index, tree){
-		if (!Array.isArray(this.child)) return
+		if (!this.isInner) return
 		const ref = this.data().ref
-		this.move(index, new SNode(ref, tree[0], this, this.net, tree))
+		this.move(index, new SNode(ref, tree[0], this, this.crdt.net, tree))
 	},
 	move(index, snode){
 		if (!Array.isArray(this.child)) return
@@ -94,7 +94,7 @@ SNode.prototype = {
 		else this.child.push(snode)
 		this.callback.trigger(SNode.ADD, snode, index)
 		this.host.callback.trigger(SNode.CHANGE, SNode.ADD, snode, index, this)
-		this.crdt.updateChild(this.child.map(c => c.id))
+		this.crdt.updateChild(index, 0, snode.id)
 	},
 	remove(){
 		const host = this.host
@@ -107,7 +107,7 @@ SNode.prototype = {
 		const [snode] = this.child.splice(index, 1)
 		this.callback.trigger(SNode.DELETE, snode)
 		this.host.callback.trigger(SNode.CHANGE, SNode.DELETE, snode, this)
-		this.crdt.updateChild(this.child.map(c => c.id))
+		this.crdt.updateChild(index, 1)
 		snode.crdt.clear()
 		return snode
 	},
