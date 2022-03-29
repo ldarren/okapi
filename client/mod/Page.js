@@ -192,7 +192,7 @@ return {
 		this.super.remove.call(this)
 	},
 	events: {
-		'click input[type=button]': function(e, target){
+		'click input.send': function(e, target){
 			const form = e.target.closest('form')
 			const obj = form2Obj(form)
 
@@ -210,6 +210,9 @@ return {
 				obj.headers = JSON.stringify(obj.headers)
 				this.deps.snode.update(obj)
 			})
+		},
+		'click input.send': function(e, target){
+			this.deps.snode.save()
 		}
 	},
 

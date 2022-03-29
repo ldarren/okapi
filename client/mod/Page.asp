@@ -25,9 +25,12 @@
 	<!--<textarea name="req" id="req" rows="5" cols="80"><%d.req%></textarea>-->
 </span>
 <span>
-	<input type="button" value="Send">
+	<input class=send type="button" value="Send">
 </span>
 <span>
 	<label for="res">Response: </label>
 	<textarea name="res" id="res" rows="5" cols="80" readonly disabled><%d.res%></textarea>
+</span>
+<span>
+	<input class=save type="button" value="Save">
 </span>

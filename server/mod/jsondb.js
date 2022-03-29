@@ -129,7 +129,7 @@ Collection.prototype = {
 		const m = {}
 		if (this.meta.type){
 			res = pObj.validate(this.meta, raw, m)
-			if (res) throw `invalid meta: ${this.meta}, ${res}`
+			if (res) throw `invalid meta: ${JSON.stringify(this.meta)}, ${res}`
 		}
 
 		this.documents.push(row(d, m))
@@ -158,14 +158,14 @@ Collection.prototype = {
 		const doc = this.documents.find(item => i === item.i)
 		if (!doc) return
 
-		const raw = Object.assign({
+		const raw = Object.assign(doc, {
 			uby: 0,
 			uat: new Date
 		}, map(d, this.map), meta)
 		const m = {}
 		if (this.meta.type){
 			const res = pObj.validate(this.meta, raw, m)
-			if (res) throw `invalid meta: ${this.meta}, ${res}`
+			if (res) throw `invalid meta: ${JSON.stringify(this.meta)}, ${res}`
 		}
 
 		Object.assign(doc, row(d, m))

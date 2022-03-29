@@ -100,6 +100,11 @@ module.exports = {
 		}
 	},
 
+	pop(array, out){
+		if (Array.isArray(array) && array.length) Object.assign(out, array.pop())
+		return this.next()
+	},
+
 	push(array, ...item){
 		array.push(...item)
 		return this.next()

@@ -116,6 +116,9 @@ SNode.prototype = {
 		this.callback.trigger(SNode.UPDATE, this)
 		this.host.callback.trigger(SNode.CHANGE, SNode.UPDATE, this)
 	},
+	save(){
+		this.crdt.save()
+	},
 }
 
 return SNode

@@ -20,7 +20,7 @@ function set(ctx){
 	if (!key) return
 	const id = ctx.id
 	const {data, child} = ctx.feEdge
-	storage.setItem(ctx.key, JSON.stringify(child ? [id, data, child] : [id, data]))
+	storage.setItem(ctx.key, JSON.stringify(doc2Node(id, data, child)))
 }
 
 function reset(ctx){
@@ -70,9 +70,9 @@ function CRDT(host, ref, key, net, seed){
 
 CRDT.prototype = {
 	pull(ref){
-		this.net.request('GET', `/1.0/tree/id/${this.id}`, {ref}, null, (err, xhr) => {
+		this.net.request('GET', `/1.0/snode/key/${this.key}`, {ref}, null, (err, xhr) => {
 			if (err) return console.error(err)
-			if (!xhr) return console.error(`tree id[${id}] not found`)
+			if (!xhr) return console.error(`snode key[${this.key}] not found`)
 			const node = xhr.body
 			const id = node[0]
 			if (null == id){
@@ -82,7 +82,7 @@ CRDT.prototype = {
 				this.beEdge = Automerge.from(node2Doc(node))
 				this.feEdge = Automerge.merge(Automerge.init(), this.beEdge)
 			}else{
-				return console.error(`wrong tree, expecting ${this.id}, received ${id}`)
+				return console.error(`wrong snode, expecting ${this.key}, received ${id}`)
 			}
 
 			set(this)
@@ -95,10 +95,24 @@ CRDT.prototype = {
 	child(){
 		return this.feEdge.child
 	},
-	sync(){
+	/*
+	 * CRDT Sync
+	 */
+	sync(ref){
 		const changes = Automerge.getChanges(this.beEdge, this.feEdge)
-		this.net.request('PUT', `/1.0/chat/key/${this.key}`, changes, null, (err, xhr) => {
+		this.net.request('PUT', `/1.0/copse/${ref}/node/key/${this.key}`, changes, null, (err, xhr) => {
 			if (err) return console.error(err)
+		})
+	},
+	/*
+	 * force save without CRDT sync
+	 */
+	save(){
+		const id = ctx.id
+		const {data, child} = ctx.feEdge
+		this.net.request('PUT', `/1.0/node/key/${this.key}`, doc2Node(id, data, child), null, (err, xhr) => {
+			if (err) return console.error(err)
+			set(this)
 		})
 	},
 	updateData(data){
@@ -106,7 +120,6 @@ CRDT.prototype = {
 			pObj.extend(doc.data, data)
 		})
 		set(this)
-		this.sync()
 	},
 	updateChild(index, count, child){
 		this.feEdge = Automerge.change(this.feEdge, doc => {
@@ -119,7 +132,6 @@ CRDT.prototype = {
 		})
 
 		set(this)
-		this.sync()
 	},
 	clear(){
 	}

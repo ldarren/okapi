@@ -1,0 +1,32 @@
+{
+	"spec": {
+		"params_key": {
+			"type": "object",
+			"spec": {
+				"key": {
+					"type": "string",
+					"required": 1
+				}
+			}
+		},
+		"snode": {
+			"type": "array",
+			"specs": [
+				{"type": "string", "required": 1, "force": 1},
+				"object",
+				{"type": "array", "spec": "string"}
+			]
+		}
+	},
+	"rsc": {
+		"snode": {
+			"db": "db",
+			"meta": {
+			},
+			"schema": {
+				"type": "array",
+				"specs": ["string", "object", {"type": "array", "spec": "string"}]
+			}
+		}
+	}
+}
