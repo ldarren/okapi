@@ -1,7 +1,7 @@
 return {
-	findOneById(key, query){
-		Object.assign(query, {
-			index: ['d', 'id'],
+	findOneById(key, queries){
+		queries.push({
+			index: ['d', 0],
 			csv: [key]
 		})
 		return this.next()

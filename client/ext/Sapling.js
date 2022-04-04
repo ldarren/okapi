@@ -1,6 +1,11 @@
 const Callback=require('po/Callback')
 const SNode=require('ext/SNode')
 
+function onChange(type, subtype, snode, changes){
+	if ('CRDT' !== subtype) return
+	snode.crdt.save(changes)
+}
+
 function treeUpdate(...args){
 	console.log(...args)
 }
@@ -10,6 +15,7 @@ function Sapling(name, net){
 	this.callback = new Callback
 
 	this.init.apply(this, Array.prototype.slice.call(arguments, 2))
+	this.callback.on(SNode.CHANGE, onChange, this)
 
 	this.ready()
 }

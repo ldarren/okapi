@@ -137,8 +137,7 @@ return {
 		menu_del(from, sender, force){
 			if (!this.classList.contains(SELECTED)) return true
 			const snode = this.deps.snode
-			snode.remove()
-			this.remove()
+			snode.remove() // trigger View Remove
 		},
 		dragstart(from, sender, id){
 			// remove branch line

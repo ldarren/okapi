@@ -108,10 +108,10 @@ Collection.prototype = {
 		fs.writeFileSync(this.fname, JSON.stringify(this.documents))
 	},
 	select(qs){
-		let out = this.documents
-		if (!Array.isArray(qs)) return out.slice()
+		if (!Array.isArray(qs)) return this.documents.slice()
+		const out = []
 		for (let i=0, q; (q = qs[i]); i++){
-			out = q.csv.map(index => out.find(item => index === pObj.dot(item, q.index))).filter(item => item)
+			out.push(...this.documents.filter(item => q.csv.includes(pObj.dot(item, q.index))))
 		}
 		return out
 	},

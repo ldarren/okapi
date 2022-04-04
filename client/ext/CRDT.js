@@ -49,7 +49,7 @@ function doc2Node(id, data, child){
 function sse(changes){
 	this.beEdge = Automerge.applyChanges(this.beEdge, changes)
 	this.feEdge = Automerge.merge(this.feEdge, this.beEdge)
-	this.host.callback.trigger(SNode.UPDATE)
+	this.host.callback.trigger(SNode.UPDATEi, 'CRDT', this.host, changes)
 }
 
 function CRDT(host, ref, key, net, seed){
@@ -63,30 +63,37 @@ function CRDT(host, ref, key, net, seed){
 	this.feEdge = Automerge.from(node2Doc(node))
 
 	set(this)
-	this.host.callback.trigger(SNode.UPDATE)
 
 	this.pull(pObj.dot(this, ['data', 'ref']) || ref)
 }
 
 CRDT.prototype = {
 	pull(ref){
-		this.net.request('GET', `/1.0/snode/key/${this.key}`, {ref}, null, (err, xhr) => {
+		const params = ref ? {ref} : null
+		this.net.request('GET', `/1.0/snode/key/${this.key}`, params, null, (err, xhr) => {
 			if (err) return console.error(err)
 			if (!xhr) return console.error(`snode key[${this.key}] not found`)
-			const node = xhr.body
+			const node = pObj.dot(xhr, ['body', 'd'])
+			if (!node) return console.error(`snode key[${this.key}] is empty`)
 			const id = node[0]
+console.log('#######pull', this.key, id, node)
 			if (null == id){
 				// be has no data
 				this.beEdge = Automerge.init()
+console.log('#######pull1')
+				this.save()
 			}else if (id === this.id){
 				this.beEdge = Automerge.from(node2Doc(node))
 				this.feEdge = Automerge.merge(Automerge.init(), this.beEdge)
+
+const {data, child} = this.feEdge
+console.log('#######pull2', this.key, JSON.stringify(doc2Node(id, data, child)))
+				set(this)
+				this.host.callback.trigger(SNode.UPDATE, 'CRDT', this.host, changes)
 			}else{
+console.log('#######pull3')
 				return console.error(`wrong snode, expecting ${this.key}, received ${id}`)
 			}
-
-			set(this)
-			this.host.callback.trigger(SNode.UPDATE)
 		})
 	},
 	data(){
@@ -97,20 +104,31 @@ CRDT.prototype = {
 	},
 	/*
 	 * CRDT Sync
+	 *
+	 * @param {string} ref - CRDT room reference key
+	 * @param {uInt8Array} changes - get from Automerge.getChanges(be, fe)
 	 */
-	sync(ref){
-		const changes = Automerge.getChanges(this.beEdge, this.feEdge)
+	sync(ref, changes){
+		if (!ref || !changes) return
+console.log('#######sync', this.key)
 		this.net.request('PUT', `/1.0/copse/${ref}/node/key/${this.key}`, changes, null, (err, xhr) => {
+			this.feEdge = Automerge.applyChanges(this.feEdge, changes)
 			if (err) return console.error(err)
 		})
 	},
 	/*
 	 * force save without CRDT sync
+	 *
+	 * @param {uInt8Array} changes - get from Automerge.getChanges(be, fe)
 	 */
-	save(){
-		const id = ctx.id
-		const {data, child} = ctx.feEdge
-		this.net.request('PUT', `/1.0/node/key/${this.key}`, doc2Node(id, data, child), null, (err, xhr) => {
+	save(changes){
+		if (changes){
+			this.feEdge = Automerge.applyChanges(this.feEdge, changes)
+		}
+		const id = this.id
+		const {data, child} = this.feEdge
+console.log('#######save', this.key, JSON.stringify(doc2Node(id, data, child)))
+		this.net.request('PUT', `/1.0/snode/key/${this.key}`, doc2Node(id, data, child), null, (err, xhr) => {
 			if (err) return console.error(err)
 			set(this)
 		})

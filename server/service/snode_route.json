@@ -3,15 +3,15 @@
 		"PUT/snode/key": [
 			["web.bodyParser", "_.req", "_.:body"],
             ["util.input2", "_.:body", "@.spec.snode", "_.:valid"],
-			["@.snode.findOneById", "_.meta", "_.query"],
-            ["db.find", "$.db.snode", "_.query", "_.:records"],
+			["@.snode.findOneById", "_.meta.key", "_.:query"],
+            ["db.find", "$.db.snode", "_.:query", "_.:records"],
 			["util.pop", "_.:records", "_.old"],
             ["db.set", "$.db.snode", "_.old.i", "_.:valid", null, "_.out"],
             ["db.get", "$.db.snode", "_.out.i", "_.output"]
 		],
 		"GET/snode/key": [
-			["@.snode.findOneById", "_.meta", "_.query"],
-            ["db.find", "$.db.snode", "_.query", "_.:records"],
+			["@.snode.findOneById", "_.meta.key", "_.:query"],
+            ["db.find", "$.db.snode", "_.:query", "_.:records"],
 			["util.pop", "_.:records", "_.output"]
 		],
         "/1.0/snode/key/:key": [

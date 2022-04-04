@@ -69,7 +69,7 @@ return {
 		this.domain = env.domain
 		this.params = {
 			headers: {
-				Authorization: 'basic ' + env.cred
+				Authorization: env.cred
 			}
 		}
 		this.currUserI = 0
