@@ -3,14 +3,20 @@ const Callback = require('po/Callback')
 const CRDT = require('ext/CRDT')
 
 function onChange(type, subtype, snode, changes){
-	if ('CRDT' !== subtype) return
-	let ref = pObj.dot(this, ['data', 'ref'])
-	if (!ref){
-		this.host.callback.trigger(type, subtype, snode, changes)
-		return
-	}
+	switch(subtype){
+	case 'CRDT':
+		{
+			const ref = pObj.dot(this, ['data', 'ref'])
+			if (!ref){
+				this.host.callback.trigger(type, subtype, snode, changes)
+				break
+			}
 
-	snode.crdt.sync(ref, changes)
+			snode.crdt.sync(ref, changes)
+		}
+		break
+	case 'CMD':
+	}
 }
 
 function mapChilds(seed){
@@ -38,6 +44,8 @@ function SNode(ref, key, host, net, seeds){
 		this.child = child.map(id => new SNode(ref, id, this, net, map[id]) )
 	}
 
+	this.crdt.callback.on(CRDT.UPDATE, onCRDTUpdate, this)
+	this.crdt.callback.on(CRDT.COMMAND, onCRDTCommand, this)
 	this.callback.on(SNode.CHANGE, onChange, this)
 }
 

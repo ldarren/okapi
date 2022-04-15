@@ -2,20 +2,22 @@
 	"routes":{
 		"PUT/snode/key": [
 			["web.bodyParser", "_.req", "_.:body"],
-            ["util.input2", "_.:body", "@.spec.snode", "_.:valid"],
-			["@.snode.findOneById", "_.meta.key", "_.:query"],
-            ["db.find", "$.db.snode", "_.:query", "_.:records"],
-			["util.pop", "_.:records", "_.old"],
-            ["db.set", "$.db.snode", "_.old.i", "_.:valid", null, "_.out"],
-            ["db.get", "$.db.snode", "_.out.i", "_.output"]
+            [["util.input", "@.spec.room_msg"], "_.body", "_.input"],
+            ["db.get", "$.db.user", "_.user.i", "_.user"],
+			["util.extend", "_.input", "_.params", "_.room"],
+            ["room.verify", "_.room.id", "_.user.i"],
+			["room.sendAll", "$.db.queue", "_.room", "_.user", "_.output"]
 		],
 		"GET/snode/key": [
+			["web.queryParser", "_.req", "_.qs"],
+			[["util.input", "@.spec.query_ref"], "_.qs", "_.input"],
 			["@.snode.findOneById", "_.meta.key", "_.:query"],
             ["db.find", "$.db.snode", "_.:query", "_.:records"],
-			["util.pop", "_.:records", "_.output"]
+			["util.pop", "_.:records", "_.record"],
+			["@.snode.hasRef", "_.req.method", "_.meta", "_.qs", "_.record", "_.output"]
 		],
         "/1.0/snode/key/:key": [
-            [["web.output"], "_.res", "_.output", "_.meta"],
+            [["web.output", "application/json", "bin"], "_.res", "_.output", "_.meta"],
 			["auth.verify", "_.req", "_.user"],
 			[["util.input", "@.spec.params_key"], "$.params", "_.meta"],
             ["@.snode.router", "_.req.method", "_.meta"]

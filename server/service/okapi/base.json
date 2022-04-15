@@ -15,6 +15,9 @@
 		"id": "room",
 		"mod": "room"
 	},{
+		"id": "crdt",
+		"mod": "CRDT"
+	},{
 		"id": "auth",
 		"mod": "basicAuth"
 	},{

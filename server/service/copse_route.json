@@ -1,13 +1,13 @@
 {
     "spec": {
-		"room": {
+		"copse": {
             "type": "object",
             "required": 1,
             "spec": {
 				"name": "string"
 			}
 		},
-		"room_msg": {
+		"copse_msg": {
             "type": "object",
             "required": 1,
             "spec": {
@@ -19,37 +19,23 @@
 		}
 	},
 	"routes":{
-		"PUT/copse/id": [
-			["web.bodyParser", "_.req", "_.body"],
-            [["util.input", "@.spec.room"], "_.body", "_.input"],
+		"GET/copse/init": [
+			["crdt.getAllChanges", "_.record", "_.output"]
+		],
+		"GET/copse/id": [
+            [["util.input", "@.spec.copse"], "_.record", "_.input"],
 			["util.extend", "_.input", "_.params", "_.room"],
             ["db.get", "$.db.user", "_.user.i", "_.user"],
-			["room.join", "_.room", "_.user", "_.output"]
+			["crdt.getAllChanges", "_.record", "_.output"],
+			["room.join", "_.room", "_.user", "_.output", "_.status"]
 		],
 		"GET/copse/id": [
             ["room.verify", "_.params.id", "_.user.i"],
-			["room.get", "_.params.id", "_.output"]
+			["room.get", "_.params.id", "_.status"]
 		],
 		"DELETE/copse/id": [
             ["room.verify", "_.params.id", "_.user.i"],
-			["room.remove", "_.params.id", "_.user.i", "_.output"]
-		],
-        "/1.0/copse/:id": [
-            [["web.output"], "_.res", "_.output", "_.meta"],
-			["auth.verify", "_.req", "_.user"],
-			[["util.input", "@.spec.params_id"], "$.params", "_.params"],
-            ["@.copse.router", "_.req.method", "_.params"]
-        ],
-        "/1.0/copse/:id/post": [
-            [["web.output"], "_.res", "_.output", "_.meta"],
-			["auth.verify", "_.req", "_.user"],
-			[["util.input", "@.spec.params_id"], "$.params", "_.params"],
-			["web.bodyParser", "_.req", "_.body"],
-            [["util.input", "@.spec.room_msg"], "_.body", "_.input"],
-            ["db.get", "$.db.user", "_.user.i", "_.user"],
-			["util.extend", "_.input", "_.params", "_.room"],
-            ["room.verify", "_.room.id", "_.user.i"],
-			["room.sendAll", "$.db.queue", "_.room", "_.user", "_.output"]
-        ]
+			["room.remove", "_.params.id", "_.user.i", "_.status"]
+		]
 	}
 }

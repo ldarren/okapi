@@ -9,6 +9,14 @@
 				}
 			}
 		},
+		"query_ref": {
+			"type": "object",
+			"spec": {
+				"ref": {
+					"type": "string"
+				}
+			}
+		},
 		"snode": {
 			"type": "array",
 			"specs": [

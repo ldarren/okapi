@@ -53,9 +53,6 @@ module.exports = {
 	},
 
 	output: (contentType = 'application/json', dataType = 'json') => {
-		let headers = {}
-		Object.assign(headers, {'Content-Type': contentType})
-
 		let hasData = HAS_DATA
 		let createBody = CREATE_BODY
 		switch(dataType){
@@ -64,9 +61,15 @@ module.exports = {
 			createBody = body => body.charAt ? body : JSON.stringify(body)
 			break
 		case 'xml':
-			createBody = body => '<xml></xml>'
+			createBody = body => '<xml></xml>' // TODO obj to xml
+			break
+		case 'bin':
+			createBody = body => String.fromCharCode.apply(null, body[0])
 			break
 		}
+
+		let headers = {}
+		Object.assign(headers, {'Content-Type': contentType})
 
 		return async function(res, output, meta){
 			if (!res || !res.end) return this.next()

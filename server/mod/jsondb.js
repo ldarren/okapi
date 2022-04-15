@@ -111,7 +111,7 @@ Collection.prototype = {
 		if (!Array.isArray(qs)) return this.documents.slice()
 		const out = []
 		for (let i=0, q; (q = qs[i]); i++){
-			out.push(...this.documents.filter(item => q.csv.includes(pObj.dot(item, q.index))))
+			out.push(...this.documents.filter(item => q.csv.includes(pObj.dot(item, q.index)) ))
 		}
 		return out
 	},
