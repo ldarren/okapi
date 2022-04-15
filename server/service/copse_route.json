@@ -19,23 +19,23 @@
 		}
 	},
 	"routes":{
-		"GET/copse/init": [
-			["crdt.getAllChanges", "_.record", "_.output"]
+		"GET/copse": [
+			["@.copse.payload", "_.record", "_.output"]
 		],
 		"GET/copse/id": [
             [["util.input", "@.spec.copse"], "_.record", "_.input"],
 			["util.extend", "_.input", "_.params", "_.room"],
             ["db.get", "$.db.user", "_.user.i", "_.user"],
-			["crdt.getAllChanges", "_.record", "_.output"],
-			["room.join", "_.room", "_.user", "_.output", "_.status"]
+			["crdt.stringify", "_.room", "_.record", "_.output"],
+			["crdt.join", "$.crdt", "_.room", "_.user", "_.output", "_.status"]
 		],
 		"GET/copse/id": [
-            ["room.verify", "_.params.id", "_.user.i"],
-			["room.get", "_.params.id", "_.status"]
+            ["crdt.verify", "_.params.id", "_.user.i"],
+			["crdt.get", "_.params.id", "_.status"]
 		],
 		"DELETE/copse/id": [
-            ["room.verify", "_.params.id", "_.user.i"],
-			["room.remove", "_.params.id", "_.user.i", "_.status"]
+            ["crdt.verify", "_.params.id", "_.user.i"],
+			["crdt.remove", "_.params.id", "_.user.i", "_.status"]
 		]
 	}
 }

@@ -5,8 +5,8 @@
             [["util.input", "@.spec.room_msg"], "_.body", "_.input"],
             ["db.get", "$.db.user", "_.user.i", "_.user"],
 			["util.extend", "_.input", "_.params", "_.room"],
-            ["room.verify", "_.room.id", "_.user.i"],
-			["room.sendAll", "$.db.queue", "_.room", "_.user", "_.output"]
+            ["crdt.verify", "_.room.id", "_.user.i"],
+			["crdt.sendAll", "$.db.queue", "_.room", "_.user", "_.output"]
 		],
 		"GET/snode/key": [
 			["web.queryParser", "_.req", "_.qs"],

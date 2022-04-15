@@ -24,11 +24,11 @@
             [["util.input", "@.spec.room"], "_.body", "_.input"],
 			["util.extend", "_.input", "_.params", "_.room"],
             ["db.get", "$.db.user", "_.user.i", "_.user"],
-			["room.join", "_.room", "_.user", "_.output"]
+			["chat.join", "_.room", "_.user", "_.output"]
 		],
 		"GET/chat/id": [
-            ["room.verify", "_.params.id", "_.user.i"],
-			["room.get", "_.params.id", "_.output"]
+            ["chat.verify", "_.params.id", "_.user.i"],
+			["chat.get", "_.params.id", "_.output"]
 		],
 		"DELETE/chat/id": [
             ["room.verify", "_.params.id", "_.user.i"],

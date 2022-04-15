@@ -1,5 +1,5 @@
 const Automerge = require('automerge')
-const Room = require('./room')
+const Party = require('./Party')
 
 const crdts = {}
 
@@ -15,7 +15,7 @@ const crdts = {}
  * @returns {void} - this
  */
 function CRDT(id, name, owner, record){
-	Room.call(this, id, name. owner, record)
+	Party.call(this, id, name. owner, record)
 }
 
 CRDT.prototype = {
@@ -28,33 +28,18 @@ CRDT.prototype = {
 		this.payload = Automerge.merge(this.payload, data)
 	},
 
-	stringify(){
-		const changes = Automerge.getAllChanges(this.payload)
+	stringify(data){
+		let changes = Automerge.getAllChanges(this.payload)
+		if (data){
+			const merge = Automerge.from(data)
+			changes = Automerge.getAllChanges(merge)
+		}else{
+			changes = Automerge.getAllChanges(this.payload)
+		}
 		return String.fromCharCode.apply(null, changes)
 	},
 }
 
-Object.setPrototypeOf(CRDT.prototype, Room.prototype)
+Object.setPrototypeOf(CRDT.prototype, Party.prototype)
 
-module.exports = {
-	setup(host, cfg, rsc, paths){
-	},
-	join(crdt, member, record, output){
-		let c = crdts[crdt.id]
-		if (c) {
-			c.add(member)
-		}else{
-			c = new CRDT(crdt.id, member, record)
-			add(c)
-		}
-		Object.assign(output, crdt, {online: c.getTeam()})
-		return this.next()
-	},
-	getAllChanges(crdt, record, output){
-		let c = crdts[crdt.id]
-		const merge = Automerge.from(record)
-		const changes = Automerge.getAllChanges(merge)
-		Object.assign(output, {bin})
-		return this.next()
-	},
-}
+module.exports = CRDT
