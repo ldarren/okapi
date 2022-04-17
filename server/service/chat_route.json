@@ -1,23 +1,4 @@
 {
-    "spec": {
-		"room": {
-            "type": "object",
-            "required": 1,
-            "spec": {
-				"name": "string"
-			}
-		},
-		"room_msg": {
-            "type": "object",
-            "required": 1,
-            "spec": {
-				"msg": {
-					"type": "string",
-					"required": 1
-				}
-			}
-		}
-	},
 	"routes":{
 		"PUT/chat/id": [
 			["web.bodyParser", "_.req", "_.body"],

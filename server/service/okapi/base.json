@@ -14,11 +14,11 @@
 	},{
 		"id": "party",
 		"mod": "room",
-		"class": "Party"
+		"type": "Party"
 	},{
 		"id": "crdt",
 		"mod": "room",
-		"class": "CRDT"
+		"type": "CRDT"
 	},{
 		"id": "auth",
 		"mod": "basicAuth"

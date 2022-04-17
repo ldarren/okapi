@@ -23,19 +23,18 @@
 			["@.copse.payload", "_.record", "_.output"]
 		],
 		"GET/copse/id": [
-            [["util.input", "@.spec.copse"], "_.record", "_.input"],
-			["util.extend", "_.input", "_.params", "_.room"],
             ["db.get", "$.db.user", "_.user.i", "_.user"],
-			["crdt.stringify", "_.room", "_.record", "_.output"],
-			["crdt.join", "$.crdt", "_.room", "_.user", "_.output", "_.status"]
+			["@.copse.fRecord2CRDT", "_.record", "_.data"],
+			["crdt.join", "$.crdt", "_.params", "_.user", "_.data", "_.output"],
+			["crdt.payload", "_.params.id", "_.output"]
 		],
-		"GET/copse/id": [
-            ["crdt.verify", "_.params.id", "_.user.i"],
-			["crdt.get", "_.params.id", "_.status"]
+		"PUT/copse/id": [
+            ["crdt.verify", "_.params.key", "_.user.i"],
+			["crdt.get", "_.params.key", "_.status"]
 		],
 		"DELETE/copse/id": [
-            ["crdt.verify", "_.params.id", "_.user.i"],
-			["crdt.remove", "_.params.id", "_.user.i", "_.status"]
+            ["crdt.verify", "_.params.key", "_.user.i"],
+			["crdt.remove", "_.params.key", "_.user.i", "_.status"]
 		]
 	}
 }

@@ -1,0 +1,39 @@
+{
+	"rsc": {
+		"queue": {
+			"db": "db",
+			"route": {
+				"insert": ["/1.0/sse/:i", {
+					"type": "object",
+					"spec": {
+						"recipient": {
+							"type": "number",
+							"alias": "i"
+						}
+					}
+				}]
+			},
+			"schema": {
+				"type": "object",
+				"spec": {
+					"sender": {
+						"type": "number",
+						"required": 1
+					},
+					"recipient": {
+						"type": "number",
+						"required": 1
+					},
+					"room": {
+						"type": "string",
+						"required": 1
+					},
+					"msg": {
+						"type": "string",
+						"required": 1
+					}
+				}
+			}
+		}
+	}
+}

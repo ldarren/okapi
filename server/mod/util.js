@@ -89,6 +89,15 @@ module.exports = {
 		return this.next()
 	},
 
+	dot(input, path, output, def){
+		if (Array.isArray(output)){
+			output.push(...pObj.dot(input, path, def))
+		}else{
+			Object.assign(output, pObj.dot(input, path, def))
+		}
+		return this.next()
+	},
+
 	lib: (id, funcName) => {
 		const lib = pLib.export(id)
 		const func = lib[funcName]

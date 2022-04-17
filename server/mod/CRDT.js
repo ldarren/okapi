@@ -15,28 +15,31 @@ const crdts = {}
  * @returns {void} - this
  */
 function CRDT(id, name, owner, record){
-	Party.call(this, id, name. owner, record)
+	Party.call(this, id, name, owner, record)
 }
 
 CRDT.prototype = {
 	setup(data = {}){
 		this.payload = Automerge.from(data)
+console.log('@@@@@@@@@@@@@ setup', data, this.payload)
 	},
 
 	update(data){
 		if (!this.validate(data)) return
-		this.payload = Automerge.merge(this.payload, data)
+		this.payload = Automerge.merge(data, this.payload)
+console.log('@@@@@@@@@@@@@ update', data, this.payload)
 	},
 
 	stringify(data){
-		let changes = Automerge.getAllChanges(this.payload)
+		let changes
 		if (data){
 			const merge = Automerge.from(data)
 			changes = Automerge.getAllChanges(merge)
 		}else{
 			changes = Automerge.getAllChanges(this.payload)
 		}
-		return String.fromCharCode.apply(null, changes)
+console.log('@@@@@@@@@@@@@ stringify', data, this.payload, changes, '[', Buffer.from(changes[0]).toString('base64'), ']')
+		return Buffer.from(changes[0]).toString('base64')
 	},
 }
 

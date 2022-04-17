@@ -8,20 +8,23 @@ return {
 		})
 		return this.next()
 	},
-	async hasRef(method, meta, input, record, output){
-		const id = pObj.dot(record, ['d', 0], meta.key)
+	async hasRef(method, params, input, record, output){
+		const id = pObj.dot(record, ['d', 0], params.key)
 		const ref = pObj.dot(record, ['d', 1, 'ref'], input.ref)
 		if (!id || !ref) {
 			await this.next(null, `${method}/copse`)
 			return this.next()
 		}
-		await this.next(null, `${method}/copse/id`, {copse: {id: `${id}:${ref}`}, record, output})
+		Object.assign(this.data, {copse: {id: `${id}:${ref}`}})
+		await this.next(null, `${method}/copse/id`)
 		return this.next()
 	},
-	async router(method, params){
-		const key = params.key? '/key' : ''
-		const name = `${method}/snode${key}`
-		await this.next(null, name)
-		return this.next()
+	router: (key, postfix) => {
+		return async function (method, params){
+			const id = params[key] ? postfix : ''
+			const name = `${method}/snode${id}`
+			await this.next(null, name)
+			return this.next()
+		}
 	}
 }
