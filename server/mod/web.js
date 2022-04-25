@@ -61,7 +61,8 @@ module.exports = {
 			createBody = body => body.charAt ? body : JSON.stringify(body)
 			break
 		case 'xml':
-			createBody = body => '<xml></xml>' // TODO obj to xml
+			// TODO obj to xml
+			createBody = body => '<xml></xml>'
 			break
 		case 'bin':
 			createBody = body => String.fromCharCode.apply(null, body[0])

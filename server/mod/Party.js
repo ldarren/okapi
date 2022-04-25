@@ -19,13 +19,13 @@ function Room(id, name, owner, data){
 	this.setup(data)
 }
 
-Room.Add = (room) => {
+Room.Add = room => {
 	rooms[room.id] = room
 }
 
-Room.Get = (id) => rooms[id]
+Room.Get = id => rooms[id]
 
-Room.Remove = (id) => {
+Room.Remove = id => {
 	delete rooms[id]
 }
 
@@ -65,7 +65,7 @@ Room.prototype = {
 	send(q, msg, sender, recipient){
 		const senderi = sender.i
 		const recipienti = recipient.i
-		if (!senderi || !recipienti || senderi === recipienti) return 1
+		if (!senderi || !recipienti) return 1
 		let found = 0
 		const team = this.team
 		for (let i = 0, m; (m = team[i]); i++){
@@ -83,7 +83,7 @@ Room.prototype = {
 	},
 
 	validate(data){
-		return !!data
+		return Boolean(data)
 	},
 
 	update(data){

@@ -19,14 +19,12 @@
 		}
 	},
 	"routes":{
-		"GET/copse": [
-			["@.copse.payload", "_.record", "_.output"]
-		],
 		"GET/copse/id": [
             ["db.get", "$.db.user", "_.user.i", "_.user"],
 			["@.copse.fRecord2CRDT", "_.record", "_.data"],
-			["crdt.join", "$.crdt", "_.params", "_.user", "_.data", "_.output"],
-			["crdt.payload", "_.params.id", "_.output"]
+			["crdt.join", "$.crdt", "_.copse", "_.user", "_.data", "_.output"],
+			["crdt.payload", "_.copse.id", "_.base64"],
+			["crdt.send", "$.db.queue", "_.copse.id", "_.base64.payload", "_.user", "_.user", "_.output"]
 		],
 		"PUT/copse/id": [
             ["crdt.verify", "_.params.key", "_.user.i"],

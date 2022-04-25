@@ -110,15 +110,15 @@ Collection.prototype = {
 	select(qs){
 		if (!Array.isArray(qs)) return this.documents.slice()
 		const out = []
-		for (let i=0, q; (q = qs[i]); i++){
-			out.push(...this.documents.filter(item => q.csv.includes(pObj.dot(item, q.index)) ))
+		for (let i = 0, q; (q = qs[i]); i++){
+			out.push(...this.documents.filter(item => q.csv.includes(pObj.dot(item, q.index))))
 		}
 		return out
 	},
 	insert(input, meta){
 		const d = 'array' === this.schema.type ? [] : {}
 		let res = pObj.validate(this.schema, input, d)
-		if (res) throw `invalid parameter: ${res}`
+		if (res) throw `invalid parameter: ${res} in spec: ${JSON.stringify(this.schema)}. input: ${JSON.stringify(input)}`
 
 		const raw = Object.assign({
 			i: this.index++,
