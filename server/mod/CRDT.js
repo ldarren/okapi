@@ -23,7 +23,7 @@ CRDT.prototype = {
 
 	update(data){
 		if (!this.validate(data)) return
-		this.payload = Automerge.merge(data, this.payload)
+		this.payload = Automerge.merge(this.payload, data)
 	},
 
 	stringify(data){

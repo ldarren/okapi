@@ -17,7 +17,6 @@ module.exports = {
 		let r = Party.Get(room.id)
 		if (r) {
 			r.add(member)
-			r.update(data)
 		}else{
 			r = new Class(room.id, room.name, member, data)
 			Party.Add(r)

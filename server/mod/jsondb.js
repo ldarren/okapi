@@ -135,6 +135,7 @@ Collection.prototype = {
 		this.documents.push(row(d, m))
 		this.save()
 
+		// TODO: should be replace by real queue or cron
 		request(this.host, this.route.insert, d)
 
 		return m
