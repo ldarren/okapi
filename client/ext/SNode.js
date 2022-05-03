@@ -2,21 +2,22 @@ const pObj = require('pico/obj')
 const Callback = require('po/Callback')
 const CRDT = require('ext/CRDT')
 
-function onChange(type, subtype, snode, changes){
-	switch(subtype){
-	case 'CRDT':
-		{
-			const ref = pObj.dot(this, ['data', 'ref'])
-			if (!ref){
-				this.host.callback.trigger(type, subtype, snode, changes)
-				break
-			}
-
-			snode.crdt.sync(ref, changes)
-		}
+function onCRDTChange(type, changes){
+	switch(type){
+	case CRDT.UPDATE:
 		break
-	case 'CMD':
+	case CRDT.COMMAND:
+		break
 	}
+}
+
+function onChange(type, subtype, snode, changes){
+	const ref = pObj.dot(this, ['data', 'ref'])
+	if (!ref){
+		return this.host.callback.trigger(type, subtype, snode, changes)
+	}
+
+	snode.crdt.sync(ref, changes)
 }
 
 function mapChilds(seed){
@@ -44,8 +45,8 @@ function SNode(ref, key, host, net, seeds){
 		this.child = child.map(id => new SNode(ref, id, this, net, map[id]) )
 	}
 
-	this.crdt.callback.on(CRDT.UPDATE, onCRDTUpdate, this)
-	this.crdt.callback.on(CRDT.COMMAND, onCRDTCommand, this)
+	this.crdt.callback.on(CRDT.UPDATE, onCRDTChange, this)
+	this.crdt.callback.on(CRDT.COMMAND, onCRDTChange, this)
 	this.callback.on(SNode.CHANGE, onChange, this)
 }
 
@@ -92,9 +93,9 @@ SNode.prototype = {
 		if (!Array.isArray(this.child)) return
 		return this.child[index]
 	},
-	insert(index, tree){
+	insert(index, tree, ref){
 		if (!this.isInner) return
-		const ref = this.data().ref
+		ref = this.data().ref || ref
 		this.move(index, new SNode(ref, tree[0], this, this.crdt.net, tree))
 	},
 	move(index, snode){
@@ -113,10 +114,13 @@ SNode.prototype = {
 	splice(id){
 		const index = this.findIndex(id)
 		if (-1 === index) return
-		const [snode] = this.child.splice(index, 1)
+		return this.spliceByIndex(index)
+	},
+	spliceByIndex(idx){
+		const [snode] = this.child.splice(idx, 1)
 		this.callback.trigger(SNode.DELETE, snode)
 		this.host.callback.trigger(SNode.CHANGE, SNode.DELETE, snode, this)
-		this.crdt.updateChild(index, 1)
+		this.crdt.updateChild(idx, 1)
 		snode.crdt.clear()
 		return snode
 	},
@@ -128,6 +132,12 @@ SNode.prototype = {
 	save(){
 		this.crdt.save()
 	},
+	resetChilds(ref, rem, add){
+		rem.forEach(idx => this.spliceByIndex(idx))
+		for (let idx in add){
+			this.insert(parseInt(idx), [add[idx]])
+		}
+	}
 }
 
 return SNode
