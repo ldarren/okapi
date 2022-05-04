@@ -61,6 +61,7 @@ function CRDT(host, ref, key, net, seed){
 	this.online = []
 	let node = get(this) || unroll(seed) || [key, {name: 'untitled'}, []]
 	this.feEdge = Automerge.from(node2Doc(node))
+	ref = this.feEdge.data.ref || ref
 
 	const params = ref ? {ref} : null
 	this.net.request('GET', `/1.0/snode/key/${key}`, params, null, (err, xhr) => {
@@ -83,7 +84,6 @@ function CRDT(host, ref, key, net, seed){
 	})
 }
 
-CRDT.RESET = 'rst'
 CRDT.UPDATE = 'upd'
 CRDT.COMMAND = 'cmd'
 

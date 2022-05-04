@@ -6,10 +6,8 @@ return {
 	},
 	fRecord2CRDT(record, crdt){
 		const d = record.d
-		Object.assign(crdt, {
-			data: d[1],
-			child: d[2]
-		})
+		crdt['data'] = d[1]
+		if (d.length > 2) crdt['child'] = d[2]
 		return this.next()
 	},
 	async router(method, params){

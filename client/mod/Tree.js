@@ -18,7 +18,7 @@ function onStart(){
 	const deps = this.deps
 	this.spawn(deps.Node, null, [
 		['options', 'map', {tag:'li', draggable:false}],
-		['snode','SNode', deps.tree.root],
+		['snode','SNode', deps.sapling.root],
 		['isRoot', 'bool', 1]
 	])
 }
@@ -26,18 +26,18 @@ function onStart(){
 return {
 	signals: ['tree_unsel', 'tree_sel', 'dragstart', 'dragend', 'dragenter', 'dragleave', 'dropdest', 'drop'],
 	deps:{
-		tree:'Sapling',
+		sapling:'Sapling',
 		Node:'view',
 		sync:'models'
 	},
 	create(deps, params){
-		if (deps.tree.root){
+		if (deps.sapling.root){
 			onStart.call(this)
 		}
-		deps.tree.callback.on(Sapling.ADD, onStart, this)
+		deps.sapling.callback.on(Sapling.ADD, onStart, this)
 	},
 	remove(){
-		this.deps.tree.callback.off(Sapling.ADD, onStart)
+		this.deps.sapling.callback.off(Sapling.ADD, onStart)
 		this.super.remove.call(this)
 	},
 	events:{

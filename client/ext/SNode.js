@@ -1,4 +1,3 @@
-const pObj = require('pico/obj')
 const Callback = require('po/Callback')
 const CRDT = require('ext/CRDT')
 
@@ -12,7 +11,7 @@ function onCRDTChange(type, changes){
 }
 
 function onChange(type, subtype, snode, changes){
-	const ref = pObj.dot(this, ['data', 'ref'])
+	const ref = this.data().ref
 	if (!ref){
 		return this.host.callback.trigger(type, subtype, snode, changes)
 	}
@@ -40,7 +39,7 @@ function SNode(ref, key, host, net, seeds){
 	const child = this.crdt.child()
 	this.isInner = Array.isArray(child)
 	if (this.isInner){
-		ref = pObj.dot(this, ['crdt', 'data', 'ref']) || ref
+		ref = this.data().ref || ref
 		const map = mapChilds(seeds)
 		this.child = child.map(id => new SNode(ref, id, this, net, map[id]) )
 	}

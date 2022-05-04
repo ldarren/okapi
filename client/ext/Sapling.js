@@ -6,10 +6,6 @@ function onChange(type, subtype, snode, changes){
 	snode.crdt.save(changes)
 }
 
-function treeUpdate(...args){
-	console.log(...args)
-}
-
 function Sapling(name, net){
 	this.name = name
 	this.callback = new Callback
@@ -24,15 +20,12 @@ Sapling.ADD = 'add'
 Sapling.DELETE = 'del'
 
 Sapling.prototype={
-	// to be overriden
+	// to be overriden. e.g. mod/sync.js
 	init(spec){
 		this.root = new SNode('root:0', this, spec.net)
-		this.sse = sepc.sse
-		this.sse.callback.on('update', treeUpdate, this)
 		this.callback.trigger(Sapling.ADD, this.root)
 	},
 	fini(){
-		this.sse.callback.off('update', treeUpdate, this)
 	},
 	ready(){},
 

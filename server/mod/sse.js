@@ -14,6 +14,7 @@ function connect(req, res, id){
 	res.writeHead(200, HEADERS)
 
 	res.write(pack('start', id))
+console.log('####start', id)
 
 	clients[id] = res
 
@@ -42,6 +43,7 @@ module.exports = {
 		const c = clients[user.i]
 		if (!c) return this.next()
 		c.write(pack('msg', data))
+console.log('####msg', data)
 		return this.next()
 	},
 
