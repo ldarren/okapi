@@ -19,6 +19,10 @@ function onChange(type, subtype, snode, changes){
 	snode.crdt.sync(ref, changes)
 }
 
+function onPush(type, ref, data){
+	console.log('>>>', type, ref, data)
+}
+
 function mapChilds(seed){
 	const ret = {}
 	if (!seed || !Array.isArray(seed) || 3 > seed.length) return ret
@@ -47,12 +51,16 @@ function SNode(ref, key, host, net, seeds){
 	this.crdt.callback.on(CRDT.UPDATE, onCRDTChange, this)
 	this.crdt.callback.on(CRDT.COMMAND, onCRDTChange, this)
 	this.callback.on(SNode.CHANGE, onChange, this)
+	this.host.callback.on(SNode.REFPUSH, onPush, this)
+	this.host.callback.on(SNode.ROOMPUSH, onPush, this)
 }
 
 SNode.ADD = 'add'
 SNode.UPDATE = 'upd'
 SNode.DELETE = 'del'
 SNode.CHANGE = 'cha'
+SNode.REFPUSH = 'ref'
+SNode.ROOMPUSH = 'rm'
 
 SNode.prototype = {
 	join(){

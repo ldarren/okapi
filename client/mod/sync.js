@@ -1,8 +1,25 @@
 const Sapling=require('ext/Sapling')
 const SNode=require('ext/SNode')
 
-function treeUpdate(...args){
-	console.log(...args)
+function decode(base64){
+	return Uint8Array.from(atob(base64), c => c.charCodeAt(0))
+}
+
+function treeUpdate(type, data){
+	switch(type){
+	case 'start':
+		console.log('SSE evt', type, 'userId', data)
+		break
+	case 'msg':
+		data.forEach(item => {
+			const d = item.d
+			const [id, ref] = d.room.split('@')
+			const payload = {id, sender: d.sender, recipient: d.recipient, changes: decode(d.msg)}
+			// this.root.callback.trigger(SNode.REFPUSH, ref, payload)
+		})
+		console.log('SSE evt', type, 'userId', data)
+		break
+	}
 }
 
 function load(ctx, net){

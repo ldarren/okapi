@@ -15,7 +15,7 @@ return {
 			Object.assign(output, record)
 			return this.next()
 		}
-		Object.assign(this.data, {copse: {id: `${id}:${ref}`}})
+		Object.assign(this.data, {copse: {id: `${id}@${ref}`}})
 		await this.next(null, `${method}/copse/id`)
 		return this.next()
 	},
