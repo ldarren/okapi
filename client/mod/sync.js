@@ -8,16 +8,15 @@ function decode(base64){
 function treeUpdate(type, data){
 	switch(type){
 	case 'start':
-		console.log('SSE evt', type, 'userId', data)
 		break
 	case 'msg':
 		data.forEach(item => {
 			const d = item.d
 			const [id, ref] = d.room.split('@')
-			const payload = {id, sender: d.sender, recipient: d.recipient, changes: decode(d.msg)}
+			if (!ref) throw new Error(`ref not found ${d.room}`)
+			const payload = {id, type: d.type, sender: d.sender, recipient: d.recipient, changes: decode(d.msg)}
 			this.callback.trigger(SNode.REFPUSH, ref, payload)
 		})
-		console.log('SSE evt', type, 'userId', data)
 		break
 	}
 }

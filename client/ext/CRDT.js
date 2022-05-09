@@ -46,13 +46,6 @@ function doc2Node(id, data, child){
 	return child ? [id, data, child] : [id, data]
 }
 
-function sse(changes){
-	const [merge, patch] = Automerge.applyChanges(this.beEdge, changes)
-	this.beEdge = merge
-	this.feEdge = Automerge.merge(this.feEdge, this.beEdge)
-	this.callback.trigger(CRDT.COMMAND, patch)
-}
-
 function CRDT(host, ref, key, net, seed){
 	this.callback = new Callback
 	this.host = host
@@ -95,6 +88,31 @@ CRDT.prototype = {
 		return this.feEdge.child
 	},
 	/*
+	 * SSE Push
+	 *
+	 * @param {object} data - sse summary
+	 * @param {string} data.type - getAllChanges or getChanges
+	 * @param {uInt8Array} data.changes - get from Automerge.getChanges(be, fe)
+	 */
+	serverPush(data){
+		if ('all' === data.type){
+			this.beEdge = Automerge.init()
+			this.feEdge = Automerge.init()
+		}else{
+			this.beEdge = this.beEdge || Automerge.init()
+			this.feEdge = this.feEdge || Automerge.init()
+		}
+		const [beMerge] = Automerge.applyChanges(this.beEdge, [data.changes])
+		this.beEdge = beMerge
+		const changes = Automerge.getChanges(this.feEdge, this.beEdge)
+		const [feMerge, patch] = Automerge.applyChanges(this.feEdge, changes)
+		this.feEdge = feMerge
+		if ('all' === data.type){
+			//TODO: diff patch.diff.child and existing child
+		}
+		this.callback.trigger(CRDT.COMMAND, patch)
+	},
+	/*
 	 * CRDT Sync
 	 *
 	 * @param {string} ref - CRDT room reference key
@@ -107,9 +125,6 @@ CRDT.prototype = {
 			this.feEdge = Automerge.applyChanges(this.feEdge, changes)
 			set(this)
 		})
-	},
-	applyChanges(data){
-		this.beEdge = Automerge.applyChanges(Automerge.init(), [data.changes])
 	},
 	/*
 	 * force save without CRDT sync

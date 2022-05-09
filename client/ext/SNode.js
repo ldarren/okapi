@@ -24,9 +24,9 @@ function onPush(type, key, data){
 	case SNode.REFPUSH:
 		if (key === this.data().ref){
 			if (data.id === this.id){
-				this.crdt.applyChanges(data)
+				this.crdt.serverPush(data)
 			}else{
-				this.callback.trigger(SNode.ROOMPUSH, this.id, data)
+				this.callback.trigger(SNode.ROOMPUSH, data.id, data)
 			}
 		}else{
 			this.callback.trigger(type, key, data)
@@ -34,13 +34,12 @@ function onPush(type, key, data){
 		break
 	case SNode.ROOMPUSH:
 		if (key === this.id) {
-			this.crdt.applyChanges(data)
+			this.crdt.serverPush(data)
 		}else{
 			this.callback.trigger(type, key, data)
 		}
 		break
 	}
-	console.log('>>>', type, key, data)
 }
 
 function mapChilds(seed){
