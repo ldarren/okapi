@@ -19,8 +19,28 @@ function onChange(type, subtype, snode, changes){
 	snode.crdt.sync(ref, changes)
 }
 
-function onPush(type, ref, data){
-	console.log('>>>', type, ref, data)
+function onPush(type, key, data){
+	switch(type){
+	case SNode.REFPUSH:
+		if (key === this.data().ref){
+			if (data.id === this.id){
+				this.crdt.applyChanges(data)
+			}else{
+				this.callback.trigger(SNode.ROOMPUSH, this.id, data)
+			}
+		}else{
+			this.callback.trigger(type, key, data)
+		}
+		break
+	case SNode.ROOMPUSH:
+		if (key === this.id) {
+			this.crdt.applyChanges(data)
+		}else{
+			this.callback.trigger(type, key, data)
+		}
+		break
+	}
+	console.log('>>>', type, key, data)
 }
 
 function mapChilds(seed){
@@ -51,7 +71,9 @@ function SNode(ref, key, host, net, seeds){
 	this.crdt.callback.on(CRDT.UPDATE, onCRDTChange, this)
 	this.crdt.callback.on(CRDT.COMMAND, onCRDTChange, this)
 	this.callback.on(SNode.CHANGE, onChange, this)
-	this.host.callback.on(SNode.REFPUSH, onPush, this)
+	if (this.isInner){
+		this.host.callback.on(SNode.REFPUSH, onPush, this)
+	}
 	this.host.callback.on(SNode.ROOMPUSH, onPush, this)
 }
 
@@ -59,8 +81,8 @@ SNode.ADD = 'add'
 SNode.UPDATE = 'upd'
 SNode.DELETE = 'del'
 SNode.CHANGE = 'cha'
-SNode.REFPUSH = 'ref'
-SNode.ROOMPUSH = 'rm'
+SNode.REFPUSH = 'rfp'
+SNode.ROOMPUSH = 'rmp'
 
 SNode.prototype = {
 	join(){

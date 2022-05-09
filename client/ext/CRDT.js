@@ -108,6 +108,9 @@ CRDT.prototype = {
 			set(this)
 		})
 	},
+	applyChanges(data){
+		this.beEdge = Automerge.applyChanges(Automerge.init(), [data.changes])
+	},
 	/*
 	 * force save without CRDT sync
 	 *

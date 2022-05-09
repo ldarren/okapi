@@ -24,7 +24,7 @@
 			["@.copse.fRecord2CRDT", "_.record", "_.data"],
 			["crdt.join", "$.crdt", "_.copse", "_.user", "_.data", "_.output"],
 			["crdt.payload", "_.copse.id", "_.base64"],
-			["crdt.send", "$.db.queue", "_.copse.id", "_.base64.payload", "_.user", "_.user", "_.output"]
+			["crdt.send", "$.db.queue", "_.copse.id", "all", "_.base64.payload", "_.user", "_.user", "_.output"]
 		],
 		"PUT/copse/id": [
             ["crdt.verify", "_.params.key", "_.user.i"],

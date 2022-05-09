@@ -7,7 +7,7 @@
 					"type": "object",
 					"spec": {
 						"recipient": {
-							"type": "number",
+							"type": "num",
 							"alias": "i"
 						}
 					}
@@ -16,20 +16,24 @@
 			"schema": {
 				"type": "object",
 				"spec": {
+					"type": {
+						"type": "str",
+						"required": 1
+					},
 					"sender": {
-						"type": "number",
+						"type": "num",
 						"required": 1
 					},
 					"recipient": {
-						"type": "number",
+						"type": "num",
 						"required": 1
 					},
 					"room": {
-						"type": "string",
+						"type": "str",
 						"required": 1
 					},
 					"msg": {
-						"type": "string",
+						"type": "str",
 						"required": 1
 					}
 				}

@@ -1,11 +1,11 @@
 const Party = require('./Party')
 const CRDT = require('./CRDT')
 
-const Class = {Party, CRDT}
+const Classes = {Party, CRDT}
 
 module.exports = {
 	setup(host, cfg, rsc, paths){
-		return Class[cfg.type]
+		return Classes[cfg.type]
 	},
 	verify(id, userIdx){
 		const r = Party.Get(id)
@@ -49,17 +49,17 @@ module.exports = {
 		Object.assign(output, {payload})
 		return this.next()
 	},
-	sendAll(q, id, sender, output){
+	sendAll(q, id, type, sender, output){
 		const r = Party.Get(id)
 		if (!r) return this.next(`Party id[${id}] not found5`)
-		if (r.sendAll(q, sender)) return this.next(`sendAll room[${id}] failed`)
+		if (r.sendAll(q, type, sender)) return this.next(`sendAll room[${id}] failed`)
 		Object.assign(output, {id, online: r.getTeam()})
 		return this.next()
 	},
-	send(q, id, msg, sender, recipient, output){
+	send(q, id, type, msg, sender, recipient, output){
 		const r = Party.Get(id)
 		if (!r) return this.next(`Party id[${id}] not found6`)
-		if (r.send(q, msg, sender, recipient)) return this.next(`send room[${id}] failed`)
+		if (r.send(q, type, msg, sender, recipient)) return this.next(`send room[${id}] failed`)
 		Object.assign(output, {id, online: r.getTeam()})
 		return this.next()
 	},

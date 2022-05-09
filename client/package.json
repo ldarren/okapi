@@ -20,7 +20,7 @@
   "dependencies": {
     "lean-wrap": "^0.3.6",
     "pico-client": "^0.7.8",
-    "pico-common": "^0.14.30",
+    "pico-common": "^0.14.31",
     "pojs": "^0.8.0"
   },
   "devDependencies": {

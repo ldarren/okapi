@@ -54,15 +54,15 @@ Room.prototype = {
 		if (all) return this.team.slice()
 		return this.team.map(m => m.i)
 	},
-	sendAll(q, sender){
+	sendAll(q, type, sender){
 		const senderi = sender.i
 		if (!this.team.find(s => senderi === s.i)) return 1
 		const room = this.id
 		const msg = this.stringify()
-		this.team.forEach(r => q.push({sender: senderi, recipient: r.i, room, msg}, {cby: senderi}))
+		this.team.forEach(r => q.push({type, sender: senderi, recipient: r.i, room, msg}, {cby: senderi}))
 		return 0
 	},
-	send(q, msg, sender, recipient){
+	send(q, type, msg, sender, recipient){
 		const senderi = sender.i
 		const recipienti = recipient.i
 		if (!senderi || !recipienti) return 1
@@ -73,7 +73,7 @@ Room.prototype = {
 			if (recipienti === m.i) found += 2
 		}
 		if (3 !== found) return 2
-		q.push({sender: senderi, recipient: recipienti, room: this.id, msg}, {cby: senderi})
+		q.push({type, sender: senderi, recipient: recipienti, room: this.id, msg}, {cby: senderi})
 		return 0
 	},
 

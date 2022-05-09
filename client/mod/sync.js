@@ -15,7 +15,7 @@ function treeUpdate(type, data){
 			const d = item.d
 			const [id, ref] = d.room.split('@')
 			const payload = {id, sender: d.sender, recipient: d.recipient, changes: decode(d.msg)}
-			// this.root.callback.trigger(SNode.REFPUSH, ref, payload)
+			this.callback.trigger(SNode.REFPUSH, ref, payload)
 		})
 		console.log('SSE evt', type, 'userId', data)
 		break

@@ -15,7 +15,7 @@
   "dependencies": {
     "automerge": "^1.0.1-preview.6",
     "pico-args": "^1.0.13",
-    "pico-common": "^0.14.26",
+    "pico-common": "^0.14.31",
     "picos-util": "^0.2.6",
     "randexp": "^0.5.3"
   }
