@@ -1,10 +1,10 @@
 {
     "spec": {
 		"copse": {
-            "type": "object",
+            "type": "obj",
             "required": 1,
             "spec": {
-				"name": "string"
+				"name": "str"
 			}
 		},
 		"copse_msg": {
@@ -12,7 +12,7 @@
             "required": 1,
             "spec": {
 				"msg": {
-					"type": "string",
+					"type": "arr",
 					"required": 1
 				}
 			}

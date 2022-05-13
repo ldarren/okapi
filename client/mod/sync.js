@@ -1,8 +1,8 @@
 const Sapling=require('ext/Sapling')
 const SNode=require('ext/SNode')
 
-function decode(base64){
-	return Uint8Array.from(atob(base64), c => c.charCodeAt(0))
+function decode(base64s){
+	return base64s.map(base64 => Uint8Array.from(atob(base64), c => c.charCodeAt(0)))
 }
 
 function treeUpdate(type, data){
@@ -41,6 +41,7 @@ return {
 		const net = spec.net
 		this.net = net
 		load(this, net)
+		// load root when user is loaded
 		net.callback.on('add', onAdd, this)
 
 		this.sse = spec.sse

@@ -19,24 +19,24 @@ function onChange(type, subtype, snode, changes){
 	snode.crdt.sync(ref, changes)
 }
 
-function onPush(type, key, data){
+function onPush(type, ref, data){
 	switch(type){
 	case SNode.REFPUSH:
-		if (key === this.data().ref){
+		if (ref === this.data().ref){
 			if (data.id === this.id){
-				this.crdt.serverPush(data)
+				this.crdt.serverPush(ref, data)
 			}else{
-				this.callback.trigger(SNode.ROOMPUSH, data.id, data)
+				this.callback.trigger(SNode.ROOMPUSH, ref, data)
 			}
 		}else{
-			this.callback.trigger(type, key, data)
+			this.callback.trigger(type, ref, data)
 		}
 		break
 	case SNode.ROOMPUSH:
-		if (key === this.id) {
-			this.crdt.serverPush(data)
+		if (data.id === this.id) {
+			this.crdt.serverPush(ref, data)
 		}else{
-			this.callback.trigger(type, key, data)
+			this.callback.trigger(type, ref, data)
 		}
 		break
 	}
@@ -163,7 +163,7 @@ SNode.prototype = {
 	resetChilds(ref, rem, add){
 		rem.forEach(idx => this.spliceByIndex(idx))
 		for (let idx in add){
-			this.insert(parseInt(idx), [add[idx]])
+			this.insert(parseInt(idx), [add[idx]], ref)
 		}
 	}
 }

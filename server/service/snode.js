@@ -9,8 +9,9 @@ return {
 		return this.next()
 	},
 	async hasRef(method, params, input, record, output){
-		const id = pObj.dot(record, ['d', 0], params.key)
-		const ref = pObj.dot(record, ['d', 1, 'ref'], input.ref)
+		const id = pObj.dot(record, ['d', 0], params.id)
+		// ignored the ref in record, bcos at this point client side no ref yet
+		const ref = input.ref
 		if (!id || !ref) {
 			Object.assign(output, record)
 			return this.next()

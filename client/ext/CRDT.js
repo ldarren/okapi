@@ -1,6 +1,7 @@
 const pObj = require('pico/obj')
 const pArr = require('pico/arr')
 const Callback = require('po/Callback')
+const Sapling = require('ext/Sapling')
 const storage=window.localStorage
 
 function get(ctx){
@@ -52,7 +53,7 @@ function CRDT(host, ref, key, net, seed){
 	this.key = key
 	this.net = net
 	this.online = []
-	let node = get(this) || unroll(seed) || [key, {name: 'untitled'}, []]
+	let node = get(this) || unroll(seed) || (host.host instanceof Sapling ? [key, {name: 'root'}, []] : [key, {name: '/untitled'}])
 	this.feEdge = Automerge.from(node2Doc(node))
 	ref = this.feEdge.data.ref || ref
 
@@ -90,25 +91,51 @@ CRDT.prototype = {
 	/*
 	 * SSE Push
 	 *
+	 * @param {string} ref - room ref
 	 * @param {object} data - sse summary
 	 * @param {string} data.type - getAllChanges or getChanges
-	 * @param {uInt8Array} data.changes - get from Automerge.getChanges(be, fe)
+	 * @param {array} data.changes - get from Automerge.getChanges(be, fe)
 	 */
-	serverPush(data){
-		if ('all' === data.type){
+	serverPush(ref, data){
+		const isAll = 'all' === data.type
+		let oldChild
+		if (isAll){
 			this.beEdge = Automerge.init()
 			this.feEdge = Automerge.init()
+			oldChild = this.child()
 		}else{
 			this.beEdge = this.beEdge || Automerge.init()
 			this.feEdge = this.feEdge || Automerge.init()
 		}
-		const [beMerge] = Automerge.applyChanges(this.beEdge, [data.changes])
+
+		const [beMerge] = Automerge.applyChanges(this.beEdge, data.changes)
 		this.beEdge = beMerge
 		const changes = Automerge.getChanges(this.feEdge, this.beEdge)
 		const [feMerge, patch] = Automerge.applyChanges(this.feEdge, changes)
 		this.feEdge = feMerge
-		if ('all' === data.type){
-			//TODO: diff patch.diff.child and existing child
+		set(this)
+
+		if (isAll){
+			const [rem, add] = pArr.diff(oldChild, this.child())
+			this.host.resetChilds(ref, rem, add)
+		}else{
+			const props = patch.diffs.props
+			if (!props.child) return
+			const child = props.child
+			const rem = [], add = {}
+			for (let key in child){
+				child[key].edits.forEach(diff => {
+					switch (diff.action) {
+					case 'insert':
+						add[diff.index] = diff.value.value
+						break
+					case 'remove':
+						rem.push(diff.index)
+						break
+					}
+				})
+			}
+			this.host.resetChilds(ref, rem, add)
 		}
 		this.callback.trigger(CRDT.COMMAND, patch)
 	},

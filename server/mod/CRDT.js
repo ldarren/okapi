@@ -34,7 +34,7 @@ CRDT.prototype = {
 		}else{
 			changes = Automerge.getAllChanges(this.payload)
 		}
-		return btoa(String.fromCharCode.apply(null, changes[0]))
+		return changes.map(change => btoa(String.fromCharCode.apply(null, change)))
 	},
 }
 

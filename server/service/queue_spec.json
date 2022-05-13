@@ -33,7 +33,7 @@
 						"required": 1
 					},
 					"msg": {
-						"type": "str",
+						"type": "arr",
 						"required": 1
 					}
 				}
