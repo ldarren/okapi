@@ -20,10 +20,4 @@ return {
 		await this.next(null, `${method}/copse/id`)
 		return this.next()
 	},
-	router: (key, postfix) => async function (method, params){
-		const id = params[key] ? postfix : ''
-		const name = `${method}/snode${id}`
-		await this.next(null, name)
-		return this.next()
-	}
 }

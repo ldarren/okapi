@@ -10,10 +10,4 @@ return {
 		if (d.length > 2) crdt['child'] = d[2]
 		return this.next()
 	},
-	async router(method, params){
-		const idx = params.id ? '/id' : ''
-		const name = `${method}/copse${idx}`
-		await this.next(null, name)
-		return this.next()
-	}
 }

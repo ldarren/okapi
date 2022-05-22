@@ -165,7 +165,7 @@ CRDT.prototype = {
 		if (ref){
 			const beEdge = this.beEdge
 			const changes = Automerge.getChanges(beEdge, feEdge)
-			this.net.request('PATCH', `/1.0/copse/${ref}/node/key/${key}`, changes, null, (err, xhr) => {
+			this.net.request('PATCH', `/1.0/snode/${ref}/node/key/${key}`, changes, null, (err, xhr) => {
 				if (err) return console.error(err)
 				this.beEdge = Automerge.applyChanges(beEdge, changes)
 			})

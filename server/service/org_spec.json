@@ -1,0 +1,16 @@
+{
+	"rsc": {
+		"org": {
+			"db": "db",
+			"schema": {
+				"type": "object",
+				"spec": {
+					"ref": {
+						"type": "string",
+						"gt": 4
+					}
+				}
+			}
+		}
+	}
+}

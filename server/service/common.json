@@ -64,14 +64,14 @@
         ],
         "POST/rsc": [
             ["web.bodyParser", "_.req", "_.input"],
-            ["util.input2", "_.input", "_.rs.schema", "_.valid"],
+            ["util.inputNoCurry", "_.input", "_.rs.schema", "_.valid"],
             ["db.set", "_.db.coll", null, "_.valid", null, "_.out"],
             ["db.get", "_.db.coll", "_.out.i", "_.output"],
             ["util.push", "_.:output", "_.output"]
         ],
         "GET/rsc": [
             ["util.group", "_.url.query", "@.spec.grouping", "_.query"],
-            ["util.input2", "_.query", "@.spec.query","_.meta"],
+            ["util.inputNoCurry", "_.query", "@.spec.query","_.meta"],
             ["db.find", "_.db.coll", "_.meta", "_.:output"]
         ],
         "PUT/rsc/i": [
@@ -79,7 +79,7 @@
             ["db.get", "_.db.coll", "_.params.i", "_.origin"],
             ["util.push", "_.:array", "_.origin.d", "_.input"],
             [["util.lib", "pico/obj", "extends"], "_.updated", "_.:array"],
-            ["util.input2", "_.updated", "_.rs.schema", "_.valid"],
+            ["util.inputNoCurry", "_.updated", "_.rs.schema", "_.valid"],
             ["db.set", "_.db.coll", "_.params.i", "_.valid", null, "_.out"],
             ["db.get", "_.db.coll", "_.out.i", "_.output"]
         ],
@@ -97,12 +97,12 @@
         "/1.0/:rsc": [
             [["web.output"], "_.res", "_.:output", "_.meta"],
 			[["util.input", "@.spec.params"], "$.params", "_.params"],
-            [["util.router", "@.rsc"], "_.req.method", "_.params"]
+            [["util.routerByRSC", "@.rsc"], "_.req.method", "_.params"]
         ],
         "/1.0/:rsc/:i": [
             [["web.output"], "_.res", "_.output", "_.meta"],
 			[["util.input", "@.spec.params"], "$.params", "_.params"],
-            [["util.router", "@.rsc"], "_.req.method", "_.params"]
+            [["util.routerByRSC", "@.rsc"], "_.req.method", "_.params"]
 		]
 	}
 } 

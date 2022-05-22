@@ -1,23 +1,4 @@
 {
-    "spec": {
-		"copse": {
-            "type": "obj",
-            "required": 1,
-            "spec": {
-				"name": "str"
-			}
-		},
-		"copse_msg": {
-            "type": "object",
-            "required": 1,
-            "spec": {
-				"msg": {
-					"type": "arr",
-					"required": 1
-				}
-			}
-		}
-	},
 	"routes":{
 		"GET/copse/id": [
             ["db.get", "$.db.user", "_.user.i", "_.user"],
