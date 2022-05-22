@@ -10,19 +10,10 @@ function onCRDTChange(type, changes){
 	}
 }
 
-function onChange(type, subtype, snode, changes){
-	const ref = this.data().ref
-	if (!ref){
-		return this.host.callback.trigger(type, subtype, snode, changes)
-	}
-
-	snode.crdt.sync(ref, changes)
-}
-
 function onPush(type, ref, data){
 	switch(type){
 	case SNode.REFPUSH:
-		if (ref === this.data().ref){
+		if (ref === this.data().org){
 			if (data.id === this.id){
 				this.crdt.serverPush(ref, data)
 			}else{
@@ -53,23 +44,25 @@ function mapChilds(seed){
 	}, ret)
 }
 
-function SNode(ref, key, host, net, seeds){
+function SNode(ref, id, host, net, seeds){
 	this.callback = new Callback
+	this.id = id
+	this.ref = ref // pass down from previous snode, not store in CRDT
 	this.host = host
-	this.id = key
 
-	this.crdt = new CRDT(this, ref, key, net, seeds)
+	this.crdt = new CRDT(this, ref, id, net, seeds)
+
+	// render from cache/feEdge
 	const child = this.crdt.child()
 	this.isInner = Array.isArray(child)
 	if (this.isInner){
-		ref = this.data().ref || ref
+		ref = this.data().org || ref
 		const map = mapChilds(seeds)
 		this.child = child.map(id => new SNode(ref, id, this, net, map[id]) )
 	}
 
 	this.crdt.callback.on(CRDT.UPDATE, onCRDTChange, this)
 	this.crdt.callback.on(CRDT.COMMAND, onCRDTChange, this)
-	this.callback.on(SNode.CHANGE, onChange, this)
 	if (this.isInner){
 		this.host.callback.on(SNode.REFPUSH, onPush, this)
 	}
@@ -123,7 +116,7 @@ SNode.prototype = {
 	},
 	insert(index, tree, ref){
 		if (!this.isInner) return
-		ref = this.data().ref || ref
+		ref = this.data().org || ref
 		this.move(index, new SNode(ref, tree[0], this, this.crdt.net, tree))
 	},
 	move(index, snode){
@@ -153,12 +146,9 @@ SNode.prototype = {
 		return snode
 	},
 	update(data){
-		this.crdt.updateData(data)
+		if (!this.crdt.updateData(data)) return
 		this.callback.trigger(SNode.UPDATE, this)
 		this.host.callback.trigger(SNode.CHANGE, SNode.UPDATE, this)
-	},
-	save(){
-		this.crdt.save()
 	},
 	resetChilds(ref, rem, add){
 		rem.forEach(idx => this.spliceByIndex(idx))

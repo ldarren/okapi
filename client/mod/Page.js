@@ -87,6 +87,7 @@ function form2Obj(form){
 	const obj = {}
 	for(let i = 0, l = form.length, input; i < l; i++){
 		input = form[i]
+		if (!input.name) continue
 		obj[input.name] = input.value
 	}
 	const arr = []
@@ -211,8 +212,11 @@ return {
 				this.deps.snode.update(obj)
 			})
 		},
-		'click input.send': function(e, target){
-			this.deps.snode.save()
+		'click input.save': function(e, target){
+			const form = e.target.closest('form')
+			const obj = form2Obj(form)
+
+			this.deps.snode.update(obj)
 		}
 	},
 

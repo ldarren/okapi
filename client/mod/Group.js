@@ -7,27 +7,28 @@ return {
 		snode: 'snode',
 	},
 	create(deps, params){
-		this.el.innerHTML=deps.tpl(deps.snode.data())
+		const snode = deps.snode
+		this.el.innerHTML=deps.tpl(snode.ref ? {ref: snode.ref} : snode.data())
 	},
 	events:{
 		'click input':function(e, target){
 			const snode = this.deps.snode
-			let ref = pObj.dot(snode, ['data', 'ref'])
-			if (ref && !confirm(`Do you really want to update ${ref} ?`)) return
+			let {org} = snode.data() // origin of ref
+			if (org && !confirm(`Do you really want to update ${org} ?`)) return
 
 			switch(target.id){
 			case 'gen':
-				ref = Date.now().toString(36) + pStr.rand()
+				org = Date.now().toString(36) + pStr.rand()
 				break
-			case 'ref':
-				ref = prompt('Shareable key', '')
+			case 'org':
+				org = prompt('Shareable key', '')
 				break
 			case 'rem':
-				ref = ''
+				org = ''
 				break
 			}
 
-			snode.update({ref})
+			snode.update({org})
 			this.el.innerHTML=this.deps.tpl(snode.data())
 		}
 	}

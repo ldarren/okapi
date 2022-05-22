@@ -47,22 +47,36 @@ function doc2Node(id, data, child){
 	return child ? [id, data, child] : [id, data]
 }
 
+/**
+ * Object that handle local cache, seed and CRDT operation, based on Automerge
+ *
+ * this object maintains 2 CRDT docs (feEdge and beEdge)
+ * feEdge = beEdge + local changes
+ * beEdge = sync with current connected peer
+ */
 function CRDT(host, ref, key, net, seed){
 	this.callback = new Callback
 	this.host = host
 	this.key = key
 	this.net = net
 	this.online = []
-	let node = get(this) || unroll(seed) || (host.host instanceof Sapling ? [key, {name: 'root'}, []] : [key, {name: '/untitled'}])
+	let node = 
+		get(this) || // from cache
+		unroll(seed) || // from config/seed
+		(host.host instanceof Sapling ? [key, {name: 'root'}, []] : [key, {name: '/untitled'}]) // from default
 	this.feEdge = Automerge.from(node2Doc(node))
-	ref = this.feEdge.data.ref || ref
+	ref = this.feEdge.data.org || ref
 
 	const params = ref ? {ref} : null
+	/*
+	 * same request with - without ref, server side may have ref/org update
+	 * if with ref (either client or server) actual node data will be sending to serverPush 
+	 */
 	this.net.request('GET', `/1.0/snode/key/${key}`, params, null, (err, xhr) => {
 		if (err) return console.error(err)
 		if (!xhr) return console.error(`snode key[${key}] not found`)
 		/*
-		 * with ref, server returns node id and current online users
+		 * with ref, server returns node id and current online users, no actual node data
 		 * without ref, server returns node data
 		 */
 		if (ref){
@@ -71,7 +85,8 @@ function CRDT(host, ref, key, net, seed){
 			node = pObj.dot(xhr, ['body', 'd'])
 			if (!node || !Array.isArray(node) || !node[0]) return
 			const [rem, add] = pArr.diff(this.child(), node[2])
-			this.feEdge = Automerge.from(node2Doc(node))
+			this.beEdge = Automerge.from(node2Doc(node))
+			this.feEdge = Automerge.clone(this.beEdge)
 			set(this)
 			host.resetChilds(ref, rem, add)
 		}
@@ -89,7 +104,7 @@ CRDT.prototype = {
 		return this.feEdge.child
 	},
 	/*
-	 * SSE Push
+	 * SSE Push - when ref/org set on client or server side
 	 *
 	 * @param {string} ref - room ref
 	 * @param {object} data - sse summary
@@ -100,18 +115,17 @@ CRDT.prototype = {
 		const isAll = 'all' === data.type
 		let oldChild
 		if (isAll){
-			this.beEdge = Automerge.init()
-			this.feEdge = Automerge.init()
 			oldChild = this.child()
+			this.feEdge = Automerge.init()
+			this.beEdge = Automerge.init()
 		}else{
-			this.beEdge = this.beEdge || Automerge.init()
 			this.feEdge = this.feEdge || Automerge.init()
+			this.beEdge = this.beEdge || Automerge.init()
 		}
 
 		const [beMerge] = Automerge.applyChanges(this.beEdge, data.changes)
 		this.beEdge = beMerge
-		const changes = Automerge.getChanges(this.feEdge, this.beEdge)
-		const [feMerge, patch] = Automerge.applyChanges(this.feEdge, changes)
+		const [feMerge, patch] = Automerge.applyChanges(this.feEdge, data.changes)
 		this.feEdge = feMerge
 		set(this)
 
@@ -140,42 +154,50 @@ CRDT.prototype = {
 		this.callback.trigger(CRDT.COMMAND, patch)
 	},
 	/*
-	 * CRDT Sync
+	 * Save to server - with or without CRDT
 	 *
-	 * @param {string} ref - CRDT room reference key
-	 * @param {uInt8Array} changes - get from Automerge.getChanges(be, fe)
 	 */
-	sync(ref, changes){
-		if (!ref || !changes) return
-		this.net.request('PUT', `/1.0/copse/${ref}/node/key/${this.key}`, changes, null, (err, xhr) => {
-			if (err) return console.error(err)
-			this.feEdge = Automerge.applyChanges(this.feEdge, changes)
-			set(this)
-		})
+	save(){
+		set(this)
+		const key = this.key
+		const feEdge = this.feEdge
+		const ref = feEdge.data.org || this.host.ref
+		if (ref){
+			const beEdge = this.beEdge
+			const changes = Automerge.getChanges(beEdge, feEdge)
+			this.net.request('PATCH', `/1.0/copse/${ref}/node/key/${key}`, changes, null, (err, xhr) => {
+				if (err) return console.error(err)
+				this.beEdge = Automerge.applyChanges(beEdge, changes)
+			})
+		}else{
+			const {data, child} = feEdge
+			this.net.request('PUT', `/1.0/snode/key/${key}`, doc2Node(key, data, child), null, (err, xhr) => {
+				if (err) return console.error(err)
+			})
+		}
 	},
 	/*
-	 * force save without CRDT sync
-	 *
-	 * @param {uInt8Array} changes - get from Automerge.getChanges(be, fe)
+	 * Handle org update differently
 	 */
-	save(changes){
-		if (changes){
-			this.feEdge = Automerge.applyChanges(this.feEdge, changes)
-		}
-		const key = this.key
-		const {data, child} = this.feEdge
-		this.net.request('PUT', `/1.0/snode/key/${key}`, doc2Node(key, data, child), null, (err, xhr) => {
-			if (err) return console.error(err)
-			set(this)
-		})
-	},
 	updateData(data){
+		const oldOrg = this.feEdge.data.org
 		this.feEdge = Automerge.change(this.feEdge, doc => {
 			pObj.extend(doc.data, data)
 		})
-		set(this)
+		if (data.org !== oldOrg){
+			if (!oldOrf){
+				console.log('insert')
+			}else if (!data.org){
+				console.log('remove')
+			}else{
+				console.log('update', data.org)
+			}
+		}
+		this.save()
+		return true
 	},
 	updateChild(index, count, child){
+		// outdated implementation, check updateData
 		this.feEdge = Automerge.change(this.feEdge, doc => {
 			let c = doc.child
 			if (!Array.isArray(c)) {
@@ -184,8 +206,7 @@ CRDT.prototype = {
 			if (null == index) c.push(child)
 			else child ? c.splice(index, count, child) : c.splice(index, count)
 		})
-
-		set(this)
+		this.save()
 	},
 	clear(){
 	}
