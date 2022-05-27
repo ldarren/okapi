@@ -208,7 +208,6 @@ return {
 				form[form.length - 1].value = xhr
 
 				obj.res = xhr
-				obj.headers = JSON.stringify(obj.headers)
 				this.deps.snode.update(obj)
 			})
 		},

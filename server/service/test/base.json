@@ -28,13 +28,13 @@
 			["util.detour", "/tests/unit"],
 
 			["util.spawn", "@.rsc.tree.schema", "_.ext", 3, "_.:tree"],
-			["db.set", "tree", null, "_.:tree", "_.:output"],
+			["db.set", "tree", null, "_.:tree", null, "_.:output", {}],
 
 			["util.spawn", "@.rsc.group.schema", "_.ext", 10, "_.:group"],
-			["db.set", "group", null, "_.:group", "_.:output"],
+			["db.set", "group", null, "_.:group", null, "_.:output", {}],
 
 			["util.spawn", "@.rsc.req.schema", "_.ext", 10, "_.:req"],
-			["db.set", "req", null, "_.:req", "_.:output"],
+			["db.set", "req", null, "_.:req", null, "_.:output", {}],
 
 			[["cms_cli.poll", "GET", "http://localhost:1337/1.0/health"]],
 			["util.detour", "/inbounds/products"]

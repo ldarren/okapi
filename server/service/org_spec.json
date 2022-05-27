@@ -5,9 +5,9 @@
 			"schema": {
 				"type": "object",
 				"spec": {
-					"ref": {
+					"id": {
 						"type": "string",
-						"gt": 4
+						"gt": 2
 					}
 				}
 			}

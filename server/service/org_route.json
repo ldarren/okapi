@@ -1,19 +1,19 @@
 {
 	"routes":{
         "POST/org": [
-			["util.add", "$.db.user", "coll", "_.db"],
+			["util.add", "$.db.org", "coll", "_.db"],
 			["util.detour", "POST/rsc"]
         ],
         "PUT/org/i": [
-			["util.add", "$.db.user", "coll", "_.db"],
+			["util.add", "$.db.org", "coll", "_.db"],
 			["util.detour", "PUT/rsc/i"]
         ],
         "GET/org/i": [
-			["util.add", "$.db.user", "coll", "_.db"],
+			["util.add", "$.db.org", "coll", "_.db"],
 			["util.detour", "GET/rsc/i"]
         ],
         "DELETE/org/i": [
-			["util.add", "$.db.user", "coll", "_.db"],
+			["util.add", "$.db.org", "coll", "_.db"],
 			["util.detour", "DELETE/rsc/i"]
         ]
 	}

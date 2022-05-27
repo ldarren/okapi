@@ -75,20 +75,18 @@ function CRDT(host, ref, key, net, seed){
 	this.net.request('GET', `/1.0/snode/key/${key}`, params, null, (err, xhr) => {
 		if (err) return console.error(err)
 		if (!xhr) return console.error(`snode key[${key}] not found`)
-		/*
-		 * with ref, server returns node id and current online users, no actual node data
-		 * without ref, server returns node data
-		 */
-		if (ref){
-			this.online = pObj.dot(xhr, ['body', 'online'], this.online)
-		}else{
-			node = pObj.dot(xhr, ['body', 'd'])
-			if (!node || !Array.isArray(node) || !node[0]) return
+
+		// if body.d exists, not shared node is return, or else shared node is return from sse
+		node = pObj.dot(xhr, ['body', 'd'])
+		if (node){
+			if (!Array.isArray(node) || !node[0]) return
 			const [rem, add] = pArr.diff(this.child(), node[2])
 			this.beEdge = Automerge.from(node2Doc(node))
 			this.feEdge = Automerge.clone(this.beEdge)
 			set(this)
 			host.resetChilds(ref, rem, add)
+		}else{
+			this.online = pObj.dot(xhr, ['body', 'online'], this.online)
 		}
 	})
 }
@@ -184,13 +182,22 @@ CRDT.prototype = {
 		this.feEdge = Automerge.change(this.feEdge, doc => {
 			pObj.extend(doc.data, data)
 		})
+		const cb = (err, xhr) => {
+			if (err) return console.error(err)
+			const org = pObj.dot(xhr, ['d', 'org'])
+			if (org) this.org = org
+			this.save()
+		}
 		if (data.org !== oldOrg){
 			if (!oldOrf){
 				console.log('insert')
+				this.net.request('POST', `/1.0/org`, doc2Node(key, data, child), null, cb)
 			}else if (!data.org){
 				console.log('remove')
+				this.net.request('DELETE', `/1.0/org/${this.org.i}`, null, null, cb)
 			}else{
 				console.log('update', data.org)
+				this.net.request('PUT', `/1.0/org/${this.org.i}`, null, null, cb)
 			}
 		}
 		this.save()

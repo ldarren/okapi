@@ -54,7 +54,7 @@ module.exports = {
 	// [["util.router", "id", "/snode", "/key"], "_.req.method", "_.params"]
 	router: (key, rsc, postfix) => async function (method, params){
 		const id = params[key] ? postfix : ''
-		const name = `${method}${rsc}${id}`
+		const name = `${method}/${rsc}${id}`
 		await this.next(null, name)
 		return this.next()
 	},
