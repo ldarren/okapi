@@ -14,6 +14,7 @@ const queue = require('service/queue')
 const userSpec = require('service/user_spec.json')
 const userRoute = require('service/user_route.json')
 const system = require('service/system.json')
+const org = require('service/org.js')
 const orgSpec = require('service/org_spec.json')
 const orgRoute = require('service/org_route.json')
 
@@ -35,6 +36,7 @@ this.load = () => {
 		orgRoute,
 		system,
 		{
+			org,
 			snode,
 			copse,
 			queue,
@@ -42,5 +44,4 @@ this.load = () => {
 		base
 	], {flat: 1})
 }
-
 return out

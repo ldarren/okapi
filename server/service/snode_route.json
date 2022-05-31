@@ -14,6 +14,7 @@
 			["@.snode.findOneById", "_.params.id", "_.:query"],
             ["db.find", "$.db.snode", "_.:query", "_.:records"],
 			["util.pop", "_.:records", "_.record"],
+			["@.org.selectOldestCreator", "_.record.ref", "_.user"],
 			["@.snode.hasRef", "_.req.method", "_.params", "_.qs", "_.record", "_.output"]
 		],
         "/1.0/snode/key/:id": [

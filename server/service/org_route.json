@@ -12,6 +12,13 @@
 			["util.add", "$.db.org", "coll", "_.db"],
 			["util.detour", "GET/rsc/i"]
         ],
+        "/org/oldest": [
+            [["web.output"], "_.res", "_.output", "_.params"],
+			["auth.verify", "_.req", "_.user"],
+			["web.queryParser", "_.req", "_.qs"],
+			[["util.input", "@.spec.query_ref"], "_.qs", "_.input"],
+			["@.org.selectOldestCreator", "_.input.ref", "_.output"]
+        ],
         "DELETE/org/i": [
 			["util.add", "$.db.org", "coll", "_.db"],
 			["util.detour", "DELETE/rsc/i"]

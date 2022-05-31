@@ -8,6 +8,10 @@
 					"id": {
 						"type": "string",
 						"gt": 2
+					},
+					"ref": {
+						"type": "string",
+						"gt": 2
 					}
 				}
 			}

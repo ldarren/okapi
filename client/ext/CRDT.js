@@ -189,15 +189,15 @@ CRDT.prototype = {
 			this.save()
 		}
 		if (data.org !== oldOrg){
-			if (!oldOrf){
+			if (!oldOrg){
 				console.log('insert')
-				this.net.request('POST', `/1.0/org`, doc2Node(key, data, child), null, cb)
+				this.net.request('POST', `/1.0/org`, {id: this.key, ref: data.org}, null, cb)
 			}else if (!data.org){
 				console.log('remove')
 				this.net.request('DELETE', `/1.0/org/${this.org.i}`, null, null, cb)
 			}else{
 				console.log('update', data.org)
-				this.net.request('PUT', `/1.0/org/${this.org.i}`, null, null, cb)
+				this.net.request('PUT', `/1.0/org/${this.org.i}`, {id: this.key, ref: data.org}, null, cb)
 			}
 		}
 		this.save()
