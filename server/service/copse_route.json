@@ -1,18 +1,24 @@
 {
 	"routes":{
-		"GET/copse/id": [
-            ["db.get", "$.db.user", "_.user.i", "_.user"],
-			["@.copse.fRecord2CRDT", "_.record", "_.data"],
-			["crdt.join", "$.crdt", "_.copse", "_.user", "_.data", "_.output"],
-			["crdt.payload", "_.copse.id", "_.base64"],
-			["crdt.send", "$.db.queue", "_.copse.id", "all", "_.base64.payload", "_.user", "_.user", "_.output"]
+		"GET/copse/ref": [
+			["@.snode.findOrgCopse", "_.org.ref", "_.orgSNode"],
+			["db.get", "$.db.user", "_.orgSNode.cby", "_.orgUser"],
+			["@.copse.branchOrg", "_.org", "_.orgSNode", "_.orgUser", "_.output"],
+			["@.snode.findCopseByIdAndUser", "_.org.id", "_.orgUser.i", "_.snode"],
+			["@.copse.branchOrg", "_.org", "_.snode", "_.orgUser", "_.output"]
+		],
+		"copse/join": [
+			["@.copse.fRecord2CRDT", "_.snode", "_.data"],
+			["crdt.join", "$.crdt", "_.org", "_.member", "_.data", "_.output"],
+			["crdt.payload", "_.org.id", "_.base64"],
+			["crdt.send", "$.db.queue", "_.org.id", "all", "_.base64.payload", "_.member", "_.member", "_.output"]
 		],
 		"PUT/copse/id": [
-            ["crdt.verify", "_.params.key", "_.user.i"],
+			["crdt.verify", "_.params.key", "_.user.i"],
 			["crdt.get", "_.params.key", "_.status"]
 		],
 		"DELETE/copse/id": [
-            ["crdt.verify", "_.params.key", "_.user.i"],
+			["crdt.verify", "_.params.key", "_.user.i"],
 			["crdt.remove", "_.params.key", "_.user.i", "_.status"]
 		]
 	}

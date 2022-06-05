@@ -11,11 +11,8 @@
 		"GET/snode/key": [
 			["web.queryParser", "_.req", "_.qs"],
 			[["util.input", "@.spec.query_ref"], "_.qs", "_.input"],
-			["@.snode.findOneById", "_.params.id", "_.:query"],
-            ["db.find", "$.db.snode", "_.:query", "_.:records"],
-			["util.pop", "_.:records", "_.record"],
-			["@.org.selectOldestCreator", "_.record.ref", "_.user"],
-			["@.snode.hasRef", "_.req.method", "_.params", "_.qs", "_.record", "_.output"]
+			["@.snode.findOneById", "_.params.id", "_.record"],
+			["@.snode.hasRef", "_.req.method", "_.params.id", "_.input", "_.record", "_.output"]
 		],
         "/1.0/snode/key/:id": [
             [["web.output"], "_.res", "_.output", "_.params"],

@@ -59,7 +59,7 @@ Room.prototype = {
 		if (!this.team.find(s => senderi === s.i)) return 1
 		const room = this.id
 		const msg = this.stringify()
-		this.team.forEach(r => q.push({type, sender: senderi, recipient: r.i, room, msg}, {cby: senderi}))
+		this.team.forEach(r => q.push({type, sender: senderi, recipient: r.i, room, msg}, {}, sender))
 		return 0
 	},
 	send(q, type, msg, sender, recipient){
@@ -73,7 +73,7 @@ Room.prototype = {
 			if (recipienti === m.i) found += 2
 		}
 		if (3 !== found) return 2
-		q.push({type, sender: senderi, recipient: recipienti, room: this.id, msg}, {cby: senderi})
+		q.push({type, sender: senderi, recipient: recipienti, room: this.id, msg}, {}, sender)
 		return 0
 	},
 
