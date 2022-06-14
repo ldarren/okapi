@@ -1,6 +1,10 @@
 const Automerge = require('automerge')
 const Party = require('./Party')
 
+function stringify(changes){
+	return changes.map(change => btoa(String.fromCharCode.apply(null, change)))
+}
+
 /**
  * CRDT class inherit Room
  *
@@ -18,12 +22,26 @@ function CRDT(id, name, owner, record){
 
 CRDT.prototype = {
 	setup(data = {}){
+console.log('>>>0', data)
 		this.payload = Automerge.from(data)
 	},
 
-	update(data){
-		if (!this.validate(data)) return
-		this.payload = Automerge.merge(this.payload, data)
+	payload(id, output){
+		const r = Party.Get(id)
+		Object.assign(output, r.payload)
+		return this.next()
+	},
+
+	update(uint8arr){
+console.log('>>>1', uint8arr)
+		if (!this.validate(uint8arr)) return
+console.log('>>>2')
+		if (!uint8arr.filter(uint8 => ArrayBuffer.isView(uint8))) return
+console.log('>>>3', this.payload)
+		const [payload, changes] = Automerge.applyChanges(this.payload, uint8arr) 
+		this.payload = payload
+console.log('>>>4', payload, changes)
+		return stringify(changes)
 	},
 
 	stringify(data){
@@ -34,7 +52,7 @@ CRDT.prototype = {
 		}else{
 			changes = Automerge.getAllChanges(this.payload)
 		}
-		return changes.map(change => btoa(String.fromCharCode.apply(null, change)))
+		return stringify(changes)
 	},
 }
 

@@ -4,6 +4,10 @@ const Callback = require('po/Callback')
 const Sapling = require('ext/Sapling')
 const storage=window.localStorage
 
+function encode(arr){
+	return arr.map(uint8 => btoa(String.fromCharCode.apply(null, uint8)))
+}
+
 function get(ctx){
 	let ret
 	const key = ctx.key
@@ -161,9 +165,12 @@ CRDT.prototype = {
 		const feEdge = this.feEdge
 		const ref = feEdge.data.org || this.host.ref
 		if (ref){
-			const beEdge = this.beEdge
+			const beEdge = this.beEdge || Automerge.init()
+console.log('>>>1', feEdge.data, beEdge.data)
 			const changes = Automerge.getChanges(beEdge, feEdge)
-			this.net.request('PATCH', `/1.0/snode/${ref}/node/key/${key}`, changes, null, (err, xhr) => {
+const [m, c] = Automerge.applyChanges(beEdge, changes)
+console.log('>>>2', m.data, changes)
+			this.net.request('PATCH', `/1.0/snode/key/${key}`, encode(changes), {ref}, (err, xhr) => {
 				if (err) return console.error(err)
 				this.beEdge = Automerge.applyChanges(beEdge, changes)
 			})
@@ -178,28 +185,9 @@ CRDT.prototype = {
 	 * Handle org update differently
 	 */
 	updateData(data){
-		const oldOrg = this.feEdge.data.org
 		this.feEdge = Automerge.change(this.feEdge, doc => {
 			pObj.extend(doc.data, data)
 		})
-		const cb = (err, xhr) => {
-			if (err) return console.error(err)
-			const org = pObj.dot(xhr, ['d', 'org'])
-			if (org) this.org = org
-			this.save()
-		}
-		if (data.org !== oldOrg){
-			if (!oldOrg){
-				console.log('insert')
-				this.net.request('POST', `/1.0/org`, {id: this.key, ref: data.org}, null, cb)
-			}else if (!data.org){
-				console.log('remove')
-				this.net.request('DELETE', `/1.0/org/${this.org.i}`, null, null, cb)
-			}else{
-				console.log('update', data.org)
-				this.net.request('PUT', `/1.0/org/${this.org.i}`, {id: this.key, ref: data.org}, null, cb)
-			}
-		}
 		this.save()
 		return true
 	},

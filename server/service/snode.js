@@ -1,4 +1,5 @@
 const pObj = require('pico/obj')
+const RAW = Symbol.for('raw')
 
 return {
 	findOneById(key, output){
@@ -25,7 +26,7 @@ return {
 		return this.next()
 	},
 
-	findOrgCopse(ref, output){
+	findOrg(ref, output){
 		const qs = []
 		qs.push({
 			index: ['d', 1, 'org'],
@@ -39,7 +40,7 @@ return {
 		return this.next()
 	},
 
-	findCopseByIdAndUser(id, cby, output){
+	findByIdAndUser(id, cby, output){
 		const qs = []
 		qs.push({
 			index: ['d', 0],
@@ -53,6 +54,12 @@ return {
 		})
 		const snode = this.db.snode.select(qs).pop()
 		Object.assign(output, snode)
+		return this.next()
+	},
+
+	bodyParser(body, output){
+		const uint8arr = body.map(base64 => Uint8Array.from(atob(base64), c => c.charCodeAt(0)))
+		output.push(...uint8arr)
 		return this.next()
 	},
 }

@@ -250,15 +250,15 @@ module.exports = {
 			return acc
 		}, {})
 	},
-	set(coll, id, input, meta, user, output){
-		set(coll, id, input, meta, user, output)
+	set(coll, i, input, meta, user, output){
+		set(coll, i, input, meta, user, output)
 		return this.next()
 	},
-	sets(coll, id, input, meta, user, output){
+	sets(coll, i, input, meta, user, output){
 		if (Array.isArray(input)){
-			sets(coll, id, input, meta, user, output)
+			sets(coll, i, input, meta, user, output)
 		}else{
-			set(coll, id, input, meta, user, output)
+			set(coll, i, input, meta, user, output)
 		}
 		return this.next()
 	},

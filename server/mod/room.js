@@ -37,29 +37,34 @@ module.exports = {
 		Object.assign(output, {id, online: r.getTeam()})
 		return this.next()
 	},
-	update(id, data){
+	payload(id, output){
 		const r = Party.Get(id)
-		if (!r) return this.next(`Party id[${id}] not found4`)
-		r.update(data)
+		Object.assign(output, r.payload)
 		return this.next()
 	},
-	payload(id, output, record){
+	update(id, data, output = {}){
+		const r = Party.Get(id)
+		if (!r) return this.next(`Party id[${id}] not found4`)
+		output.payload = r.update(data)
+		return this.next()
+	},
+	stringify(id, output, record){
 		const r = Party.Get(id)
 		const payload = r.stringify(record)
 		Object.assign(output, {payload})
 		return this.next()
 	},
-	sendAll(q, id, type, sender, output){
+	sendAll(q, id, type, sender, output, msg){
 		const r = Party.Get(id)
 		if (!r) return this.next(`Party id[${id}] not found5`)
-		if (r.sendAll(q, type, sender)) return this.next(`sendAll room[${id}] failed`)
+		if (r.sendAll(q, type, sender, msg)) return this.next(`sendAll room[${id}] failed`)
 		Object.assign(output, {id, online: r.getTeam()})
 		return this.next()
 	},
-	send(q, id, type, msg, sender, recipient, output){
+	send(q, id, type, sender, recipient, output, msg){
 		const r = Party.Get(id)
 		if (!r) return this.next(`Party id[${id}] not found6`)
-		if (r.send(q, type, msg, sender, recipient)) return this.next(`send room[${id}] failed`)
+		if (r.send(q, type, sender, recipient, msg)) return this.next(`send room[${id}] failed`)
 		Object.assign(output, {id, online: r.getTeam()})
 		return this.next()
 	},

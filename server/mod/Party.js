@@ -54,15 +54,23 @@ Room.prototype = {
 		if (all) return this.team.slice()
 		return this.team.map(m => m.i)
 	},
-	sendAll(q, type, sender){
+	/**
+	 * @param {object} q - queue object that support push and pop method
+	 * @param {string} type - all (getAllChanges) or part (getChanges)
+	 * @param {object} sender - sender object
+	 * @param {string} [msg] - message
+	 *
+	 * @returns {bool} - 1: failed, 0: success
+	 */
+	sendAll(q, type, sender, msg){
 		const senderi = sender.i
 		if (!this.team.find(s => senderi === s.i)) return 1
 		const room = this.id
-		const msg = this.stringify()
+		msg = msg || this.stringify()
 		this.team.forEach(r => q.push({type, sender: senderi, recipient: r.i, room, msg}, {}, sender))
 		return 0
 	},
-	send(q, type, msg, sender, recipient){
+	send(q, type, sender, recipient, msg){
 		const senderi = sender.i
 		const recipienti = recipient.i
 		if (!senderi || !recipienti) return 1
@@ -73,6 +81,7 @@ Room.prototype = {
 			if (recipienti === m.i) found += 2
 		}
 		if (3 !== found) return 2
+		msg = msg || this.stringify()
 		q.push({type, sender: senderi, recipient: recipienti, room: this.id, msg}, {}, sender)
 		return 0
 	},

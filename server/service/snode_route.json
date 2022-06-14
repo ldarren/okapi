@@ -2,11 +2,24 @@
 	"routes":{
 		"PUT/snode/key": [
 			["web.bodyParser", "_.req", "_.:body"],
-            [["util.input", "@.spec.room_msg"], "_.body", "_.input"],
+            [["util.input", "@.spec.snode"], "_.:body", "_.:input"],
             ["db.get", "$.db.user", "_.user.i", "_.user"],
-			["util.extend", "_.input", "_.params", "_.room"],
-            ["crdt.verify", "_.room.id", "_.user.i"],
-			["crdt.sendAll", "$.db.queue", "_.room", "_.user", "_.output"]
+			["@.snode.findOneById", "_.params.id", "_.record"],
+			["db.set", "$.db.snode", "_.record.i", "_.:body", {}, "_.user", "_.output"]
+		],
+		"PATCH/snode/key": [
+			["web.bodyParser", "_.req", "_.:body"],
+            ["db.get", "$.db.user", "_.user.i", "_.user"],
+["util.log", "$$$1", "_.params"],
+			["@.snode.findOneById", "_.params.id", "_.record"],
+["util.log", "$$$2", "_.record"],
+			["@.copse.fRecord2CRDT", "_.record", "_.data"],
+            ["crdt.join", "$.crdt", "_.params", "_.user", "_.data", "_.output"],
+			["@.snode.bodyParser", "_.:body", "_.:uint8"],
+            ["crdt.update", "_.params.id", "_.:uint8", "_.base64"],
+			["crdt.sendAll", "$.db.queue", "_.params.id", "part", "_.user", "_.output", "_.base64.payload"],
+			["crdt.payload", "_.params.id", "_.:updated"],
+			["db.set", "$.db.snode", "_.record.i", "_.:updated", {}, "_.user", "_.output"]
 		],
 		"GET/snode/key": [
 			["web.queryParser", "_.req", "_.qs"],

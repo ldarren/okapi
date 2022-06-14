@@ -6,6 +6,7 @@ return {
 		Object.assign(output, {payload})
 		return this.next()
 	},
+
 	fRecord2CRDT(record, crdt){
 		const d = record.d
 		crdt['data'] = d[1]
