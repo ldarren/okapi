@@ -26,9 +26,9 @@
 		}
 	},
 	"routes":{
-		"* * * * * *": [
+		"0 * * * * *": [
 			["sys.record",  "_.record"],
-			["db.set", "$.db.system", null, "_.record", null, {}],
+			["db.set", "$.db.system", null, "_.record", null, {}, {}],
 			["db.truncate", "$.db.system", 60]
 		],
 		"/1.0/system": [

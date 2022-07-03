@@ -4,16 +4,16 @@
 			["util.silence", "_.res", []],
 			["auth.verify", "_.req", "_.user"],
             ["db.get", "$.db.user", "_.user.i", "_.user"],
-			["sse.connect", "_.req", "_.res", "_.user"]
+			["sse.connect", "_.req", "_.res", "_.user.i"]
         ],
 		"/1.0/sse/:i": [
 			["util.silence", null, ["not found"]],
 			[["util.input", "@.spec.params"], "$.params", "_.input"],
             ["db.get", "$.db.user", "_.input.i", "_.user"],
-			["sse.find", "_.user"],
+			["sse.find", "_.user.i"],
 			["@.queue.query", "_.user", "_.query"],
             ["db.pop", "$.db.queue", "_.query", "_.:msg"],
-			["sse.send", "_.user", "_.:msg"]
+			["sse.send", "msg", "_.user.i", "_.:msg"]
 		]
 	}
 }

@@ -50,10 +50,19 @@ module.exports = {
 		return this.next()
 	},
 
-	router: rsc => async function(method, params) {
+	// Example route "/1.0/snode/key/:id"
+	// [["util.router", "id", "/snode", "/key"], "_.req.method", "_.params"]
+	router: (key, rsc, postfix) => async function (method, params){
+		const id = params[key] ? postfix : ''
+		const name = `${method}/${rsc}${id}`
+		await this.next(null, name)
+		return this.next()
+	},
+
+	routerByRSC: (rsc, prefix = '/i') => async function(method, params) {
 		const rs = rsc[params.rsc]
 		if (!rs) return this.next(`unsupprted resource: ${params.rsc}`)
-		const idx = params.i ? '/i' : ''
+		const idx = params.i ? prefix : ''
 		const name = `${method}/${params.rsc}${idx}`
 		await this.next(null, name, Object.assign({
 			params,
@@ -68,7 +77,7 @@ module.exports = {
 		return this.next()
 	},
 
-	input2(input, spec, output, ext) {
+	inputNoCurry(input, spec, output, ext) {
 		const err = pObj.validate(spec, input, output, ext)
 		if (err) return this.next(`invalid params [${err}]`)
 		return this.next()
@@ -89,6 +98,15 @@ module.exports = {
 		return this.next()
 	},
 
+	dot(input, path, output, def){
+		if (Array.isArray(output)){
+			output.push(...pObj.dot(input, path, def))
+		}else{
+			Object.assign(output, pObj.dot(input, path, def))
+		}
+		return this.next()
+	},
+
 	lib: (id, funcName) => {
 		const lib = pLib.export(id)
 		const func = lib[funcName]
@@ -98,6 +116,11 @@ module.exports = {
 			func.apply(lib, args)
 			return this.next()
 		}
+	},
+
+	pop(array, out){
+		if (Array.isArray(array) && array.length) Object.assign(out, array.pop())
+		return this.next()
 	},
 
 	push(array, ...item){

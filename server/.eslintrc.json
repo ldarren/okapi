@@ -13,7 +13,9 @@
 		"__": false,
 		"pico": false,
 		"inherit": false,
-		"define": false
+		"define": false,
+		"btoa": false,
+		"atob": false
 	},
     "rules": {
         "accessor-pairs": "error",
@@ -106,7 +108,7 @@
         "max-statements": "off",
         "max-statements-per-line": ["error", { "max": 3 }],
         "multiline-comment-style": "error",
-        "new-cap": "error",
+        "new-cap": "off",
         "new-parens": "off",
         "newline-after-var": "off",
         "newline-before-return": "off",
@@ -223,7 +225,7 @@
         "no-useless-return": "error",
         "no-var": "error",
         "no-void": "off",
-        "no-warning-comments": "error",
+        "no-warning-comments": "off",
         "no-whitespace-before-property": "error",
         "nonblock-statement-body-position": "error",
         "object-curly-newline": "error",

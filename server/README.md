@@ -11,3 +11,6 @@ main fields of the resource
 
 #### meta
 meta fields of the resource, such as created\_at, created\_by
+
+## Workflow
+

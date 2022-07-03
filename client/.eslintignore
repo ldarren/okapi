@@ -1,4 +1,6 @@
 *.min.*
 node_modules/
 bin/
-examples/*/lib/
+lib/
+rollup.config.js
+cm.build.js

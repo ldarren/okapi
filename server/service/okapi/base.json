@@ -12,8 +12,13 @@
 		"mod": "jsondb",
 		"dir": "./db"
 	},{
-		"id": "room",
-		"mod": "room"
+		"id": "party",
+		"mod": "room",
+		"type": "Party"
+	},{
+		"id": "crdt",
+		"mod": "room",
+		"type": "CRDT"
 	},{
 		"id": "auth",
 		"mod": "basicAuth"
