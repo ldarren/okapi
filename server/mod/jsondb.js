@@ -115,7 +115,7 @@ Collection.prototype = {
 		}
 		return out
 	},
-	insert(input, meta, user){
+	insert(input, meta, useri){
 		const d = 'array' === this.schema.type ? [] : {}
 		let res = pObj.validate(this.schema, input, d)
 		if (res) throw `invalid parameter: ${res} in spec: ${JSON.stringify(this.schema)}. input: ${JSON.stringify(input)}`
@@ -123,7 +123,7 @@ Collection.prototype = {
 		const raw = Object.assign({
 			i: this.index++,
 			s: 1,
-			cby: user.i || 0,
+			cby: useri || 0,
 			cat: new Date
 		}, map(d, this.map), meta)
 		const m = {}
@@ -152,15 +152,15 @@ Collection.prototype = {
 		this.save()
 		return output
 	},
-	push(input, meta, user){
-		this.insert(input, meta, user)
+	push(input, meta, useri){
+		this.insert(input, meta, useri)
 	},
-	update(i, d, meta, user){
+	update(i, d, meta, useri){
 		const doc = this.documents.find(item => i === item.i)
 		if (!doc) return
 
 		const raw = Object.assign(doc, {
-			uby: user.i || 0,
+			uby: useri || 0,
 			uat: new Date
 		}, map(d, this.map), meta)
 		const m = {}
@@ -197,17 +197,17 @@ Collection.prototype = {
  * @param {string} i - identity of the record, can be string or number
  * @param {object} input - record to be set
  * @param {object} meta - meta object of data
- * @param {object} user - creator or updater
+ * @param {object} useri - creator or updater index
  * @param {object} output - result of the set
  *
  * @returns {void} - undefined
  */
-function set(coll, i, input, meta, user, output){
+function set(coll, i, input, meta, useri, output){
 	if (i){
-		coll.update(i, input, meta, user)
+		coll.update(i, input, meta, useri)
 		Object.assign(output, {i})
 	}else{
-		const res = coll.insert(input, meta, user)
+		const res = coll.insert(input, meta, useri)
 		Object.assign(output, res)
 	}
 }
@@ -219,20 +219,20 @@ function set(coll, i, input, meta, user, output){
  * @param {Array} is - array of identity of the record, can be string or number
  * @param {Array} inputs - records to be set
  * @param {Array} metas - meta data of recards
- * @param {Array} user - creator or updater
+ * @param {Array} useri - creator or updater
  * @param {Array} outputs - results of the sets
  *
  * @returns {void} - undefined
  */
-function sets(coll, is, inputs, metas, user, outputs){
+function sets(coll, is, inputs, metas, useri, outputs){
 	if (is){
 		is.forEach((i, ix) => {
-			coll.update(i, inputs[ix], metas[ix], user)
+			coll.update(i, inputs[ix], metas[ix], useri)
 			outputs.push({i})
 		})
 	}else{
 		inputs.forEach((input, ix) => {
-			const res = coll.insert(input, metas[ix], user)
+			const res = coll.insert(input, metas[ix], useri)
 			outputs.push(res)
 		})
 	}
@@ -250,15 +250,15 @@ module.exports = {
 			return acc
 		}, {})
 	},
-	set(coll, i, input, meta, user, output){
-		set(coll, i, input, meta, user, output)
+	set(coll, i, input, meta, useri, output){
+		set(coll, i, input, meta, useri, output)
 		return this.next()
 	},
-	sets(coll, i, input, meta, user, output){
+	sets(coll, i, input, meta, useri, output){
 		if (Array.isArray(input)){
-			sets(coll, i, input, meta, user, output)
+			sets(coll, i, input, meta, useri, output)
 		}else{
-			set(coll, i, input, meta, user, output)
+			set(coll, i, input, meta, useri, output)
 		}
 		return this.next()
 	},

@@ -22,7 +22,6 @@ function CRDT(id, name, owner, record){
 
 CRDT.prototype = {
 	setup(data = {}){
-console.log('>>>0', data)
 		this.payload = Automerge.from(data)
 	},
 
@@ -33,14 +32,10 @@ console.log('>>>0', data)
 	},
 
 	update(uint8arr){
-console.log('>>>1', uint8arr)
 		if (!this.validate(uint8arr)) return
-console.log('>>>2')
 		if (!uint8arr.filter(uint8 => ArrayBuffer.isView(uint8))) return
-console.log('>>>3', this.payload)
 		const [payload, changes] = Automerge.applyChanges(this.payload, uint8arr) 
 		this.payload = payload
-console.log('>>>4', payload, changes)
 		return stringify(changes)
 	},
 

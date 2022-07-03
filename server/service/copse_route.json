@@ -4,7 +4,7 @@
 			["@.snode.findOrg", "_.org.ref", "_.orgSNode"],
 			["db.get", "$.db.user", "_.orgSNode.cby", "_.orgUser"],
 			["@.copse.branchOrg", "_.org", "_.orgSNode", "_.orgUser", "_.output"],
-			["@.snode.findByIdAndUser", "_.org.id", "_.orgUser.i", "_.snode"],
+			["@.snode.findOneByIdAndUser", "_.org.id", "_.orgUser.i", "_.snode"],
 			["@.copse.branchOrg", "_.org", "_.snode", "_.orgUser", "_.output"]
 		],
 		"copse/join": [

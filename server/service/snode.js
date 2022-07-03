@@ -12,25 +12,12 @@ return {
 		Object.assign(output, record)
 		return this.next()
 	},
-	/**
-	 * if org present, ignore the given id, use the oldest creator id
-	 */
-	async hasRef(method, id, input, record, output){
-		const ref = pObj.dot(record, ['d', 1, 'org'], input.ref)
-		if (!ref) {
-			Object.assign(output, record)
-			return this.next()
-		}
-		Object.assign(this.data, {org: {id, ref}})
-		await this.next(null, `${method}/copse/ref`)
-		return this.next()
-	},
 
-	findOrg(ref, output){
+	findOrg(org, output){
 		const qs = []
 		qs.push({
 			index: ['d', 1, 'org'],
-			csv: [ref]
+			csv: [org]
 		},{
 			index: ['s'],
 			csv: [1]
@@ -40,7 +27,7 @@ return {
 		return this.next()
 	},
 
-	findByIdAndUser(id, cby, output){
+	findOneByIdAndUser(id, cby, output){
 		const qs = []
 		qs.push({
 			index: ['d', 0],
@@ -55,6 +42,30 @@ return {
 		const snode = this.db.snode.select(qs).pop()
 		Object.assign(output, snode)
 		return this.next()
+	},
+
+	/**
+	 * if org present, ignore the given id, use the oldest creator id
+	 */
+	async detourIfHasOrg(method, id, input, record, output){
+		const ref = pObj.dot(record, ['d', 1, 'org'], input.ref)
+		if (!ref) {
+			Object.assign(output, record)
+			return this.next()
+		}
+		Object.assign(this.data, {org: {id, ref}})
+		await this.next(null, `${method}/copse/ref`)
+		return this.next()
+	},
+
+	/**
+	 * if org present, replace snode, else save snode
+	 */
+	branchByOrg(org){
+		if (!org.i) {
+			return this.next(null, 'save/snode')
+		}
+		this.next(null, 'replace/snode')
 	},
 
 	bodyParser(body, output){

@@ -69,30 +69,7 @@ function CRDT(host, ref, key, net, seed){
 		unroll(seed) || // from config/seed
 		(host.host instanceof Sapling ? [key, {name: 'root'}, []] : [key, {name: '/untitled'}]) // from default
 	this.feEdge = Automerge.from(node2Doc(node))
-	ref = this.feEdge.data.org || ref
-
-	const params = ref ? {ref} : null
-	/*
-	 * same request with - without ref, server side may have ref/org update
-	 * if with ref (either client or server) actual node data will be sending to serverPush 
-	 */
-	this.net.request('GET', `/1.0/snode/key/${key}`, params, null, (err, xhr) => {
-		if (err) return console.error(err)
-		if (!xhr) return console.error(`snode key[${key}] not found`)
-
-		// if body.d exists, not shared node is return, or else shared node is return from sse
-		node = pObj.dot(xhr, ['body', 'd'])
-		if (node){
-			if (!Array.isArray(node) || !node[0]) return
-			const [rem, add] = pArr.diff(this.child(), node[2])
-			this.beEdge = Automerge.from(node2Doc(node))
-			this.feEdge = Automerge.clone(this.beEdge)
-			set(this)
-			host.resetChilds(ref, rem, add)
-		}else{
-			this.online = pObj.dot(xhr, ['body', 'online'], this.online)
-		}
-	})
+	this.refresh(this.feEdge.data.org || ref)
 }
 
 CRDT.UPDATE = 'upd'
@@ -181,10 +158,49 @@ console.log('>>>2', m.data, changes)
 			})
 		}
 	},
+	refresh(ref){
+		const params = ref ? {ref} : null
+		/*
+		 * same request with - without ref, server side may have ref/org update
+		 * if with ref (either client or server) actual node data will be sending to serverPush 
+		 */
+		this.net.request('GET', `/1.0/snode/key/${this.key}`, params, null, (err, xhr) => {
+			if (err) return console.error(err)
+			if (!xhr) return console.error(`snode key[${this.key}] not found`)
+
+			// if body.d exists, not shared node is return, or else shared node is return from sse
+			const node = pObj.dot(xhr, ['body', 'd'])
+			if (node){
+				if (!Array.isArray(node) || !node[0]) return
+				const [rem, add] = pArr.diff(this.child(), node[2])
+				this.beEdge = Automerge.from(node2Doc(node))
+				this.feEdge = Automerge.clone(this.beEdge)
+				set(this)
+				this.host.resetChilds(ref, rem, add)
+			}else{
+				this.online = pObj.dot(xhr, ['body', 'online'], this.online)
+			}
+		})
+	},
 	/*
 	 * Handle org update differently
 	 */
 	updateData(data){
+		// if org exist and changed, do a get and skip save
+		if (data.org !== this.feEdge.data.org){
+			if (!data.org){
+				this.net.request('DELTE', `/1.0/snode/key/${this.key}/org/${this.feEdge.data.org}`, params, null, (err, xhr) => {
+				}
+			}if else (!this.feEdge.data.org){
+				this.net.request('POST', `/1.0/snode/key/${this.key}/org/${data.org}`, params, null, (err, xhr) => {
+				}
+			}else{
+				this.net.request('PUT', `/1.0/snode/key/${this.key}/org/${this.feEdge.data.org}`, params, {org: data.org}, (err, xhr) => {
+				}
+			}
+			this.refresh(data.org)
+			return false
+		}
 		this.feEdge = Automerge.change(this.feEdge, doc => {
 			pObj.extend(doc.data, data)
 		})

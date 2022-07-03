@@ -9,6 +9,28 @@
 				}
 			}
 		},
+		"params_org": {
+			"type": "object",
+			"spec": {
+				"org": {
+					"type": "string",
+					"required": 1
+				}
+			}
+		},
+		"params_key_org": {
+			"type": "object",
+			"spec": {
+				"key": {
+					"type": "string",
+					"required": 1
+				},
+				"org": {
+					"type": "string",
+					"required": 1
+				}
+			}
+		},
 		"query_ref": {
 			"type": "object",
 			"spec": {
