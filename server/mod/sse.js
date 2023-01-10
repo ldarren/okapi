@@ -13,7 +13,7 @@ function pack(evt, data){
 function connect(req, res, id){
 	res.writeHead(200, HEADERS)
 
-	res.write(pack('start', id))
+	res.write(pack('connected', id))
 
 	clients[id] = res
 
@@ -27,26 +27,26 @@ module.exports = {
 	setup(host, cfg, rsc, paths){
 	},
 
-	connect(req, res, user){
-		connect(req, res, user.i)
+	connect(req, res, id){
+		connect(req, res, id)
 		return this.next()
 	},
 
-	find(user){
-		const c = clients[user.i]
+	find(id){
+		const c = clients[id]
 		if (!c) return this.next('not found')
 		return this.next()
 	},
 
-	send(user, data){
-		const c = clients[user.i]
+	send(evt, id, data){
+		const c = clients[id]
 		if (!c) return this.next()
-		c.write(pack('msg', data))
+		c.write(pack(evt, data))
 		return this.next()
 	},
 
-	sendAll(data){
-		Object.keys(clients).forEach(id => clients[id].write(pack('msg', data)))
+	sendAll(evt, data){
+		Object.keys(clients).forEach(id => clients[id].write(pack(evt, data)))
 		return this.next()
 	},
 }

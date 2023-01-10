@@ -1,20 +1,25 @@
 {
 	"env": {
-		"es6": true,
+		"es2020": true,
 		"commonjs": true,
 		"node": true,
 		"browser": true
 	},
 	"extends": "eslint:recommended",
 	"parserOptions": {
-		"ecmaVersion": 2018
+		"ecmaVersion": 2020,
+		"ecmaFeatures": {
+			"globalReturn": true
+		}
 	},
 	"globals": {
 		"inherit": false,
 		"__": true,
 		"pico": true,
 		"window": true,
-		"document": true
+		"RandExp": true,
+		"document": true,
+		"Automerge": true
 	},
 	"rules": {
 		"brace-style": "error",

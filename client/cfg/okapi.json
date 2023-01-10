@@ -1,45 +1,49 @@
 [
 	["Sapling", "type", "ext/Sapling", [
-		"data", 1
+		1, "net"
 	]],
-    ["models", "type", "ext/Collection", [
-        "data", 1, "options"
-    ]],
+	["models", "type", "ext/Collection", [
+		"data", 1, "options"
+	]],
+	["SSE", "type", "p/SSE", [
+		"cfg", "env", "params", "events", "autoconnect"
+	]],
 	["p/View", "view", [
 		["options", "map", {"el": "body"}],
-		["tree", "Sapling", [
-			["data","list",["root", {"name":"root"},[
-				["blu", {"name":"blu"}, [
-					["api1", {"name":"api1"}],
-					["api2", {"name":"api2"}],
-					["3rd", {"name":"3rd"}, [
-						["api3", {"name":"api3"}],
-						["api4", {"name":"api4"}]
-					]]
-				]],
-				["Circles.Life", {"name":"Circles.Life"}, [
-					["api5", {"name":"api5"}],
-					["api6", {"name":"api6"}],
-					["4th", {"name":"4th"}, [
-						["api7", {"name":"api7"}],
-						["api8", {"name":"api8"}]
-					]]
-				]]
-			]]]
-		]],
-		["settings", "models", [
-		]],
-		["requests", "models", [
-		]],
+		["be_sse", "ref", "be_sse"],
+		["be", "ref", "be"],
 		["fe", "ref", "fe"],
+		["users", "models", [
+			["options", "map", {
+				"idAttr": "i"
+			}],
+			["env", "ref", "be"]
+		], "users"],
+		["sse", "SSE", [
+			["env", "ref", "be_sse"],
+			["cfg", "map", {
+				"path":"/1.0/sse",
+				"withCredentials":false
+			}],
+			["params", "map", {
+				"key": "Basic Mzox"
+			}],
+			["events", "list", ["start", "msg"]],
+			["autoconnect", "bool", true]
+		]],
+		["sapling", "Sapling", [
+			["net", "ref", "users"],
+			["sse", "ref", "sse"]
+		], "sync"],
 		["p/View", "view", [
 			["options", "map", {"el": "section"}],
 			["fe", "ref", "fe"],
-			["tree", "ref", "tree"],
+			["be", "ref", "be"],
+			["sapling", "ref", "sapling"],
 			["p/View", "view", [
 				["options", "map", {"el": "nav"}],
-				["tree", "ref", "tree"],
-				["models", "refs", "models"],
+				["sapling", "ref", "sapling"],
+				["be", "ref", "be"],
 				["menu", "view", [
 					["options", "map", {"tag":"menu", "class": "toolbar flex-row p-xxs" }],
 					["tpl", "file", "menu.asp"],
@@ -50,23 +54,23 @@
 						{"id":"dir", "name":"&#9880;"}
 					]]
 				]],
-				["tree", "view", [
+				["Tree", "view", [
 					["options", "map", {"tag":"ul", "class":"tree"}],
-					["css", "file", "tree.css"],
+					["css", "file", "Tree.css"],
 					["css", "file", "dnd.css"],
-					["tree", "ref", "tree"],
-					["models", "refs", "models"],
-					["node", "view", [
-						["tplNode", "file", "node.asp"],
-						["tplLeaf", "file", "leaf.asp"]
+					["sapling", "ref", "sapling"],
+					["be", "ref", "be"],
+					["Node", "view", [
+						["tplNode", "file", "Node.asp"],
+						["tplLeaf", "file", "Leaf.asp"],
+						["env", "ref", "be"]
 					]]
 				]]
 			]],
 			["main", "view", [
 				["options", "map", {"el": "main"}],
 				["fe", "ref", "fe"],
-				["tree", "ref", "tree"],
-				["models", "refs", "models"],
+				["sapling", "ref", "sapling"],
 				["pages", "map", {
 					"void": ["p/View", "view", [
 						["options", "map", {"tag":"p", "content":"VOID"}]
@@ -75,16 +79,13 @@
 						["options", "map", {"tag":"form", "class":"apiform"}],
 						["tpl", "file", "Group.asp"],
 						["css", "file", "Page.css"],
-						["snode", "model", "tree", "id"],
-						["setting", "model", "settings", "id"]
+						["snode", "model", "sapling", "id"]
 					]],
 					"page": ["Page", "view", [
 						["options", "map", {"tag":"form", "class":"apiform"}],
 						["tpl", "file", "Page.asp"],
 						["css", "file", "Page.css"],
-						["snode", "model", "tree", "id"],
-						["settings", "ref", "settings"],
-						["request", "model", "requests", "id"]
+						["snode", "model", "sapling", "id"]
 					]]
 				}],
 				["routes", "map", {

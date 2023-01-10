@@ -1,108 +1,110 @@
 {
-    "spec": {
-        "grouping": [["index", "csv"], ["range", "start", "end"]],
-        "params": {
-            "type": "object",
+	"spec": {
+		"grouping": [["index", "csv"], ["range", "start", "end"]],
+		"params": {
+			"type": "object",
 			"required": 1,
-            "spec": {
-                "rsc": "string",
-                "i": "number"
-            }
-        },
-        "params_id": {
-            "type": "object",
+			"spec": {
+				"rsc": "string",
+				"i": "number"
+			}
+		},
+		"params_id": {
+			"type": "object",
 			"required": 1,
-            "spec": {
+			"spec": {
 				"id": {
 					"type": "string",
 					"required": 1
 				}
-            }
-        },
-        "query": {
-            "type": "object",
-            "required": 1,
-            "spec": {
-                "page": "number",
-                "size": "number",
-                "sort": "string",
-                "q": "string",
-                "group": {
-                    "type": "array",
-                    "sep": "~",
-                    "spec": {
-                        "type": "object",
-                        "spec": {
-                            "include": {
-                                "type": "array"
-                            },
-                            "range": "string",
-                            "start": {
-                                "type": "null",
-                                "required": ["bool", ["range"]]
-                            },
-                            "end": {
-                                "type": "null",
-                                "required": ["bool", ["range"]]
-                            },
-                            "index": "string",
-                            "csv": {
-                                "type": "array",
-                                "sep": "~",
-                                "required": ["bool", ["index"]]
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
+			}
+		},
+		"query": {
+			"type": "object",
+			"required": 1,
+			"spec": {
+				"page": "number",
+				"size": "number",
+				"sort": "string",
+				"q": "string",
+				"group": {
+					"type": "array",
+					"sep": "~",
+					"spec": {
+						"type": "object",
+						"spec": {
+							"include": {
+								"type": "array"
+							},
+							"range": "string",
+							"start": {
+								"type": "null",
+								"required": ["bool", ["range"]]
+							},
+							"end": {
+								"type": "null",
+								"required": ["bool", ["range"]]
+							},
+							"index": "string",
+							"csv": {
+								"type": "array",
+								"sep": "~",
+								"required": ["bool", ["index"]]
+							}
+						}
+					}
+				}
+			}
+		}
+	},
 	"routes": {
 		"ERR": [
-            [["web.output", "text/plain", "text"], "_.res", "error"],
+			[["web.output", "text/plain", "text"], "_.res", "error"],
 			["util.log", "_.req.method", "_.req.url", "404"]
-        ],
-        "POST/rsc": [
-            ["web.bodyParser", "_.req", "_.input"],
-            ["util.input2", "_.input", "_.rs.schema", "_.valid"],
-            ["db.set", "_.db.coll", null, "_.valid", null, "_.out"],
-            ["db.get", "_.db.coll", "_.out.i", "_.output"],
-            ["util.push", "_.:output", "_.output"]
-        ],
-        "GET/rsc": [
-            ["util.group", "_.url.query", "@.spec.grouping", "_.query"],
-            ["util.input2", "_.query", "@.spec.query","_.meta"],
-            ["db.find", "_.db.coll", "_.meta", "_.:output"]
-        ],
-        "PUT/rsc/i": [
-            ["web.bodyParser", "_.req", "_.input"],
-            ["db.get", "_.db.coll", "_.params.i", "_.origin"],
-            ["util.push", "_.:array", "_.origin.d", "_.input"],
-            [["util.lib", "pico/obj", "extends"], "_.updated", "_.:array"],
-            ["util.input2", "_.updated", "_.rs.schema", "_.valid"],
-            ["db.set", "_.db.coll", "_.params.i", "_.valid", null, "_.out"],
-            ["db.get", "_.db.coll", "_.out.i", "_.output"]
-        ],
-        "GET/rsc/i": [
-            ["db.get", "_.db.coll", "_.params.i", "_.output"]
-        ],
-        "DELETE/rsc/i": [
-            ["db.hide", "_.db.coll", "_.params.i"],
-            ["db.get", "_.db.coll", "_.params.i", "_.output"]
-        ],
-        "/1.0/ping": [
-            [["web.output", "text/plain", "text"], "_.res", "hello"],
-            ["util.wait", 5]
-        ],
-        "/1.0/:rsc": [
-            [["web.output"], "_.res", "_.:output", "_.meta"],
+		],
+		"POST/rsc": [
+			["web.bodyParser", "_.req", "_.input"],
+			["util.inputNoCurry", "_.input", "_.rs.schema", "_.valid"],
+			["db.set", "_.db.coll", null, "_.valid", null, "_.user.i", "_.out"],
+			["db.get", "_.db.coll", "_.out.i", "_.output"],
+			["util.push", "_.:output", "_.output"]
+		],
+		"GET/rsc": [
+			["util.group", "_.url.query", "@.spec.grouping", "_.query"],
+			["util.inputNoCurry", "_.query", "@.spec.query","_.meta"],
+			["db.find", "_.db.coll", "_.meta", "_.:output"]
+		],
+		"PUT/rsc/i": [
+			["web.bodyParser", "_.req", "_.input"],
+			["db.get", "_.db.coll", "_.params.i", "_.origin"],
+			["util.push", "_.:array", "_.origin.d", "_.input"],
+			[["util.lib", "pico/obj", "extends"], "_.updated", "_.:array"],
+			["util.inputNoCurry", "_.updated", "_.rs.schema", "_.valid"],
+			["db.set", "_.db.coll", "_.params.i", "_.valid", null, "_.user.i", "_.out"],
+			["db.get", "_.db.coll", "_.out.i", "_.output"]
+		],
+		"GET/rsc/i": [
+			["db.get", "_.db.coll", "_.params.i", "_.output"]
+		],
+		"DELETE/rsc/i": [
+			["db.hide", "_.db.coll", "_.params.i"],
+			["db.get", "_.db.coll", "_.params.i", "_.output"]
+		],
+		"/1.0/ping": [
+			[["web.output", "text/plain", "text"], "_.res", "hello"],
+			["util.wait", 5]
+		],
+		"/1.0/:rsc": [
+			[["web.output"], "_.res", "_.:output", "_.meta"],
+			["auth.verify", "_.req", "_.user"],
 			[["util.input", "@.spec.params"], "$.params", "_.params"],
-            [["util.router", "@.rsc"], "_.req.method", "_.params"]
-        ],
-        "/1.0/:rsc/:i": [
-            [["web.output"], "_.res", "_.output", "_.meta"],
+			[["util.routerByRSC", "@.rsc"], "_.req.method", "_.params"]
+		],
+		"/1.0/:rsc/:i": [
+			[["web.output"], "_.res", "_.output", "_.meta"],
+			["auth.verify", "_.req", "_.user"],
 			[["util.input", "@.spec.params"], "$.params", "_.params"],
-            [["util.router", "@.rsc"], "_.req.method", "_.params"]
+			[["util.routerByRSC", "@.rsc"], "_.req.method", "_.params"]
 		]
 	}
-} 
+}

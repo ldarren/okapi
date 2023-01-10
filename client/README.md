@@ -16,3 +16,9 @@
 - npm ci
 - npm run build
 - cp dist/\* to {okapi/client}/lib
+
+### Startup
+- load or create a new user (sync to server)
+- load okapi app's default data (from server)
+- load default data on client, but lazy load innernode with reference
+- 

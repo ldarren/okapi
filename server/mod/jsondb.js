@@ -107,31 +107,35 @@ Collection.prototype = {
 	save(){
 		fs.writeFileSync(this.fname, JSON.stringify(this.documents))
 	},
-	select(q){
-		const docs = this.documents
-		if (!Array.isArray(q.csv)) return docs.slice()
-		return q.csv.map(i => docs.find(item => i === item.i)).filter(item => item)
+	select(qs){
+		let out = this.documents.slice()
+		if (!Array.isArray(qs)) return out
+		for (let i = 0, q; (q = qs[i]); i++){
+			out = out.filter(item => q.csv.includes(pObj.dot(item, q.index)))
+		}
+		return out
 	},
-	insert(input, meta){
+	insert(input, meta, useri){
 		const d = 'array' === this.schema.type ? [] : {}
 		let res = pObj.validate(this.schema, input, d)
-		if (res) throw `invalid parameter: ${res}`
+		if (res) throw `invalid parameter: ${res} in spec: ${JSON.stringify(this.schema)}. input: ${JSON.stringify(input)}`
 
 		const raw = Object.assign({
 			i: this.index++,
 			s: 1,
-			cby: 0,
+			cby: (useri || 0),
 			cat: new Date
 		}, map(d, this.map), meta)
 		const m = {}
 		if (this.meta.type){
 			res = pObj.validate(this.meta, raw, m)
-			if (res) throw `invalid meta: ${this.meta}, ${res}`
+			if (res) throw `invalid meta: ${JSON.stringify(this.meta)}, ${res}`
 		}
 
 		this.documents.push(row(d, m))
 		this.save()
 
+		// TODO: should be replace by real queue or cron
 		request(this.host, this.route.insert, d)
 
 		return m
@@ -148,21 +152,21 @@ Collection.prototype = {
 		this.save()
 		return output
 	},
-	push(input, meta){
-		this.insert(input, meta)
+	push(input, meta, useri){
+		this.insert(input, meta, useri)
 	},
-	update(i, d, meta){
+	update(i, d, meta, useri){
 		const doc = this.documents.find(item => i === item.i)
 		if (!doc) return
 
-		const raw = Object.assign({
-			uby: 0,
+		const raw = Object.assign(doc, {
+			uby: useri || 0,
 			uat: new Date
 		}, map(d, this.map), meta)
 		const m = {}
 		if (this.meta.type){
 			const res = pObj.validate(this.meta, raw, m)
-			if (res) throw `invalid meta: ${this.meta}, ${res}`
+			if (res) throw `invalid meta: ${JSON.stringify(this.meta)}, ${res}`
 		}
 
 		Object.assign(doc, row(d, m))
@@ -193,16 +197,17 @@ Collection.prototype = {
  * @param {string} i - identity of the record, can be string or number
  * @param {object} input - record to be set
  * @param {object} meta - meta object of data
+ * @param {object} useri - creator or updater index
  * @param {object} output - result of the set
  *
  * @returns {void} - undefined
  */
-function set(coll, i, input, meta, output){
+function set(coll, i, input, meta, useri, output){
 	if (i){
-		coll.update(i, input, meta)
+		coll.update(i, input, meta, useri)
 		Object.assign(output, {i})
 	}else{
-		const res = coll.insert(input, meta)
+		const res = coll.insert(input, meta, useri)
 		Object.assign(output, res)
 	}
 }
@@ -214,19 +219,20 @@ function set(coll, i, input, meta, output){
  * @param {Array} is - array of identity of the record, can be string or number
  * @param {Array} inputs - records to be set
  * @param {Array} metas - meta data of recards
+ * @param {Array} useri - creator or updater
  * @param {Array} outputs - results of the sets
  *
  * @returns {void} - undefined
  */
-function sets(coll, is, inputs, metas, outputs){
+function sets(coll, is, inputs, metas, useri, outputs){
 	if (is){
 		is.forEach((i, ix) => {
-			coll.update(i, inputs[ix], metas[ix])
+			coll.update(i, inputs[ix], metas[ix], useri)
 			outputs.push({i})
 		})
 	}else{
 		inputs.forEach((input, ix) => {
-			const res = coll.insert(input, metas[ix])
+			const res = coll.insert(input, metas[ix], useri)
 			outputs.push(res)
 		})
 	}
@@ -244,20 +250,20 @@ module.exports = {
 			return acc
 		}, {})
 	},
-	set(coll, id, input, meta, output){
-		set(coll, id, input, meta, output)
+	set(coll, i, input, meta, useri, output){
+		set(coll, i, input, meta, useri, output)
 		return this.next()
 	},
-	sets(coll, id, input, meta, output){
+	sets(coll, i, input, meta, useri, output){
 		if (Array.isArray(input)){
-			sets(coll, id, input, meta, output)
+			sets(coll, i, input, meta, useri, output)
 		}else{
-			set(coll, id, input, meta, output)
+			set(coll, i, input, meta, useri, output)
 		}
 		return this.next()
 	},
 	get(coll, i, output){
-		const res = coll.select({index: 'i', csv: [i]})
+		const res = coll.select([{index: ['i'], csv: [i]}])
 		Object.assign(output, res[0])
 		return this.next()
 	},

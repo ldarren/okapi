@@ -1,0 +1,91 @@
+{
+	"routes":{
+		"GET/snode/key": [
+			["web.queryParser", "_.req", "_.qs"],
+			[["util.input", "@.spec.query_ref"], "_.qs", "_.input"],
+			["@.snode.findOneById", "_.params.key", "_.record"],
+			["@.snode.detourIfHasOrg", "_.req.method", "_.params.key", "_.input", "_.record", "_.output"]
+		],
+		"PUT/snode/key": [
+			["web.bodyParser", "_.req", "_.:body"],
+            [["util.input", "@.spec.snode"], "_.:body", "_.:input"],
+            ["db.get", "$.db.user", "_.user.i", "_.user"],
+			["@.snode.findOneById", "_.params.key", "_.record"],
+			["db.set", "$.db.snode", "_.record.i", "_.:body", {}, "_.user.i", "_.output"]
+		],
+		"PATCH/snode/key": [
+			["web.bodyParser", "_.req", "_.:body"],
+            ["db.get", "$.db.user", "_.user.i", "_.user"],
+			["@.snode.findOneById", "_.params.key", "_.record"],
+			["@.copse.fRecord2CRDT", "_.record", "_.data"],
+            ["crdt.join", "$.crdt", "_.params", "_.user", "_.data", "_.output"],
+			["@.snode.bodyParser", "_.:body", "_.:uint8"],
+            ["crdt.update", "_.params.key", "_.:uint8", "_.base64"],
+			["crdt.sendAll", "$.db.queue", "_.params.key", "part", "_.user", "_.output", "_.base64.payload"],
+			["crdt.payload", "_.params.key", "_.:updated"],
+			["db.set", "$.db.snode", "_.record.i", "_.:updated", {}, "_.user.i", "_.output"]
+		],
+		"join/copse": [
+			["@.copse.fRecord2CRDT", "_.record", "_.data"],
+            ["crdt.join", "$.crdt", "_.params", "_.user", "_.data", "_.output"],
+			["@.snode.bodyParser", "_.:body", "_.:uint8"],
+            ["crdt.update", "_.params.key", "_.:uint8", "_.base64"],
+			["crdt.sendAll", "$.db.queue", "_.params.key", "part", "_.user", "_.output", "_.base64.payload"],
+			["crdt.payload", "_.params.key", "_.:updated"]
+		],
+		"save/snode": [
+			["web.bodyParser", "_.req", "_.:body"],
+            [["util.input", "@.spec.snode"], "_.:body", "_.:input"],
+			["@.snode.findOneByIdAndUser", "_.params.key", "_.user", "_.snode"],
+			["db.set", "$.db.snode", "_.snode.i", "_.:input", {}, "_.user.i", "_.output"],
+			["@.snode.detourIfHasOrg", "_.req.method", "_.params.key", "_.input", "_.snode", {}]
+		],
+		"replace/snode": [
+			["util.log","find org snode"],
+			["util.log","join copse"],
+			["util.log","replace data and child from org snode"]
+		],
+		"ADD/snode/org": [
+			["@.snode.findOrg", "_.params.org", "_.org"],
+			["@.snode.branchByOrg", "_.org"]
+		],
+		"REMOVE/snode/org": [
+			["util.log","disjoin copse"]
+		],
+		"REMOVE/snode/key": [
+			["util.log","remove child recursively"]
+		],
+		"GET/snode/org": [
+			["@.snode.findOrg", "_.params.org", "_.output"]
+		],
+		"POST/snode/key/org": [
+			["util.detour", "ADD/snode/org"],
+			["util.detour", "REMOVE/snode/key"]
+		],
+		"PUT/snode/key/org": [
+			["util.detour", "ADD/snode/org"],
+			["util.detour", "REMOVE/snode/org"]
+		],
+		"DELETE/snode/key/org": [
+			["util.detour", "REMOVE/snode/org"]
+		],
+        "/1.0/snode/key/:key": [
+            [["web.output"], "_.res", "_.output", "_.params"],
+			["auth.verify", "_.req", "_.user"],
+			[["util.input", "@.spec.params_key"], "$.params", "_.params"],
+            [["util.router", "key", "snode", "/key"], "_.req.method", "_.params"]
+		],
+        "/1.0/snode/org/:org": [
+            [["web.output"], "_.res", "_.output", "_.params"],
+			["auth.verify", "_.req", "_.user"],
+			[["util.input", "@.spec.params_org"], "$.params", "_.params"],
+            [["util.router", "org", "snode", "/org"], "_.req.method", "_.params"]
+		],
+        "/1.0/snode/key/:key/org/:org": [
+            [["web.output"], "_.res", "_.output", "_.params"],
+			["auth.verify", "_.req", "_.user"],
+			[["util.input", "@.spec.params_key_org"], "$.params", "_.params"],
+            [["util.router", "key", "snode", "/key/org"], "_.req.method", "_.params"]
+		]
+	}
+}

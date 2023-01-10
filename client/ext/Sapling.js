@@ -1,57 +1,36 @@
 const Callback=require('po/Callback')
 const SNode=require('ext/SNode')
-const storage=window.localStorage
 
-const getKey = name => ('sapling:' + name)
-
-function get(ctx){
-	if (!ctx.name) return
-	const key = getKey(ctx.name)
-	let obj
-	try{
-		const json=storage.getItem(key)
-		if (!json) return
-		obj = JSON.parse(json)
-	}catch(ex){
-		storage.removeItem(key)
-	}
-	return obj
+function onChange(type, subtype, snode, changes){
+	if ('CRDT' !== subtype) return
+	snode.crdt.save(changes)
 }
 
-function set(ctx){
-	if (!ctx.name || !ctx.root) return
-	const key = getKey(ctx.name)
-	storage.setItem(key, JSON.stringify(ctx.root.join()))
-}
-
-function onChange(type, ...args){
-	switch(type){
-	case SNode.CHANGE:
-		set(this)
-		break
-	}
-}
-
-function Sapling(seed, name, opt){
-	opt = opt || {}
+function Sapling(name, net){
 	this.name = name
 	this.callback = new Callback
+
+	this.init.apply(this, Array.prototype.slice.call(arguments, 2))
 	this.callback.on(SNode.CHANGE, onChange, this)
 
-	this.init.apply(this, Array.prototype.slice.call(arguments, 3))
-
-	const cache = get(this)
-	this.root = new SNode(this, cache || seed)
-	set(this)
+	this.ready()
 }
 
+Sapling.ADD = 'add'
+Sapling.DELETE = 'del'
+
 Sapling.prototype={
-	// to be overriden
-	init(spec){},
-	fini(){},
+	// to be overriden. e.g. mod/sync.js
+	init(spec){
+		this.root = new SNode('root:0', this, spec.net)
+		this.callback.trigger(Sapling.ADD, this.root)
+	},
+	fini(){
+	},
+	ready(){},
 
 	get(id){
-		return this.root.findById(id)	
+		return this.root.findById(id)
 	},
 	insert(path, node, index, tree = this.root){
 		const host = tree.find(path)

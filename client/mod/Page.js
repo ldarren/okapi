@@ -5,10 +5,9 @@
  * https://github.com/antonmedv/codejar
  */
 const {
-    EditorView,
-    EditorState,
+	EditorView,
+	EditorState,
 	basicSetup,
-    liteSetup,
 } = window.cm
 
 function char2Ele(ele, from, count){
@@ -21,7 +20,7 @@ function char2Ele(ele, from, count){
 			if (from >= 0) continue
 		}
 		if (!count) break
-		// offset the chars before "from"
+		// offset the chars before 'from'
 		count += (start.length + (from ? from : -start.length))
 		for (countAt = fromAt; countAt < l; countAt++){
 			end = ele.get(countAt)
@@ -63,7 +62,7 @@ function index2At(text, index, deleteCount, insertText){
 
 function at2Index(text, at){
 	let index = 0
-	for (val of text) {
+	for (let val of text) {
 		if (!at) break
 		index += val.length
 		at--
@@ -73,7 +72,7 @@ function at2Index(text, at){
 
 function count2Char(text, at, count){
 	let chr = 0
-	for (val of text) {
+	for (let val of text) {
 		if (!count) break
 		if (at) at--
 		else {
@@ -88,14 +87,14 @@ function form2Obj(form){
 	const obj = {}
 	for(let i = 0, l = form.length, input; i < l; i++){
 		input = form[i]
+		if (!input.name) continue
 		obj[input.name] = input.value
-		console.log(input.name, input.value)
 	}
 	const arr = []
 	if (obj.h1) arr.push(obj.h1)
 	if (obj.h2){
-		if (obj.r1 >= obj.r2) arr.push(obj.h2)	
-		else arr.unshift(obj.h2)	
+		if (obj.r1 >= obj.r2) arr.push(obj.h2)
+		else arr.unshift(obj.h2)
 	}
 	obj.headers = arr
 	return obj
@@ -162,17 +161,14 @@ return {
 	deps: {
 		tpl: 'file',
 		snode: 'snode',
-		settings: 'models',
-		request: 'model',
 	},
 	create(deps, params){
-		this.el.innerHTML=deps.tpl(deps.request)
+		this.el.innerHTML=deps.tpl(deps.snode.data())
 
 		this.view = new EditorView({
 			state: EditorState.create({
-				doc: this.deps.request.req, //this.merge.req.toString(),
+				doc: '', // this.deps.snode.data, //this.merge.req.toString(),
 				extensions: [
-					//liteSetup,
 					basicSetup,
 					EditorView.updateListener.of(v => {
 						// exclude changes from non-user, non-user event === am
@@ -182,10 +178,11 @@ return {
 					}),
 				]
 			}),
-			parent: this.el.querySelector(`div.editor`)
+			parent: this.el.querySelector('div.editor')
 		})
 
-		deps.snode.sync()
+		// TODO: sync snode
+		//deps.snode.sync()
 		deps.snode.callback.on('update', () => {
 			const [merge] = Automerge.applyChanges(Automerge.init(), state)
 			this.merge = merge
@@ -196,7 +193,7 @@ return {
 		this.super.remove.call(this)
 	},
 	events: {
-		'click input[type=button]': function(e, target){
+		'click input.send': function(e, target){
 			const form = e.target.closest('form')
 			const obj = form2Obj(form)
 
@@ -211,9 +208,14 @@ return {
 				form[form.length - 1].value = xhr
 
 				obj.res = xhr
-				obj.headers = JSON.stringify(obj.headers)
-				Object.assign(this.deps.request, obj)
+				this.deps.snode.update(obj)
 			})
+		},
+		'click input.save': function(e, target){
+			const form = e.target.closest('form')
+			const obj = form2Obj(form)
+
+			this.deps.snode.update(obj)
 		}
 	},
 
@@ -279,18 +281,16 @@ return {
 				const changes = {}
 				index = at2Index(merge2.req, diff.index)
 				switch (diff.action) {
-					case 'insert': {
-						changes.from = index
-						changes.to = index
-						changes.insert = diff.value.value
-						break
-					}
-					case 'remove': {
-						changes.from = index
-						changes.to = index + count2Char(merge.req, diff.index, diff.count)
-						changes.insert = ''
-						break
-					}
+				case 'insert':
+					changes.from = index
+					changes.to = index
+					changes.insert = diff.value.value
+					break
+				case 'remove':
+					changes.from = index
+					changes.to = index + count2Char(merge.req, diff.index, diff.count)
+					changes.insert = ''
+					break
 				}
 				// update codemirror
 				cm.dispatch(cm.state.update({
