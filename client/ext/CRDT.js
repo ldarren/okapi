@@ -189,7 +189,7 @@ console.log('>>>2', m.data, changes)
 		// if org exist and changed, do a get and skip save
 		if (data.org !== this.feEdge.data.org){
 			if (!data.org){
-				this.net.request('DELTE', `/1.0/snode/key/${this.key}/org/${this.feEdge.data.org}`, params, null, (err, xhr) => {
+				this.net.request('DELETE', `/1.0/snode/key/${this.key}/org/${this.feEdge.data.org}`, params, null, (err, xhr) => {
 				}
 			}if else (!this.feEdge.data.org){
 				this.net.request('POST', `/1.0/snode/key/${this.key}/org/${data.org}`, params, null, (err, xhr) => {

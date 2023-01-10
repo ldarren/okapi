@@ -1,5 +1,11 @@
 {
 	"routes":{
+		"GET/snode/key": [
+			["web.queryParser", "_.req", "_.qs"],
+			[["util.input", "@.spec.query_ref"], "_.qs", "_.input"],
+			["@.snode.findOneById", "_.params.key", "_.record"],
+			["@.snode.detourIfHasOrg", "_.req.method", "_.params.key", "_.input", "_.record", "_.output"]
+		],
 		"PUT/snode/key": [
 			["web.bodyParser", "_.req", "_.:body"],
             [["util.input", "@.spec.snode"], "_.:body", "_.:input"],
@@ -18,12 +24,6 @@
 			["crdt.sendAll", "$.db.queue", "_.params.key", "part", "_.user", "_.output", "_.base64.payload"],
 			["crdt.payload", "_.params.key", "_.:updated"],
 			["db.set", "$.db.snode", "_.record.i", "_.:updated", {}, "_.user.i", "_.output"]
-		],
-		"GET/snode/key": [
-			["web.queryParser", "_.req", "_.qs"],
-			[["util.input", "@.spec.query_ref"], "_.qs", "_.input"],
-			["@.snode.findOneById", "_.params.key", "_.record"],
-			["@.snode.detourIfHasOrg", "_.req.method", "_.params.key", "_.input", "_.record", "_.output"]
 		],
 		"join/copse": [
 			["@.copse.fRecord2CRDT", "_.record", "_.data"],

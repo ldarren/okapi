@@ -123,7 +123,7 @@ Collection.prototype = {
 		const raw = Object.assign({
 			i: this.index++,
 			s: 1,
-			cby: useri || 0,
+			cby: (useri || 0),
 			cat: new Date
 		}, map(d, this.map), meta)
 		const m = {}

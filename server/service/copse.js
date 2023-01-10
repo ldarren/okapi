@@ -14,7 +14,7 @@ return {
 		return this.next()
 	},
 
-	async branchOrg(org, snode, member, output){
+	branchOrg(org, snode, member, output){
 		// if same id join room
 		if (pObj.dot(snode, ['d', 0]) === org.id){
 			return this.next(null, 'copse/join', {snode, org, member, output})

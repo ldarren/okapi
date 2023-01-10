@@ -82,7 +82,7 @@ Room.prototype = {
 		}
 		if (3 !== found) return 2
 		msg = msg || this.stringify()
-		q.push({type, sender: senderi, recipient: recipienti, room: this.id, msg}, {}, sender)
+		q.push({type, sender: senderi, recipient: recipienti, room: this.id, msg}, {}, senderi)
 		return 0
 	},
 
